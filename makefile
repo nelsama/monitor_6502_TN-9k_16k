@@ -1,5 +1,10 @@
-# Makefile para 6502 I2C EPROM Test
+# Makefile para 6502 Monitor + SD Card
 # Compila main.c con todas las librerías
+
+# ============================================
+# CONFIGURACIÓN DE CC65 - AJUSTAR SEGÚN TU SISTEMA
+# ============================================
+CC65_HOME = D:\cc65
 
 # ============================================
 # DIRECTORIOS
@@ -24,7 +29,7 @@ PYTHON = py
 # CONFIGURACIÓN
 # ============================================
 CONFIG = $(CONFIG_DIR)/fpga.cfg
-PLATAFORMA = D:\cc65\lib\none.lib
+PLATAFORMA = $(CC65_HOME)\lib\none.lib
 CFLAGS = -t none -O --cpu 6502
 
 # ============================================
