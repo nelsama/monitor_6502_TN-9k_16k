@@ -1,0 +1,30 @@
+# Librerías externas (repos separados)
+libs/
+
+# Archivos compilados intermedios
+build/*.o
+build/*.s
+build/*.map
+
+# Binarios generados (se pueden regenerar con make)
+build/*.bin
+output/*.bin
+output/*.hex
+
+# Mantener el VHDL de salida
+!output/rom.vhd
+
+# Archivos temporales
+*.bak
+*.backup
+*.old
+*.tmp
+
+# Editor
+.vscode/
+*.swp
+*~
+
+# OS
+Thumbs.db
+.DS_Store
