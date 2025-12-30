@@ -208,6 +208,29 @@ Copiar `output/rom.vhd` al proyecto FPGA y sintetizar con Gowin EDA.
 
 Puedes crear programas en **ASM** o **C**, compilarlos y cargarlos vía SD Card.
 
+### Archivo de configuración: programa.cfg
+
+Primero crea este archivo `programa.cfg` que define dónde se cargará el programa en memoria:
+
+```
+# programa.cfg - Configuración para programas cargados en $0200
+MEMORY {
+    RAM: start = $0200, size = $3C00, file = %O;
+}
+SEGMENTS {
+    STARTUP: load = RAM, type = rw;
+    CODE:    load = RAM, type = rw;
+    RODATA:  load = RAM, type = ro;
+    DATA:    load = RAM, type = rw;
+    BSS:     load = RAM, type = bss;
+}
+```
+
+**Explicación:**
+- `start = $0200` → El programa se carga en dirección $0200
+- `size = $3C00` → Espacio disponible (~15KB hasta $3DFF)
+- Los segmentos CODE, DATA, etc. van todos a RAM
+
 ### Programa en Ensamblador
 
 ```asm
@@ -230,6 +253,30 @@ ld65 -C programa.cfg -o EJEMPLO.BIN ejemplo.o
 
 ### Programa en C
 
+Para C necesitas un startup mínimo. Crea `crt0.s`:
+
+```asm
+; crt0.s - Startup mínimo para programas standalone
+.export _init
+.export __STARTUP__ : absolute = 1
+.import _main
+.importzp sp
+
+.segment "STARTUP"
+_init:
+    ; Inicializar stack de CC65
+    lda #<$3DFF
+    sta sp
+    lda #>$3DFF
+    sta sp+1
+    ; Llamar a main
+    jsr _main
+    ; Retornar al monitor
+    rts
+```
+
+Programa ejemplo `ejemplo.c`:
+
 ```c
 // ejemplo.c
 #define LEDS (*(volatile unsigned char*)0xC001)
@@ -242,8 +289,14 @@ void main(void) {
 
 Compilar:
 ```bash
+# Compilar el startup (solo una vez)
+ca65 -t none -o crt0.o crt0.s
+
+# Compilar el programa C
 cc65 -t none -O --cpu 6502 -o ejemplo.s ejemplo.c
 ca65 -t none -o ejemplo.o ejemplo.s
+
+# Linkear todo (crt0 primero)
 ld65 -C programa.cfg -o EJEMPLO.BIN crt0.o ejemplo.o
 ```
 
