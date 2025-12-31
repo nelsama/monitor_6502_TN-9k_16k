@@ -1,4 +1,4 @@
-# Monitor 6502 v2.0 + SD Card - Tang Nano 9K
+# Monitor 6502 v2.0.3 + SD Card - Tang Nano 9K
 
 🚀 **Monitor/Debugger interactivo** para CPU 6502 sobre FPGA Tang Nano 9K via UART con soporte de **SD Card**.
 
@@ -308,6 +308,22 @@ ld65 -C programa.cfg -o EJEMPLO.BIN crt0.o ejemplo.o
 ```
 
 Ver documentación completa en `libs/monitor/README.md`
+
+---
+
+## Changelog
+
+### v2.0.3 (2025-12-31)
+- **Fix:** Corregido bug de corrupción de memoria en microfs al leer archivos >512 bytes
+- **Fix:** Mejorado cálculo de sector en `mfs_read()` y `mfs_write()`
+- **Feature:** Nueva función `mfs_get_size()` en microfs
+- **Feature:** LOAD muestra tamaño del archivo al cargar
+
+### v2.0.0
+- Versión inicial con soporte SD Card
+- Comandos: R, W, D, L, G, F, M, I, S, T, V
+- Comandos SD: SD, LS, SAVE, LOAD, DEL, CAT
+- Ayuda contextual por comando (H cmd)
 
 ---
 

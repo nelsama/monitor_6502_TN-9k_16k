@@ -1,0 +1,85 @@
+Modules list:
+-------------
+runtime.o:
+    ZEROPAGE          Offs=000000  Size=00000B  Align=00001  Fill=0000
+    STARTUP           Offs=000000  Size=000008  Align=00001  Fill=0000
+    RUNTIME           Offs=000000  Size=00028B  Align=00001  Fill=0000
+main.o:
+    CODE              Offs=000000  Size=0001BD  Align=00001  Fill=0000
+
+
+Segment list:
+-------------
+Name                   Start     End    Size  Align
+----------------------------------------------------
+ZEROPAGE              000002  00000C  00000B  00001
+STARTUP               000400  000407  000008  00001
+CODE                  000408  0005C4  0001BD  00001
+RUNTIME               0005C5  00084F  00028B  00001
+
+
+Exports list by name:
+---------------------
+__STARTUP__               000001 REA    aslaxy                    000828 RLA    
+asraxy                    000833 RLA    decax1                    000821 RLA    
+decsp2                    000616 RLA    incsp1                    00066A RLA    
+incsp2                    000671 RLA    incsp3                    00067D RLA    
+ldax0sp                   0006C5 RLA    pusha                     0005C5 RLA    
+pushax                    0005D2 RLA    regsave                   000007 RLZ    
+sp                        000002 RLZ    stax0sp                   0006D7 RLA    
+
+
+
+Exports list by value:
+----------------------
+__STARTUP__               000001 REA    sp                        000002 RLZ    
+regsave                   000007 RLZ    pusha                     0005C5 RLA    
+pushax                    0005D2 RLA    decsp2                    000616 RLA    
+incsp1                    00066A RLA    incsp2                    000671 RLA    
+incsp3                    00067D RLA    ldax0sp                   0006C5 RLA    
+stax0sp                   0006D7 RLA    decax1                    000821 RLA    
+aslaxy                    000828 RLA    asraxy                    000833 RLA    
+
+
+
+Imports list:
+-------------
+__STARTUP__ (runtime.o):
+    main.o                    build/main.s(13)
+aslaxy (runtime.o):
+    main.o                    build/main.s(343)
+asraxy (runtime.o):
+    main.o                    build/main.s(343)
+decax1 (runtime.o):
+    main.o                    build/main.s(343)
+decsp2 (runtime.o):
+    main.o                    build/main.s(343)
+    main.o                    build/main.s(343)
+incsp1 (runtime.o):
+    main.o                    build/main.s(343)
+    main.o                    build/main.s(343)
+    main.o                    build/main.s(343)
+incsp2 (runtime.o):
+    main.o                    build/main.s(343)
+    main.o                    build/main.s(343)
+incsp3 (runtime.o):
+    main.o                    build/main.s(343)
+    main.o                    build/main.s(343)
+ldax0sp (runtime.o):
+    main.o                    build/main.s(343)
+pusha (runtime.o):
+    main.o                    build/main.s(343)
+    main.o                    build/main.s(343)
+    main.o                    build/main.s(343)
+    main.o                    build/main.s(343)
+    main.o                    build/main.s(343)
+    main.o                    build/main.s(343)
+pushax (runtime.o):
+    main.o                    build/main.s(343)
+regsave (runtime.o):
+    main.o                    build/main.s(10)
+sp (runtime.o):
+    main.o                    build/main.s(10)
+stax0sp (runtime.o):
+    main.o                    build/main.s(343)
+
