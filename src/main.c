@@ -16,7 +16,7 @@
  */
 
 #include <stdint.h>
-#include "../libs/uart/uart.h"
+#include "../libs/uart-6502-cc65/uart.h"
 #include "../libs/monitor/monitor.h"
 
 /* Registro de salida de LEDs (6 bits inferiores) */

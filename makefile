@@ -36,7 +36,7 @@ CFLAGS = -t none -O --cpu 6502
 # LIBRERÍAS
 # ============================================
 
-UART_DIR = $(LIB_DIR)/uart
+UART_DIR = $(LIB_DIR)/uart-6502-cc65
 MONITOR_DIR = $(LIB_DIR)/monitor
 SPI_DIR = $(LIB_DIR)/spi-6502-cc65
 SDCARD_DIR = $(LIB_DIR)/sdcard-spi-6502-cc65
@@ -86,10 +86,9 @@ dirs:
 $(MAIN_OBJ): $(SRC_DIR)/main.c
 	$(CL65) -t none $(INCLUDES) -c -o $@ $<
 
-# UART
-$(UART_OBJ): $(UART_DIR)/uart.c
-	$(CC65) $(CFLAGS) -o $(BUILD_DIR)/uart.s $<
-	$(CA65) -t none -o $@ $(BUILD_DIR)/uart.s
+# UART (assembler)
+$(UART_OBJ): $(UART_DIR)/uart.s
+	$(CA65) -t none -o $@ $<
 
 # Monitor
 $(MONITOR_OBJ): $(MONITOR_DIR)/monitor.c
