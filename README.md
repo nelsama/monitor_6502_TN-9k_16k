@@ -1,4 +1,4 @@
-# Monitor 6502 v2.0.3 + SD Card - Tang Nano 9K
+# Monitor 6502 v2.0.4 + SD Card - Tang Nano 9K
 
 🚀 **Monitor/Debugger interactivo** para CPU 6502 sobre FPGA Tang Nano 9K via UART con soporte de **SD Card**.
 
@@ -18,6 +18,7 @@ Permite programar, depurar y ejecutar código en tiempo real a través de una in
 - ✅ Control de 6 LEDs
 - ✅ ROM de 16KB
 - ✅ Compilación con cc65
+- ✅ **Plantilla de programa** en ensamblador incluida (`leds/`)
 
 ---
 
@@ -170,6 +171,11 @@ Cargando MIPROG.BIN en $0200...
 │   ├── spi-6502-cc65/      # Bus SPI
 │   ├── sdcard-spi-6502-cc65/  # Driver SD Card
 │   └── microfs-6502-cc65/  # Sistema de archivos
+├── leds/                   # 📁 PLANTILLA para crear programas
+│   ├── src/main.s          # Ejemplo: Knight Rider
+│   ├── config/programa.cfg # Configuración del linker
+│   ├── makefile            # Compilación
+│   └── README.md           # Documentación
 ├── config/
 │   └── fpga.cfg            # Configuración del linker cc65
 ├── scripts/
@@ -206,114 +212,82 @@ Copiar `output/rom.vhd` al proyecto FPGA y sintetizar con Gowin EDA.
 
 ## Crear Programas para el Monitor
 
-Puedes crear programas en **ASM** o **C**, compilarlos y cargarlos vía SD Card.
+### 🚀 Usar la Plantilla (Recomendado)
 
-### Archivo de configuración: programa.cfg
+La carpeta `leds/` contiene una **plantilla completa** para crear programas en ensamblador:
 
-Primero crea este archivo `programa.cfg` que define dónde se cargará el programa en memoria:
-
-```
-# programa.cfg - Configuración para programas cargados en $0200
-MEMORY {
-    RAM: start = $0200, size = $3C00, file = %O;
-}
-SEGMENTS {
-    STARTUP: load = RAM, type = rw;
-    CODE:    load = RAM, type = rw;
-    RODATA:  load = RAM, type = ro;
-    DATA:    load = RAM, type = rw;
-    BSS:     load = RAM, type = bss;
-}
+```bash
+cd leds
+make        # Compilar
+make info   # Ver tamaño
+make map    # Ver mapa de memoria
 ```
 
-**Explicación:**
-- `start = $0200` → El programa se carga en dirección $0200
-- `size = $3C00` → Espacio disponible (~15KB hasta $3DFF)
-- Los segmentos CODE, DATA, etc. van todos a RAM
+El programa compilado (`output/leds.bin`) se carga en el monitor:
 
-### Programa en Ensamblador
+```
+SD                      ; Inicializar SD
+LOAD LEDS.BIN 0400      ; Cargar programa
+G 0400                  ; Ejecutar
+```
+
+**Para crear tu propio programa:**
+1. Copia la carpeta `leds/` con otro nombre
+2. Edita `src/main.s` con tu código
+3. Compila con `make`
+
+Ver documentación completa en `leds/README.md`
+
+### Mapa de Memoria para Programas
+
+| Rango | Uso |
+|-------|-----|
+| `$0002-$001F` | Zero Page del Monitor (**NO USAR**) |
+| `$0020-$005F` | Zero Page disponible para programas |
+| `$0100-$01FF` | Stack del 6502 (compartido) |
+| `$0400-$3DFF` | **RAM para programas** |
+| `$3E00-$3FFF` | Stack del Monitor |
+| `$C001` | Puerto LEDs (lógica negativa) |
+
+### Programa en Ensamblador (Manual)
 
 ```asm
 ; ejemplo.s
-.segment "CODE"
+.segment "STARTUP"
 
 LEDS = $C001
 
 start:
-    lda #$3F        ; Encender LEDs
+    lda #$00        ; Encender todos (lógica negativa)
     sta LEDS
-    rts             ; Volver al monitor
+loop:
+    jmp loop        ; Loop infinito
 ```
 
 Compilar:
 ```bash
 ca65 -t none -o ejemplo.o ejemplo.s
-ld65 -C programa.cfg -o EJEMPLO.BIN ejemplo.o
-```
-
-### Programa en C
-
-Para C necesitas un startup mínimo. Crea `crt0.s`:
-
-```asm
-; crt0.s - Startup mínimo para programas standalone
-.export _init
-.export __STARTUP__ : absolute = 1
-.import _main
-.importzp sp
-
-.segment "STARTUP"
-_init:
-    ; Inicializar stack de CC65
-    lda #<$3DFF
-    sta sp
-    lda #>$3DFF
-    sta sp+1
-    ; Llamar a main
-    jsr _main
-    ; Retornar al monitor
-    rts
-```
-
-Programa ejemplo `ejemplo.c`:
-
-```c
-// ejemplo.c
-#define LEDS (*(volatile unsigned char*)0xC001)
-
-void main(void) {
-    LEDS = 0x3F;    // Encender LEDs
-    // return vuelve al monitor
-}
-```
-
-Compilar:
-```bash
-# Compilar el startup (solo una vez)
-ca65 -t none -o crt0.o crt0.s
-
-# Compilar el programa C
-cc65 -t none -O --cpu 6502 -o ejemplo.s ejemplo.c
-ca65 -t none -o ejemplo.o ejemplo.s
-
-# Linkear todo (crt0 primero)
-ld65 -C programa.cfg -o EJEMPLO.BIN crt0.o ejemplo.o
+ld65 -C leds/config/programa.cfg -o EJEMPLO.BIN ejemplo.o
 ```
 
 ### Cargar y ejecutar
 ```
 >SD
->LOAD EJEMPLO.BIN 0200
->G 0200
+>LOAD EJEMPLO.BIN 0400
+>G 0400
 ```
-
-Ver documentación completa en `libs/monitor/README.md`
 
 ---
 
 ## Changelog
 
-### v2.0.3 (2025-12-31)
+### v2.0.4 (2025-01-05)
+- **Feature:** Plantilla de programa en ensamblador (`leds/`)
+- **Docs:** Documentación completa para crear programas
+- **Docs:** Mapa de memoria para programas cargados
+- **Fix:** Zero Page de programas movida a $0020 (evita conflicto con monitor)
+
+### v2.0.3 (2024-12-31)
 - **Fix:** Corregido bug de corrupción de memoria en microfs al leer archivos >512 bytes
 - **Fix:** Mejorado cálculo de sector en `mfs_read()` y `mfs_write()`
 - **Feature:** Nueva función `mfs_get_size()` en microfs

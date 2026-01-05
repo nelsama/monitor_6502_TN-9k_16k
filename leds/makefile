@@ -1,12 +1,18 @@
-# Makefile para programa de LEDs - Monitor 6502
-# Tang Nano 9K con cc65
+# ============================================================================
+# Makefile - Plantilla para programas en ensamblador para Monitor 6502
+# ============================================================================
+# Uso:
+#   make        - Compilar el programa
+#   make clean  - Limpiar archivos generados
+#   make info   - Ver tamaño del binario
+#   make map    - Ver mapa de memoria
+# ============================================================================
 
-# Configuración cc65 - Ajustar si es necesario
+# Configuración CC65 - Ajustar ruta si es necesario
 CC65_HOME = D:\cc65
 
 # Herramientas
-CC = $(CC65_HOME)\bin\cc65.exe
-CA = $(CC65_HOME)\bin\ca65.exe
+AS = $(CC65_HOME)\bin\ca65.exe
 LD = $(CC65_HOME)\bin\ld65.exe
 
 # Directorios
@@ -15,68 +21,78 @@ CONFIG_DIR = config
 BUILD_DIR = build
 OUTPUT_DIR = output
 
-# Flags
-CC_FLAGS = -t none -O
-CA_FLAGS = -t none
-LD_FLAGS = -C $(CONFIG_DIR)/programa.cfg
+# Configuración del linker
+LD_CONFIG = $(CONFIG_DIR)\programa.cfg
 
-# Archivos fuente
-C_SOURCES = $(SRC_DIR)/main.c
-ASM_SOURCES = $(SRC_DIR)/runtime.s
+# Nombre del programa
+PROGRAM_NAME = leds
+
+# Archivos de salida
+PROGRAM = $(OUTPUT_DIR)\$(PROGRAM_NAME).bin
+MAP_FILE = $(OUTPUT_DIR)\$(PROGRAM_NAME).map
+
+# Archivos fuente ensamblador
+ASM_SOURCES = $(SRC_DIR)\main.s
 
 # Archivos objeto
-C_OBJECTS = $(BUILD_DIR)/main.o
-ASM_OBJECTS = $(BUILD_DIR)/runtime.o
-ALL_OBJECTS = $(ASM_OBJECTS) $(C_OBJECTS)
+ASM_OBJECTS = $(BUILD_DIR)\main.o
 
-# Programa de salida
-PROGRAM = $(OUTPUT_DIR)/leds.bin
-MAP_FILE = $(OUTPUT_DIR)/leds.map
+# Flags del ensamblador
+AS_FLAGS = -t none
 
-# Regla principal
+# ============================================================================
+# REGLAS PRINCIPALES
+# ============================================================================
+
 all: dirs $(PROGRAM)
+	@echo.
+	@echo ========================================
+	@echo Programa generado: $(PROGRAM)
+	@echo Mapa de memoria:   $(MAP_FILE)
+	@echo ========================================
+	@echo.
+	@echo Para cargar en el monitor:
+	@echo   1. Copiar $(PROGRAM_NAME).bin a la SD
+	@echo   2. En el monitor: LOAD $(PROGRAM_NAME).BIN 0400
+	@echo   3. Ejecutar: G 0400
 
 # Crear directorios
 dirs:
 	@if not exist $(BUILD_DIR) mkdir $(BUILD_DIR)
 	@if not exist $(OUTPUT_DIR) mkdir $(OUTPUT_DIR)
 
-# Compilar C a ensamblador, luego ensamblar
-$(BUILD_DIR)/main.o: $(SRC_DIR)/main.c
-	$(CC) $(CC_FLAGS) -o $(BUILD_DIR)/main.s $<
-	$(CA) $(CA_FLAGS) -o $@ $(BUILD_DIR)/main.s
+# Ensamblar archivo principal
+$(BUILD_DIR)\main.o: $(SRC_DIR)\main.s
+	$(AS) $(AS_FLAGS) -o $@ $<
 
-# Ensamblar runtime
-$(BUILD_DIR)/runtime.o: $(SRC_DIR)/runtime.s
-	$(CA) $(CA_FLAGS) -o $@ $<
+# Enlazar el programa
+$(PROGRAM): $(ASM_OBJECTS)
+	$(LD) -C $(LD_CONFIG) -o $@ -m $(MAP_FILE) $(ASM_OBJECTS)
 
-# Enlazar - IMPORTANTE: runtime.o primero para que STARTUP vaya primero
-$(PROGRAM): $(ALL_OBJECTS)
-	$(LD) $(LD_FLAGS) -o $@ -m $(MAP_FILE) $(ASM_OBJECTS) $(C_OBJECTS)
-	@echo.
-	@echo ========================================
-	@echo Programa generado: $(PROGRAM)
-	@echo Mapa de memoria: $(MAP_FILE)
-	@echo ========================================
-	@echo.
-	@echo Para cargar en el monitor:
-	@echo   1. Copiar leds.bin a la SD
-	@echo   2. En el monitor: LOAD LEDS.BIN
-	@echo   3. Ejecutar: G 0400
-	@echo.
+# ============================================================================
+# LIMPIEZA
+# ============================================================================
 
-# Limpiar
 clean:
 	@if exist $(BUILD_DIR) rmdir /s /q $(BUILD_DIR)
 	@if exist $(OUTPUT_DIR) rmdir /s /q $(OUTPUT_DIR)
+	@echo Limpieza completada
 
-# Ver información del binario
+# ============================================================================
+# UTILIDADES
+# ============================================================================
+
+# Ver tamaño del binario
 info: $(PROGRAM)
-	@echo Tamanio del programa:
-	@dir $(PROGRAM) | findstr leds.bin
+	@echo.
+	@echo Informacion del programa:
+	@for %%I in ($(PROGRAM)) do @echo   Tamaño: %%~zI bytes
+	@echo   Direccion de carga: $$0400
 
-# Mostrar mapa de memoria
+# Ver mapa de memoria
 map: $(PROGRAM)
 	@type $(MAP_FILE)
+
+.PHONY: all dirs clean info map
 
 .PHONY: all dirs clean info map

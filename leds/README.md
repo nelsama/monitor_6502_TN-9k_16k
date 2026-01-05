@@ -1,98 +1,110 @@
-# Programa de Demostración LEDs
+# Plantilla de Programa en Ensamblador para Monitor 6502
 
-Efecto de luces LED para el Monitor 6502 en Tang Nano 9K.
+Este proyecto es una **plantilla** para crear programas en ensamblador que se ejecutan sobre el Monitor 6502 en la Tang Nano 9K.
 
-## Estructura
+## Estructura del Proyecto
 
 ```
 leds/
-├── config/
-│   └── programa.cfg    # Configuración de memoria para ld65
 ├── src/
-│   ├── main.c          # Programa principal con efectos de LEDs
-│   └── runtime.s       # Runtime mínimo cc65 (sin libc)
-├── build/              # Archivos intermedios (generado)
+│   └── main.s          # Código fuente principal
+├── config/
+│   └── programa.cfg    # Configuración del linker
+├── build/              # Archivos objeto (generados)
 ├── output/             # Binario final (generado)
-├── makefile
-└── README.md
+├── makefile            # Script de compilación
+└── README.md           # Este archivo
 ```
 
 ## Requisitos
 
-- **cc65**: Toolchain para 6502
-- **CC65_HOME**: Variable en makefile apuntando a la instalación de cc65
+- **CC65** instalado en `D:\cc65` (o ajustar ruta en makefile)
+- **Monitor 6502** corriendo en la Tang Nano 9K
+- **SD Card** para transferir el programa
 
 ## Compilación
 
 ```bash
+# Compilar el programa
 make
+
+# Limpiar archivos generados
+make clean
+
+# Ver tamaño del binario
+make info
+
+# Ver mapa de memoria
+make map
 ```
 
 ## Uso
 
-1. Copiar `output/leds.bin` a la tarjeta SD
-2. Insertar SD en la FPGA
+1. Compilar con `make`
+2. Copiar `output/leds.bin` a la SD Card
 3. En el monitor:
    ```
-   LOAD LEDS.BIN
-   G 0400
+   SD                      ; Inicializar SD
+   LOAD LEDS.BIN 0400      ; Cargar programa
+   G 0400                  ; Ejecutar
    ```
 
-## Efectos incluidos
+## Mapa de Memoria
 
-1. **Knight Rider** - Luz que va y viene
-2. **Contador binario** - Cuenta de 0 a 63
-3. **Parpadeo alterno** - LEDs alternos parpadean
-4. **Llenado progresivo** - Se llenan y vacían los LEDs
-5. **Parpadeo todos** - Todos los LEDs parpadean juntos
+| Rango | Uso |
+|-------|-----|
+| `$0002-$001F` | Zero Page del Monitor (NO USAR) |
+| `$0020-$005F` | Zero Page disponible para programas |
+| `$0100-$01FF` | Stack del 6502 (compartido) |
+| `$0400-$3DFF` | RAM para programas |
+| `$3E00-$3FFF` | Stack del Monitor |
+| `$C000-$C003` | Puertos de I/O |
 
-## Mapa de memoria
+## Puertos de Hardware
 
-| Segmento  | Dirección | Descripción |
-|-----------|-----------|-------------|
-| ZEROPAGE  | $02-$FE   | Variables ZP (sp, ptr1) |
-| STARTUP   | $0400     | Inicialización del stack |
-| CODE      | $0400+    | Código del main.c |
-| RUNTIME   | después   | Funciones de runtime |
-| RODATA    | después   | Constantes |
-| DATA      | después   | Variables inicializadas |
-| BSS       | después   | Variables sin inicializar |
-
-## Notas técnicas
-
-- El runtime incluye solo las funciones necesarias para código simple
-- No incluye printf ni ninguna función de libc
-- Los LEDs están en `$C001` y son activos en bajo
-- El stack de cc65 se inicializa en `$3DFF`
-
-## Crear tu propio programa
-
-Modifica `src/main.c` con tu código. Asegúrate de:
-
-1. No usar funciones de libc (printf, malloc, etc.)
-2. Usar solo operaciones básicas de C
-3. Acceder al hardware mediante punteros volátiles
-4. El programa puede ser un bucle infinito o terminar con `return`
-
-### Ejemplo mínimo
-
-```c
-#define LEDS (*(volatile unsigned char *)0xC001)
-
-int main(void) {
-    LEDS = 0xAA;    // Encender LEDs alternos
-    while(1);       // Bucle infinito
-    return 0;
-}
+```asm
+LEDS = $C001    ; Puerto de LEDs (6 bits, lógica negativa)
+                ; Bit 0-5: LEDs, 0=encendido, 1=apagado
 ```
 
-## Solución de problemas
+## Ejemplo: Escribir a LEDs
 
-### El programa no arranca
-- Verificar que el binario se cargó en $0400
-- Usar `D 0400 0450` para ver si hay código
-- La primera instrucción debe inicializar el stack
+```asm
+    ; Encender todos los LEDs
+    lda #$00        ; 0 = todos encendidos (lógica negativa)
+    sta $C001
 
-### Los efectos son muy rápidos/lentos
-- Ajustar `delay_long()` en main.c
-- Aumentar/disminuir el parámetro de las funciones de efecto
+    ; Apagar todos los LEDs
+    lda #$FF        ; FF = todos apagados
+    sta $C001
+
+    ; Patrón alternado
+    lda #$AA        ; 10101010
+    sta $C001
+```
+
+## Crear un Nuevo Proyecto
+
+1. Copiar esta carpeta completa
+2. Renombrar el proyecto
+3. Editar `src/main.s` con tu código
+4. Ajustar `PROGRAM_NAME` en el makefile si deseas otro nombre
+5. Compilar con `make`
+
+## Notas Importantes
+
+- El código **inicia en $0400** (segmento STARTUP)
+- Usar **Zero Page $20-$5F** para variables (no $02-$1F)
+- Los LEDs usan **lógica negativa** (0=encendido)
+- El programa puede usar `JSR`/`RTS` normalmente (stack $0100-$01FF)
+- Para volver al monitor, el programa debe terminar con un loop infinito
+
+## Efectos Incluidos en main.s
+
+1. **Knight Rider** - Luz que va y viene (efecto principal)
+2. **Parpadeo** - Todos los LEDs parpadean
+3. **Contador binario** - Cuenta de 0 a 63
+
+## Licencia
+
+MIT License - Libre para usar y modificar.
