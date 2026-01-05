@@ -281,8 +281,9 @@ ld65 -C leds/config/programa.cfg -o EJEMPLO.BIN ejemplo.o
 
 ## Changelog
 
-### v2.0.4 (2025-01-05)
+### v2.0.4 (2026-01-05)
 - **Feature:** Plantilla de programa en ensamblador (`leds/`)
+- **Optim:** Librería UART reescrita en ensamblador
 - **Docs:** Documentación completa para crear programas
 - **Docs:** Mapa de memoria para programas cargados
 - **Fix:** Zero Page de programas movida a $0020 (evita conflicto con monitor)
