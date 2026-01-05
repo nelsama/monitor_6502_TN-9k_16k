@@ -18,7 +18,7 @@ Permite programar, depurar y ejecutar código en tiempo real a través de una in
 - ✅ Control de 6 LEDs
 - ✅ ROM de 16KB
 - ✅ Compilación con cc65
-- ✅ **Plantilla de programa** en ensamblador incluida (`leds/`)
+- ✅ **Plantilla de programa** en ensamblador incluida (`examples/leds/`)
 
 ---
 
@@ -171,11 +171,12 @@ Cargando MIPROG.BIN en $0200...
 │   ├── spi-6502-cc65/      # Bus SPI
 │   ├── sdcard-spi-6502-cc65/  # Driver SD Card
 │   └── microfs-6502-cc65/  # Sistema de archivos
-├── leds/                   # 📁 PLANTILLA para crear programas
-│   ├── src/main.s          # Ejemplo: Knight Rider
-│   ├── config/programa.cfg # Configuración del linker
-│   ├── makefile            # Compilación
-│   └── README.md           # Documentación
+├── examples/               # 📁 EJEMPLOS Y PLANTILLAS
+│   └── leds/               # Plantilla: efecto Knight Rider
+│       ├── src/main.s      # Código fuente
+│       ├── config/programa.cfg # Configuración del linker
+│       ├── makefile        # Compilación
+│       └── README.md       # Documentación
 ├── config/
 │   └── fpga.cfg            # Configuración del linker cc65
 ├── scripts/
@@ -214,10 +215,10 @@ Copiar `output/rom.vhd` al proyecto FPGA y sintetizar con Gowin EDA.
 
 ### 🚀 Usar la Plantilla (Recomendado)
 
-La carpeta `leds/` contiene una **plantilla completa** para crear programas en ensamblador:
+La carpeta `examples/leds/` contiene una **plantilla completa** para crear programas en ensamblador:
 
 ```bash
-cd leds
+cd examples/leds
 make        # Compilar
 make info   # Ver tamaño
 make map    # Ver mapa de memoria
@@ -232,11 +233,11 @@ G 0400                  ; Ejecutar
 ```
 
 **Para crear tu propio programa:**
-1. Copia la carpeta `leds/` con otro nombre
+1. Copia la carpeta `examples/leds/` con otro nombre
 2. Edita `src/main.s` con tu código
 3. Compila con `make`
 
-Ver documentación completa en `leds/README.md`
+Ver documentación completa en `examples/leds/README.md`
 
 ### Mapa de Memoria para Programas
 
@@ -267,7 +268,7 @@ loop:
 Compilar:
 ```bash
 ca65 -t none -o ejemplo.o ejemplo.s
-ld65 -C leds/config/programa.cfg -o EJEMPLO.BIN ejemplo.o
+ld65 -C examples/leds/config/programa.cfg -o EJEMPLO.BIN ejemplo.o
 ```
 
 ### Cargar y ejecutar
@@ -282,7 +283,7 @@ ld65 -C leds/config/programa.cfg -o EJEMPLO.BIN ejemplo.o
 ## Changelog
 
 ### v2.0.4 (2026-01-05)
-- **Feature:** Plantilla de programa en ensamblador (`leds/`)
+- **Feature:** Plantilla de programa en ensamblador (`examples/leds/`)
 - **Optim:** Librería UART reescrita en ensamblador
 - **Docs:** Documentación completa para crear programas
 - **Docs:** Mapa de memoria para programas cargados
