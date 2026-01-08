@@ -75,8 +75,21 @@ ROMAPI_MFS_READ_EXT = $BF27
 ;-----------------------------------------------------------------------------
 ; void sid_clear(void)
 ; Limpia todos los registros del SID (silencia)
+; Primero apaga gates, luego limpia todo
 ;-----------------------------------------------------------------------------
 .proc _sid_clear
+        ; Primero: apagar gate de las 3 voces (bit 0 = 0)
+        lda     #$00
+        sta     SID_BASE+4      ; Voz 1 control (gate off)
+        sta     SID_BASE+11     ; Voz 2 control (gate off)
+        sta     SID_BASE+18     ; Voz 3 control (gate off)
+        
+        ; Pequeña pausa para que el release termine
+        ldx     #$FF
+@delay: dex
+        bne     @delay
+        
+        ; Ahora limpiar todos los registros
         lda     #$00
         ldx     #$18            ; 25 registros (0-24)
 @loop:

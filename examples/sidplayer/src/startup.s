@@ -42,8 +42,8 @@ _init:
     ; Llamar a main
     jsr _main
     
-    ; Si main retorna, volver al monitor (RTS)
-    rts
+    ; Si main retorna, saltar al monitor en ROM
+    jmp $8000
 
 ; ============================================
 ; zerobss - Inicializa BSS a ceros

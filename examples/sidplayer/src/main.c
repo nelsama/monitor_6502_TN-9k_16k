@@ -510,7 +510,9 @@ int main(void) {
                 switch (key) {
                     case ' ':  /* Pausa/Play */
                         paused = !paused;
-                        if (!paused) {
+                        if (paused) {
+                            sid_clear();  /* Silenciar al pausar */
+                        } else {
                             timer_last = timer_read();
                         }
                         show_status();
@@ -537,7 +539,7 @@ int main(void) {
                         break;
                         
                     case 'q':
-                    case 'Q':  /* Salir */
+                    case 'Q':  /* Salir - volver a pedir archivo */
                         sid_clear();
                         LEDS = 0xFF;
                         print_newline();
