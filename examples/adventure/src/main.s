@@ -311,9 +311,8 @@ cmd_quit:
     lda #<str_quit
     ldx #>str_quit
     jsr print_str
-    ; Volver al monitor (RTS a quien llamo el programa)
-@hang:
-    jmp @hang
+    ; Volver al monitor
+    rts
 
 ; === MOVIMIENTO ===
 cmd_north:

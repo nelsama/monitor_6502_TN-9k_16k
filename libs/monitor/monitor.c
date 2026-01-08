@@ -870,11 +870,11 @@ static void mon_help(void) {
     mon_newline();
     uart_puts("=== MONITOR 6502 ===\r\n");
     uart_puts("Valores HEX. H cmd=ayuda detallada\r\n");
-    uart_puts("R addr     Leer byte\r\n");
+    uart_puts("RD addr    Leer byte\r\n");
     uart_puts("W addr val Escribir\r\n");
     uart_puts("D addr len Dump hex\r\n");
     uart_puts("L addr     Cargar hex(.=fin)\r\n");
-    uart_puts("G addr     Ejecutar\r\n");
+    uart_puts("R [addr]   Run (def $0800)\r\n");
     uart_puts("F addr l v Fill\r\n");
     uart_puts("M addr [n] Desensamblar\r\n");
     uart_puts("XRECV [addr] XMODEM (def $0800)\r\n");
@@ -894,8 +894,12 @@ static void mon_help_cmd(char cmd) {
     
     switch (cmd) {
         case 'R':
-            uart_puts("R addr - Leer byte\r\n");
-            uart_puts("Ej: R 0200, R C000, R (continua)\r\n");
+            uart_puts("R [addr] - Run/ejecutar codigo\r\n");
+            uart_puts("addr default=$0800\r\n");
+            uart_puts("Debe terminar con RTS ($60)\r\n");
+            uart_puts("Ej: R, R 0800, R 1000\r\n");
+            uart_puts("RD addr - Leer byte\r\n");
+            uart_puts("Ej: RD 0200, RD C000\r\n");
             break;
         case 'W':
             uart_puts("W addr val - Escribir byte\r\n");
@@ -909,11 +913,6 @@ static void mon_help_cmd(char cmd) {
             uart_puts("L addr - Cargar hex interactivo\r\n");
             uart_puts("Escribe bytes, '.' termina\r\n");
             uart_puts("Ej: L 0200 -> A9 01 8D 01 C0 60 .\r\n");
-            break;
-        case 'G':
-            uart_puts("G addr - Ejecutar codigo\r\n");
-            uart_puts("Debe terminar con RTS ($60)\r\n");
-            uart_puts("Ej: G 0200\r\n");
             break;
         case 'F':
             uart_puts("F addr len val - Fill memoria\r\n");
@@ -1165,17 +1164,32 @@ uint8_t monitor_process_cmd(char *cmd) {
     ptr = cmd + 1;
     
     switch (command) {
-        case 'R': /* Read byte */
-            ptr = parse_hex_token(ptr, &addr);
-            if (addr == 0 && ptr == cmd + 1) {
-                addr = last_addr;
+        case 'R': /* Read byte - ahora es RD */
+            /* R sin addr = Run $0800 */
+            if (*ptr == ' ' || *ptr == '\0') {
+                /* Solo R = ejecutar */
+                parse_hex_token(ptr, &addr);
+                if (addr == 0) addr = 0x0800;
+                mon_execute(addr);
+            } else if ((*ptr == 'D' || *ptr == 'd') && (*(ptr+1) == ' ' || *(ptr+1) == '\0')) {
+                /* RD = read byte */
+                ptr++;
+                ptr = parse_hex_token(ptr, &addr);
+                if (addr == 0 && ptr == cmd + 2) {
+                    addr = last_addr;
+                }
+                uart_putc('$');
+                mon_print_hex16(addr);
+                uart_puts(" = $");
+                mon_print_hex8(mon_read_byte(addr));
+                mon_newline();
+                last_addr = addr + 1;
+            } else {
+                /* R addr = ejecutar en addr */
+                ptr = parse_hex_token(ptr, &addr);
+                if (addr == 0) addr = 0x0800;
+                mon_execute(addr);
             }
-            uart_putc('$');
-            mon_print_hex16(addr);
-            uart_puts(" = $");
-            mon_print_hex8(mon_read_byte(addr));
-            mon_newline();
-            last_addr = addr + 1;
             break;
             
         case 'W': /* Write byte */
@@ -1201,11 +1215,6 @@ uint8_t monitor_process_cmd(char *cmd) {
             ptr = parse_hex_token(ptr, &addr);
             if (addr == 0) addr = last_addr;
             mon_load_mode(addr);
-            break;
-            
-        case 'G': /* Go/Execute */
-            ptr = parse_hex_token(ptr, &addr);
-            mon_execute(addr);
             break;
             
         case 'F': /* Fill */
