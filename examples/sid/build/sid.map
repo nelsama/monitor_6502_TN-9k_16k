@@ -1,14 +1,18 @@
 Modules list:
 -------------
 main.o:
-    STARTUP           Offs=000000  Size=000157  Align=00001  Fill=0000
+    RODATA            Offs=000000  Size=00002E  Align=00001  Fill=0000
+    ZEROPAGE          Offs=000000  Size=000010  Align=00001  Fill=0000
+    STARTUP           Offs=000000  Size=000291  Align=00001  Fill=0000
 
 
 Segment list:
 -------------
 Name                   Start     End    Size  Align
 ----------------------------------------------------
-STARTUP               000800  000956  000157  00001
+ZEROPAGE              000020  00002F  000010  00001
+STARTUP               000800  000A90  000291  00001
+RODATA                000A91  000ABE  00002E  00001
 
 
 Exports list by name:

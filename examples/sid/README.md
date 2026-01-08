@@ -1,21 +1,17 @@
-# Ejemplo SID + LEDs - Demo de Efectos de Sonido
+# Ejemplo SID Polifónico - Demo de 3 Voces
 
-Demo espectacular que combina efectos de sonido del chip SID con animaciones coordinadas en los LEDs.
+Demo que demuestra las capacidades polifónicas del chip SID usando las 3 voces simultáneamente con LEDs sincronizados.
 
 ## Descripción
 
-Este programa demuestra las capacidades del SID con **8 efectos** diferentes, cada uno con su propia animación de LEDs sincronizada:
+Este programa demuestra las capacidades del SID con **4 efectos** polifónicos:
 
-| # | Efecto | Sonido | LEDs |
-|---|--------|--------|------|
-| 1 | **Barrido ascendente** | Frecuencia subiendo (Sawtooth) | Secuenciales izq→der |
-| 2 | **Arpegio rápido** | Notas C-E-G-C veloces (Pulse) | LED por nota |
-| 3 | **Explosión** | Ruido blanco con decay | Todos ON → fade out |
-| 4 | **Sirena** | Frecuencia oscilante (Triangle) | Ping-pong |
-| 5 | **Bajo + Melodía** | "Oda a la Alegría" + bajo | LED según nota bajo |
-| 6 | **Barrido descendente** | Frecuencia bajando (Sawtooth) | Rotativos der→izq |
-| 7 | **Acordes** | C-G-Am-F con 3 voces | Pattern por acorde |
-| 8 | **Final épico** | Escala con 3 voces en armonía | Acumulativos + fade |
+| # | Efecto | Descripción | LEDs |
+|---|--------|-------------|------|
+| 1 | **Barrido polifónico** | 3 voces (Saw+Pulse+Tri) barriendo frecuencias | Knight rider |
+| 2 | **Acordes** | Progresión C-G-Am-F con 3 voces | LED por acorde |
+| 3 | **Arpegio rápido** | Notas C-E-G alternando entre voces | LED por voz activa |
+| 4 | **Melodía + Bajo + Ritmo** | "Oda a la Alegría" con acompañamiento | Secuencial |
 
 ## Hardware Utilizado
 
@@ -52,23 +48,27 @@ Este programa demuestra las capacidades del SID con **8 efectos** diferentes, ca
 |--------|-------------|
 | Secuencial | 1→2→4→8→16→32 |
 | Ping-pong | 1→2→4→8→16→32→16→8→4→2→1 |
-| Fade out | 000000→100000→110000→...→111111 |
 | Acumulativo | 1→3→7→15→31→63 |
 
 ## Compilar
 
 ```bash
 make        # Compilar
-make info   # Ver tamaño (~985 bytes)
+make info   # Ver tamaño
 make clean  # Limpiar
 ```
 
 ## Usar en el Monitor
 
 ```
-SD                      ; Inicializar SD Card
-LOAD SID.BIN 0400       ; Cargar programa
-G 0400                  ; Ejecutar
+LOAD SID               ; Cargar desde SD
+G 0800                 ; Ejecutar
+```
+
+O via XMODEM:
+```
+XRECV 0800             ; Recibir programa
+G 0800                 ; Ejecutar
 ```
 
 El programa se repite en loop infinito. Presiona **RESET** para detener.
@@ -76,33 +76,23 @@ El programa se repite en loop infinito. Presiona **RESET** para detener.
 ## Estructura del Código
 
 ```
-start           → Punto de entrada, llama a sid_init
-main_loop       → Loop principal, ejecuta los 8 efectos
-sid_init        → Limpia registros SID, volumen máximo
-effect_sweep_up → Efecto 1: barrido ascendente
-effect_fast_arpeggio → Efecto 2: arpegio rápido
-effect_explosion → Efecto 3: explosión de ruido
-effect_siren    → Efecto 4: sirena
-effect_bass_melody → Efecto 5: bajo + melodía
-effect_sweep_down → Efecto 6: barrido descendente
-effect_chords   → Efecto 7: acordes con 3 voces
-effect_finale   → Efecto 8: final épico
+start              → Punto de entrada, inicializa SID
+main_loop          → Loop principal, ejecuta los 4 efectos
+sid_init           → Limpia registros, configura 3 voces
+effect_sweep_poly  → Efecto 1: barrido con 3 voces (Saw+Pulse+Tri)
+effect_chords      → Efecto 2: progresión de acordes C-G-Am-F
+effect_arpeggio    → Efecto 3: arpegio rápido alternando voces
+effect_melody      → Efecto 4: melodía + bajo + percusión
 ```
 
-## Tablas de Datos
+## Voces del SID
 
-Las frecuencias y patrones de LEDs están en tablas al final:
-
-```asm
-arp_freq_lo/hi  ; Notas para arpegio (C-E-G-C)
-led_arp         ; LEDs para cada nota del arpegio
-led_fade        ; Secuencia de fade out
-melody_freq_lo/hi ; "Oda a la Alegría"
-bass_freq_lo/hi ; Notas del bajo
-chord_root/third/fifth ; Acordes (raíz, tercera, quinta)
-finale_freq_lo/hi ; Escala final ascendente
-```
+| Voz | Forma de Onda | Uso |
+|-----|---------------|-----|
+| V1 | Pulse | Melodía principal |
+| V2 | Sawtooth | Bajo/acordes |
+| V3 | Triangle/Noise | Armonía/percusión |
 
 ## Tamaño
 
-**985 bytes** - Cabe en la RAM disponible ($0400-$3DFF)
+~800 bytes - Carga en $0800

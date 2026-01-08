@@ -32,11 +32,12 @@ all: dirs $(TARGET)
 	@echo COMPILADO: $(TARGET)
 	@echo ========================================
 	@echo Para usar:
-	@echo   1. Copiar sid.bin a SD Card
-	@echo   2. En el monitor:
-	@echo      SD
-	@echo      LOAD SID.BIN 0400
-	@echo      G 0400
+	@echo   En el monitor:
+	@echo      LOAD SID
+	@echo      G 0800
+	@echo   O via XMODEM:
+	@echo      XRECV 0800
+	@echo      G 0800
 	@echo ========================================
 
 dirs:
@@ -59,7 +60,7 @@ info:
 	@echo Informacion del binario
 	@echo ========================================
 	@for %%f in ($(TARGET)) do @echo Tamano: %%~zf bytes
-	@echo Carga en: $$0400
+	@echo Carga en: $$0800
 	@echo ========================================
 
 map:

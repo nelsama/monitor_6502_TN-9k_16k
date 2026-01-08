@@ -1,21 +1,26 @@
-# Calabozo del Terror - Aventura de Texto
+# Dungeon Adventure - Juego de Mazmorras 6502
 
 Un juego de aventura de texto clásico para el Monitor 6502.
 
 ## Historia
 
-Despiertas en una celda oscura y húmeda. Debes encontrar la forma de escapar del calabozo, enfrentándote a puertas cerradas y... ¡un dragón!
+Entras en una mazmorra antigua buscando el legendario tesoro del rey.
+Explora las habitaciones, encuentra objetos útiles y escapa con el oro!
 
-## Mapa del Calabozo
+## Mapa de la Mazmorra
 
 ```
-                    [DRAGÓN] ← Guardia la salida
-                        |
-    [ARMERÍA]---[PASILLO]---[PUERTA] ← Necesita llave
-        |           |
-      Espada    [CELDA] ← Inicio (tiene llave)
-                    |
-                [CRIPTA]
+         [CRIPTA]
+            |
+  [ARMERÍA]-[SALON]-[CELDA]
+            |         🔑
+        [ENTRADA]
+            |
+       [PASILLO]---[TESORO] 🔒💰
+            |
+        [TRAMPA]
+            |
+        [SALIDA]
 ```
 
 ## Comandos
@@ -25,61 +30,93 @@ Despiertas en una celda oscura y húmeda. Debes encontrar la forma de escapar de
 | `N` | Ir al Norte |
 | `S` | Ir al Sur |
 | `E` | Ir al Este |
-| `O` | Ir al Oeste |
-| `MIRAR` | Ver descripción de la habitación |
-| `COGER` | Tomar objeto de la habitación |
-| `INV` | Ver inventario |
-| `USAR` | Usar objeto (llave en puerta, espada con dragón) |
-| `AYUDA` | Mostrar ayuda |
+| `W` | Ir al Oeste |
+| `L` | Mirar (ver descripción) |
+| `I` | Ver inventario |
+| `G` | Coger objeto |
+| `H` | Mostrar ayuda |
+| `Q` | Salir del juego |
 
 ## Objetos
 
 | Objeto | Ubicación | Uso |
 |--------|-----------|-----|
-| 🔑 Llave | Celda | Abre la puerta de hierro |
-| 🔦 Antorcha | Pasillo | (decorativo) |
-| ⚔️ Espada | Armería | Derrota al dragón |
+| 🔑 Llave | Celda | Abre la puerta al tesoro |
+| 🔦 Antorcha | Armería | Ilumina la cripta oscura |
+| 💰 Oro | Sala del Tesoro | ¡El objetivo! |
+
+## Puzzles
+
+1. **Puerta cerrada**: La sala del tesoro está cerrada. Encuentra la llave en la celda.
+2. **Cripta oscura**: No puedes entrar sin una antorcha (en la armería).
+3. **Escapar**: Debes tener el oro para ganar al llegar a la salida.
+
+## Efectos de Sonido (SID)
+
+| Evento | Sonido |
+|--------|--------|
+| Inicio | Arpegio ascendente C-E-G-C |
+| Caminar | Ruido de pasos (3 pasos) |
+| Recoger objeto | Tono triangular ascendente |
+| Encontrar tesoro | Fanfarria especial |
+| Puerta cerrada | Sonido metálico |
+| Bloqueado | Tono descendente |
+| Victoria | ¡Fanfarria épica! |
+
+## Indicadores LED
+
+Los 6 LEDs muestran el estado del juego:
+
+| LED | Significado |
+|-----|-------------|
+| 0-2 | Número de habitación (binario) |
+| 3 | Tienes la llave |
+| 4 | Tienes la antorcha |
+| 5 | Tienes el oro |
 
 ## Solución (SPOILER)
 
-1. `COGER` la llave en la celda
-2. `S` ir al pasillo
-3. `E` ir a la armería
-4. `COGER` la espada
-5. `O` volver al pasillo
-6. `O` ir a la puerta (si dice "cerrada", sigue al paso 7)
-7. `USAR` la llave para abrir
-8. `N` ir a la guarida del dragón
-9. `USAR` la espada para derrotarlo
-10. `S` ¡LIBERTAD!
+```
+N       ; Entrada -> Gran Salón
+E       ; Salón -> Celda
+G       ; Coger LLAVE
+W       ; Celda -> Salón
+W       ; Salón -> Armería
+G       ; Coger ANTORCHA
+E       ; Armería -> Salón
+S       ; Salón -> Entrada
+S       ; Entrada -> Pasillo
+E       ; Pasillo -> Tesoro (usa la llave automáticamente)
+G       ; Coger ORO
+W       ; Tesoro -> Pasillo
+S       ; Pasillo -> Trampa
+S       ; Trampa -> Salida = ¡VICTORIA!
+```
 
-## LEDs
-
-Los LEDs muestran tu ubicación:
-- LED 0: Celda
-- LED 1: Pasillo
-- LED 2: Armería
-- LED 3: Cripta
-- LED 4: Puerta
-- LED 5: Dragón
-- TODOS: ¡Victoria!
-
-## Compilar
+## Compilación
 
 ```bash
-make        # Compilar
-make info   # Ver tamaño (~2.6KB)
-make clean  # Limpiar
+cd examples/adventure
+make clean
+make
 ```
 
-## Usar en el Monitor
+## Uso en el Monitor
 
 ```
-SD                      ; Inicializar SD Card
-LOAD ADVENT.BIN 0400    ; Cargar juego
-G 0400                  ; ¡Jugar!
+LOAD ADVENT
+G 0800
 ```
 
-## Tamaño
+## Hardware Utilizado
 
-**2652 bytes** - Cabe perfectamente en RAM ($0400-$3DFF)
+- **SID** ($D400): Efectos de sonido
+- **Timer** ($C038): Delays precisos en milisegundos
+- **LEDs** ($C001): Indicadores de estado
+- **UART** ($C020): Entrada/salida de texto
+
+## Notas Técnicas
+
+- Tamaño: ~3KB de código
+- RAM: Variables en Zero Page
+- Dirección de carga: $0800

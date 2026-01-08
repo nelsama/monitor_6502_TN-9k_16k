@@ -27,9 +27,11 @@ all: dirs $(TARGET)
 	@echo Para usar:
 	@echo   1. Copiar advent.bin a SD Card
 	@echo   2. En el monitor:
-	@echo      SD
-	@echo      LOAD ADVENT.BIN 0400
-	@echo      G 0400
+	@echo      LOAD ADVENT
+	@echo      G 0800
+	@echo   O via XMODEM:
+	@echo      XRECV 0800
+	@echo      G 0800
 	@echo ========================================
 
 dirs:
@@ -53,7 +55,7 @@ info:
 	@echo Informacion del binario
 	@echo ========================================
 	@for %%I in ($(TARGET)) do @echo Tamano: %%~zI bytes
-	@echo Carga en: $$0400
+	@echo Carga en: $$0800
 	@echo ========================================
 
 .PHONY: all clean dirs info

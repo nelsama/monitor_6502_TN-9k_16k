@@ -1,14 +1,14 @@
 Modules list:
 -------------
 main.o:
-    STARTUP           Offs=000000  Size=00016F  Align=00001  Fill=0000
+    STARTUP           Offs=000000  Size=00016D  Align=00001  Fill=0000
 
 
 Segment list:
 -------------
 Name                   Start     End    Size  Align
 ----------------------------------------------------
-STARTUP               000800  00096E  00016F  00001
+STARTUP               000800  00096C  00016D  00001
 
 
 Exports list by name:

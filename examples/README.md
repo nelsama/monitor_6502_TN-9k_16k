@@ -6,7 +6,10 @@ Colección de programas de ejemplo para ejecutar en el Monitor 6502.
 
 | Carpeta | Descripción |
 |---------|-------------|
+| [adventure/](adventure/) | Juego de aventura de texto con SID y LEDs |
 | [leds/](leds/) | Efecto Knight Rider con LEDs (plantilla base) |
+| [sid/](sid/) | Demo polifónico del chip SID con 3 voces |
+| [trivia/](trivia/) | Juego de preguntas y respuestas |
 
 ## Cómo Usar
 
@@ -15,9 +18,8 @@ Colección de programas de ejemplo para ejecutar en el Monitor 6502.
 3. Copia el `.bin` a la SD Card
 4. En el monitor:
    ```
-   SD
-   LOAD NOMBRE.BIN 0400
-   G 0400
+   LOAD NOMBRE
+   G 0800
    ```
 
 ## Crear Tu Propio Ejemplo

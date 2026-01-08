@@ -55,9 +55,8 @@ start:
     ldx #4
     jsr print_str_ix
     
-    ; Infinite loop
-done:
-    jmp done
+    ; Volver al monitor
+    rts
 
 ; --------------------------------------
 ; ask_question: Espera respuesta y valida
