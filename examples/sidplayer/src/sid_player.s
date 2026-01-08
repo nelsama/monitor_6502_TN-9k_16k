@@ -93,20 +93,42 @@ SID_BASE        = $D400
 ;-----------------------------------------------------------------------------
 ; void sid_call(uint16_t addr)
 ; Llama a una subrutina en la dirección especificada (JSR indirecto)
+; Usa self-modifying code para hacer JSR a dirección variable
 ; Parámetros cc65: addr en A/X
 ;-----------------------------------------------------------------------------
 .proc _sid_call
-        ; Guardar dirección en call_addr (self-modifying code area)
-        sta     call_addr
-        stx     call_addr+1
+        ; Guardar dirección destino en la instrucción JSR
+        sta     jsr_target+1    ; low byte de la dirección
+        stx     jsr_target+2    ; high byte de la dirección
         
-        ; Hacer JSR indirecto via JMP a código auto-modificable
-        jsr     do_call
+        ; Ejecutar JSR con la dirección modificada
+jsr_target:
+        jsr     $FFFF           ; Esta dirección se modifica arriba
         rts
+.endproc
+
+;-----------------------------------------------------------------------------
+; void sid_init_song(uint16_t addr, uint8_t song)
+; Llama a la rutina init del SID con el número de canción en A
+; Parámetros: addr en stack, song en A
+;-----------------------------------------------------------------------------
+        .export _sid_init_song
         
-do_call:
-        ; Este JMP será modificado con la dirección real
-call_addr = * + 1
-        jmp     $FFFF           ; Placeholder - se modifica arriba
+.proc _sid_init_song
+        ; song viene en A, guardarla
+        pha
+        
+        ; Obtener addr del stack
+        jsr     popax
+        sta     init_jsr+1      ; low byte
+        stx     init_jsr+2      ; high byte
+        
+        ; Recuperar número de canción en A
+        pla
+        
+        ; Llamar init con A = número de canción
+init_jsr:
+        jsr     $FFFF
+        rts
 .endproc
 

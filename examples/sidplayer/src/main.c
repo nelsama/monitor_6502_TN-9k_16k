@@ -49,6 +49,7 @@ extern uint16_t mfs_get_size(void);
 extern void sid_clear(void);
 extern void sid_copy_to_memory(uint8_t *src, uint16_t dest, uint16_t len);
 extern void sid_call(uint16_t addr);
+extern void sid_init_song(uint16_t addr, uint8_t song);
 
 /* ============================================================================
  * ESTRUCTURA PSID HEADER
@@ -404,9 +405,7 @@ void init_song(uint8_t song_num) {
     sid_clear();
     
     /* Llamar init con número de canción en A */
-    /* El código ASM pone song_num en A y hace JSR init_addr */
-    __asm__("lda %v", current_song);
-    sid_call(init_addr);
+    sid_init_song(init_addr, song_num);
     
     /* Iniciar timer */
     timer_last = timer_read();
