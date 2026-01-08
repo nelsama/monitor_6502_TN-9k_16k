@@ -31,11 +31,11 @@ Todo en **HEXADECIMAL** (sin prefijo `$` ni `0x`)
 
 | Comando | Sintaxis | Descripción |
 |---------|----------|-------------|
-| **R** | `R addr` | Leer byte de memoria |
+| **R** | `R [addr]` | Ejecutar programa (default: $0800) |
+| **RD** | `RD addr` | Leer byte de memoria |
 | **W** | `W addr val` | Escribir byte en memoria |
 | **D** | `D addr [len]` | Dump memoria hex+ASCII (default: 64 bytes) |
 | **L** | `L addr` | Cargar bytes hex interactivo (terminar con `.`) |
-| **G** | `G addr` | Ejecutar código (GO/RUN) |
 | **F** | `F addr len val` | Llenar memoria con valor |
 | **M** | `M addr [n]` | Desensamblar n instrucciones (default: 16) |
 
@@ -108,7 +108,7 @@ Cargados 0006 bytes
 0202  8D 01 C0  STA $C001
 0205  60        RTS
 
->G 0200
+>R 0200
 Ejecutando en $0200...
 Retorno de $0200
 ```
@@ -132,7 +132,7 @@ Guardando MIPROG.BIN...
 Cargando MIPROG.BIN en $0200...
 256 bytes cargados
 
->G 0200
+>R 0200
 ```
 
 ---
@@ -240,13 +240,13 @@ El programa compilado (`output/leds.bin`) se carga en el monitor:
 ```
 SD                      ; Inicializar SD
 LOAD LEDS.BIN           ; Cargar programa (default $0800)
-G 0800                  ; Ejecutar
+R                       ; Ejecutar
 ```
 
 O via XMODEM (sin SD):
 ```
 XRECV                   ; Recibir via XMODEM (default $0800)
-G 0800                  ; Ejecutar
+R                       ; Ejecutar
 ```
 
 **Para crear tu propio programa:**
@@ -292,7 +292,7 @@ ld65 -C examples/leds/config/programa.cfg -o EJEMPLO.BIN ejemplo.o
 ```
 >SD
 >LOAD EJEMPLO.BIN
->G 0800
+>R
 ```
 
 ---
@@ -302,6 +302,8 @@ ld65 -C examples/leds/config/programa.cfg -o EJEMPLO.BIN ejemplo.o
 ### v2.1.0 (2026-01-08)
 - **Feature:** Comando XRECV para transferencia XMODEM desde PC
 - **Feature:** Comando SDFORMAT para formatear SD Card
+- **Change:** Comando R ahora ejecuta (Run), RD para leer bytes
+- **Change:** R sin parámetro ejecuta en $0800 por defecto
 - **Fix:** Bug en microfs que corrompía archivos >512 bytes
 - **Change:** Dirección default de carga cambiada a $0800 (LOAD y XRECV)
 - **Change:** RAM usuario ahora desde $0800 (BSS del monitor ocupa $0200-$07FF)
@@ -322,7 +324,7 @@ ld65 -C examples/leds/config/programa.cfg -o EJEMPLO.BIN ejemplo.o
 
 ### v2.0.0
 - Versión inicial con soporte SD Card
-- Comandos: R, W, D, L, G, F, M, I, S, T, V
+- Comandos: RD, W, D, L, R, F, M, I, S, T, V
 - Comandos SD: SD, LS, SAVE, LOAD, DEL, CAT
 - Ayuda contextual por comando (H cmd)
 
