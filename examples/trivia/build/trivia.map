@@ -1,0 +1,26 @@
+Modules list:
+-------------
+main.o:
+    STARTUP           Offs=000000  Size=00016F  Align=00001  Fill=0000
+
+
+Segment list:
+-------------
+Name                   Start     End    Size  Align
+----------------------------------------------------
+STARTUP               000800  00096E  00016F  00001
+
+
+Exports list by name:
+---------------------
+
+
+
+Exports list by value:
+----------------------
+
+
+
+Imports list:
+-------------
+

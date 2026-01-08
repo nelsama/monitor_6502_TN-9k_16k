@@ -1,0 +1,28 @@
+Modules list:
+-------------
+main.o:
+    RODATA            Offs=000000  Size=00029A  Align=00001  Fill=0000
+    STARTUP           Offs=000000  Size=000134  Align=00001  Fill=0000
+
+
+Segment list:
+-------------
+Name                   Start     End    Size  Align
+----------------------------------------------------
+STARTUP               000800  000933  000134  00001
+RODATA                000934  000BCD  00029A  00001
+
+
+Exports list by name:
+---------------------
+
+
+
+Exports list by value:
+----------------------
+
+
+
+Imports list:
+-------------
+

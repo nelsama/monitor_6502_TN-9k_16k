@@ -1,6 +1,6 @@
-# Monitor 6502 v2.0.4 + SD Card - Tang Nano 9K
+# Monitor 6502 v2.1.0 + SD Card + XMODEM - Tang Nano 9K
 
-🚀 **Monitor/Debugger interactivo** para CPU 6502 sobre FPGA Tang Nano 9K via UART con soporte de **SD Card**.
+🚀 **Monitor/Debugger interactivo** para CPU 6502 sobre FPGA Tang Nano 9K via UART con soporte de **SD Card** y **XMODEM**.
 
 Permite programar, depurar y ejecutar código en tiempo real a través de una interfaz de comandos estilo Wozmon.
 
@@ -14,6 +14,7 @@ Permite programar, depurar y ejecutar código en tiempo real a través de una in
 - ✅ Desensamblador completo 6502
 - ✅ Análisis de memoria RAM (scan, test, mapa visual)
 - ✅ **SD Card**: guardar, cargar, listar, eliminar archivos
+- ✅ **XMODEM**: transferencia de archivos desde PC
 - ✅ **Ayuda contextual** por comando (`H cmd`)
 - ✅ Control de 6 LEDs
 - ✅ ROM de 16KB
@@ -53,10 +54,17 @@ Todo en **HEXADECIMAL** (sin prefijo `$` ni `0x`)
 |---------|----------|-------------|
 | **SD** | `SD` | Inicializar SD Card |
 | **LS** | `LS` | Listar archivos |
-| **SAVE** | `SAVE file addr len` | Guardar memoria a archivo |
-| **LOAD** | `LOAD file addr` | Cargar archivo a memoria |
+| **SAVE** | `SAVE file addr end` | Guardar memoria a archivo |
+| **LOAD** | `LOAD file [addr]` | Cargar archivo a memoria (default: $0800) |
 | **DEL** | `DEL file` | Eliminar archivo |
 | **CAT** | `CAT file` | Ver contenido del archivo en hex |
+| **SDFORMAT** | `SDFORMAT` | Formatear SD (borra todo) |
+
+### Comandos XMODEM
+
+| Comando | Sintaxis | Descripción |
+|---------|----------|-------------|
+| **XRECV** | `XRECV [addr]` | Recibir archivo via XMODEM (default: $0800) |
 
 ### Comandos de Ayuda
 
@@ -135,12 +143,15 @@ Cargando MIPROG.BIN en $0200...
 |-------|--------|-------------|
 | `$0000-$00FF` | 256 bytes | Zero Page |
 | `$0100-$01FF` | 256 bytes | Stack del 6502 |
-| `$0200-$3DFF` | ~15 KB | **RAM usuario** (para tus programas) |
+| `$0200-$07FF` | ~1.5 KB | Variables del monitor (BSS) |
+| `$0800-$3DFF` | ~13.5 KB | **RAM usuario** (para programas) |
 | `$3E00-$3FFF` | 512 bytes | Stack de CC65 |
 | `$C000-$C0FF` | 256 bytes | Puertos I/O |
 | `$8000-$BFFF` | 16 KB | ROM (este monitor) |
 
-**RAM libre para programas:** `$0200-$3DFF` (~15 KB)
+**RAM libre para programas:** `$0800-$3DFF` (~13.5 KB)
+
+> ⚠️ **Importante**: Los programas deben cargarse desde $0800 para no interferir con los buffers del sistema de archivos.
 
 ---
 
@@ -228,8 +239,14 @@ El programa compilado (`output/leds.bin`) se carga en el monitor:
 
 ```
 SD                      ; Inicializar SD
-LOAD LEDS.BIN 0400      ; Cargar programa
-G 0400                  ; Ejecutar
+LOAD LEDS.BIN           ; Cargar programa (default $0800)
+G 0800                  ; Ejecutar
+```
+
+O via XMODEM (sin SD):
+```
+XRECV                   ; Recibir via XMODEM (default $0800)
+G 0800                  ; Ejecutar
 ```
 
 **Para crear tu propio programa:**
@@ -274,13 +291,21 @@ ld65 -C examples/leds/config/programa.cfg -o EJEMPLO.BIN ejemplo.o
 ### Cargar y ejecutar
 ```
 >SD
->LOAD EJEMPLO.BIN 0400
->G 0400
+>LOAD EJEMPLO.BIN
+>G 0800
 ```
 
 ---
 
 ## Changelog
+
+### v2.1.0 (2026-01-08)
+- **Feature:** Comando XRECV para transferencia XMODEM desde PC
+- **Feature:** Comando SDFORMAT para formatear SD Card
+- **Fix:** Bug en microfs que corrompía archivos >512 bytes
+- **Change:** Dirección default de carga cambiada a $0800 (LOAD y XRECV)
+- **Change:** RAM usuario ahora desde $0800 (BSS del monitor ocupa $0200-$07FF)
+- **Docs:** Todos los ejemplos actualizados para iniciar en $0800
 
 ### v2.0.4 (2026-01-05)
 - **Feature:** Plantilla de programa en ensamblador (`examples/leds/`)

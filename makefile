@@ -57,8 +57,9 @@ SDCARD_OBJ = $(BUILD_DIR)/sdcard.o
 SDCARD_ASM_OBJ = $(BUILD_DIR)/sdcard_asm.o
 MICROFS_OBJ = $(BUILD_DIR)/microfs.o
 MICROFS_ASM_OBJ = $(BUILD_DIR)/microfs_asm.o
+XMODEM_OBJ = $(BUILD_DIR)/xmodem.o
 
-OBJS = $(STARTUP_OBJ) $(MAIN_OBJ) $(UART_OBJ) $(MONITOR_OBJ) $(SPI_OBJ) $(SDCARD_OBJ) $(SDCARD_ASM_OBJ) $(MICROFS_OBJ) $(MICROFS_ASM_OBJ) $(VECTORS_OBJ)
+OBJS = $(STARTUP_OBJ) $(MAIN_OBJ) $(UART_OBJ) $(MONITOR_OBJ) $(SPI_OBJ) $(SDCARD_OBJ) $(SDCARD_ASM_OBJ) $(MICROFS_OBJ) $(MICROFS_ASM_OBJ) $(XMODEM_OBJ) $(VECTORS_OBJ)
 
 # ============================================
 # TARGET PRINCIPAL
@@ -122,6 +123,11 @@ $(MICROFS_OBJ): $(MICROFS_DIR)/microfs.c
 
 $(MICROFS_ASM_OBJ): $(MICROFS_DIR)/microfs_asm.s
 	$(CA65) -t none -o $@ $<
+
+# XMODEM
+$(XMODEM_OBJ): $(SRC_DIR)/xmodem.c
+	$(CC65) $(CFLAGS) $(INCLUDES) -o $(BUILD_DIR)/xmodem.s $<
+	$(CA65) -t none -o $@ $(BUILD_DIR)/xmodem.s
 
 # ============================================
 # ENLAZADO
