@@ -1,6 +1,6 @@
 -- ======================================================
 -- ROM generada automáticamente con Python
--- Fecha: 2026-01-08 01:04:04
+-- Fecha: 2026-01-08 01:14:29
 -- Tamaño: 16384 bytes
 -- Ancho de datos: 8 bits
 -- Ancho de dirección: 14 bits
@@ -13903,9 +13903,9 @@ BEGIN
         when x"362D" => data_out<= x"76";
         when x"362E" => data_out<= x"32";
         when x"362F" => data_out<= x"2E";
-        when x"3630" => data_out<= x"30";
+        when x"3630" => data_out<= x"31";
         when x"3631" => data_out<= x"2E";
-        when x"3632" => data_out<= x"34";
+        when x"3632" => data_out<= x"30";
         when x"3633" => data_out<= x"20";
         when x"3634" => data_out<= x"2B";
         when x"3635" => data_out<= x"20";
