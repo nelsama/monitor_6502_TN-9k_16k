@@ -19,7 +19,7 @@ Colección de programas de ejemplo para ejecutar en el Monitor 6502.
 4. En el monitor:
    ```
    LOAD NOMBRE
-   G 0800
+   R
    ```
 
 ## Crear Tu Propio Ejemplo

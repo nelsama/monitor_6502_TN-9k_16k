@@ -62,13 +62,13 @@ make clean  # Limpiar
 
 ```
 LOAD SID               ; Cargar desde SD
-G 0800                 ; Ejecutar
+R                      ; Ejecutar
 ```
 
 O via XMODEM:
 ```
 XRECV 0800             ; Recibir programa
-G 0800                 ; Ejecutar
+R                      ; Ejecutar
 ```
 
 El programa se repite en loop infinito. Presiona **RESET** para detener.

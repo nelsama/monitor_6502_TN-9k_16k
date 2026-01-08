@@ -32,7 +32,7 @@ make
 
 ```
 LOAD TRIVIA
-G 0800
+R
 ```
 
 ## Características

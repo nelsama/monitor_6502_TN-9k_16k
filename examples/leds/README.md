@@ -45,8 +45,8 @@ make map
 3. En el monitor:
    ```
    SD                      ; Inicializar SD
-   LOAD LEDS.BIN 0400      ; Cargar programa
-   G 0400                  ; Ejecutar
+   LOAD LEDS               ; Cargar programa
+   R                       ; Ejecutar
    ```
 
 ## Mapa de Memoria
