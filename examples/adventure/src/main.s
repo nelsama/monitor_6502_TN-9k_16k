@@ -97,6 +97,10 @@ main_loop:
     jsr process_cmd
     jmp main_loop
 
+; === SALIR DEL JUEGO ===
+exit_game:
+    rts
+
 ; === MOSTRAR HABITACION ===
 show_room:
     jsr newline
@@ -311,8 +315,8 @@ cmd_quit:
     lda #<str_quit
     ldx #>str_quit
     jsr print_str
-    ; Volver al monitor
-    rts
+    ; Saltar fuera del loop principal
+    jmp exit_game
 
 ; === MOVIMIENTO ===
 cmd_north:

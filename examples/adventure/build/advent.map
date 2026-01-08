@@ -3,7 +3,7 @@ Modules list:
 main.o:
     RODATA            Offs=000000  Size=000653  Align=00001  Fill=0000
     ZEROPAGE          Offs=000000  Size=000022  Align=00001  Fill=0000
-    STARTUP           Offs=000000  Size=0004E0  Align=00001  Fill=0000
+    STARTUP           Offs=000000  Size=0004E3  Align=00001  Fill=0000
 
 
 Segment list:
@@ -11,8 +11,8 @@ Segment list:
 Name                   Start     End    Size  Align
 ----------------------------------------------------
 ZEROPAGE              000020  000041  000022  00001
-STARTUP               000800  000CDF  0004E0  00001
-RODATA                000CE0  001332  000653  00001
+STARTUP               000800  000CE2  0004E3  00001
+RODATA                000CE3  001335  000653  00001
 
 
 Exports list by name:
