@@ -30,7 +30,8 @@ C_SOURCES = $(SRC_DIR)/main.c \
             $(MICROFS_DIR)/microfs.c \
             $(SDCARD_DIR)/sdcard.c
 
-ASM_SOURCES = $(SRC_DIR)/sid_player.s \
+ASM_SOURCES = $(SRC_DIR)/startup.s \
+              $(SRC_DIR)/sid_player.s \
               $(MICROFS_DIR)/microfs_asm.s \
               $(SDCARD_DIR)/sdcard_asm.s \
               $(SPI_DIR)/spi.s
@@ -42,12 +43,13 @@ C_OBJECTS = $(BUILD_DIR)/main.o \
             $(BUILD_DIR)/microfs.o \
             $(BUILD_DIR)/sdcard.o
 
-ASM_OBJECTS = $(BUILD_DIR)/sid_player.o \
+ASM_OBJECTS = $(BUILD_DIR)/startup.o \
+              $(BUILD_DIR)/sid_player.o \
               $(BUILD_DIR)/microfs_asm.o \
               $(BUILD_DIR)/sdcard_asm.o \
               $(BUILD_DIR)/spi.o
 
-OBJECTS = $(C_OBJECTS) $(ASM_OBJECTS)
+OBJECTS = $(ASM_OBJECTS) $(C_OBJECTS)
 
 # ============================================
 # CONFIG Y TARGET
@@ -93,6 +95,9 @@ $(BUILD_DIR)/sdcard.o: $(SDCARD_DIR)/sdcard.c
 	$(CC) -c $(CFLAGS) -o $@ $<
 
 # Ensamblar ASM
+$(BUILD_DIR)/startup.o: $(SRC_DIR)/startup.s
+	$(CA65) $(ASFLAGS) -o $@ $<
+
 $(BUILD_DIR)/sid_player.o: $(SRC_DIR)/sid_player.s
 	$(CA65) $(ASFLAGS) -o $@ $<
 
