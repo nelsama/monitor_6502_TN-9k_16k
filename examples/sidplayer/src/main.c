@@ -189,8 +189,8 @@ uint32_t timer_read(void) {
 
 /* Esperar N microsegundos desde última llamada */
 void timer_wait_frame(void) {
-    /* 20000 us = 50Hz (PAL timing) */
-    uint32_t target = timer_last + 20000;
+    /* 16667 us = 60Hz (NTSC timing) - más rápido que PAL */
+    uint32_t target = timer_last + 16667;
     uint32_t now;
     
     do {

@@ -9,23 +9,29 @@ Reproductor de archivos .sid (PSID v1/v2) para el Monitor 6502 con chip SID.
 - **Info en pantalla**: Muestra título, autor y copyright
 - **Controles intuitivos**: Pausa, siguiente, anterior
 - **LEDs sincronizados**: Efectos visuales durante reproducción
-- **Timing preciso**: Usa timer hardware para 50Hz exactos
+- **Timing preciso**: Usa timer hardware para 60Hz (NTSC)
 - **Usa ROM API**: No incluye librerías, las llama desde ROM (~5KB)
 
 ## Compatibilidad
 
-### ✅ Funciona bien con:
-- Melodías clásicas de C64 (Commando, Wizball, Last Ninja, Ikari Warriors...)
-- Compositores: Rob Hubbard, Martin Galway, Ben Daglish, Jeroen Tel, Laxity
-- SIDs que usan timing PAL estándar (50Hz)
-- Archivos con playAddress != 0 (no-IRQ)
+### ✅ Funciona con SIDs que:
+- **Cargan en $1000** (dirección estándar de demoscene)
+- **Tamaño < 5.5KB** (para no chocar con el player en $2600)
+- **Zero Page en $80-$EF** (o que no usen ZP)
+- playAddress != 0 (no-IRQ, polling)
 
-### ⚠️ Limitaciones:
-- No soporta samples digitalizados (digi-samples)
-- No soporta 2SID/Stereo
-- No IRQ (solo polling a 50Hz)
-- SIDs máximo ~7.5KB (cargan en $0800-$25FF)
-- Algunos efectos de filtro pueden sonar diferente
+### ✅ Ejemplos compatibles:
+- Melodías clásicas: Commando, Wizball, Last Ninja, Ikari Warriors
+- Compositores: Rob Hubbard, Martin Galway, Ben Daglish, Jeroen Tel, Laxity
+- SIDs de demos/intros (generalmente cargan en $1000)
+
+### ❌ NO funciona con SIDs que:
+- Cargan fuera de $1000 (ej: $5000, $AE00, $BFF0) - fuera del RAM de 16KB
+- Usan Zero Page por debajo de $80 (conflicto con monitor/CC65)
+- Requieren más de 5.5KB de datos
+- Usan samples digitalizados (digi-samples)
+- Requieren 2SID/Stereo
+- Necesitan IRQ real (este player usa polling a 60Hz)
 
 ## Mapa de Memoria
 
@@ -123,7 +129,7 @@ Requiere:
 
 ### Timing
 - Usa timer hardware en $C038-$C03C
-- 50Hz PAL = 20,000 µs por frame
+- 60Hz NTSC = 16,667 µs por frame
 - Llamada a play() cada frame
 
 ### SID
@@ -153,4 +159,5 @@ sidplayer/
 
 ## Historial
 
+- **v1.1** - Timing ajustado a 60Hz, documentación de compatibilidad
 - **v1.0** - Versión inicial usando ROM API con mfs_read_ext
