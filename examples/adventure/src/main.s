@@ -315,8 +315,11 @@ cmd_quit:
     lda #<str_quit
     ldx #>str_quit
     jsr print_str
-    ; Saltar fuera del loop principal
-    jmp exit_game
+    ; Limpiar stack (quitar direccion de retorno de jsr process_cmd)
+    ; y salir al monitor
+    pla             ; Quitar byte bajo de retorno
+    pla             ; Quitar byte alto de retorno
+    rts             ; Ahora RTS vuelve al monitor
 
 ; === MOVIMIENTO ===
 cmd_north:
