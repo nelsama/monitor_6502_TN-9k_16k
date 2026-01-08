@@ -115,7 +115,7 @@ Cargados 0006 bytes
 
 ### Ejecutar código
 ```
->G 0200
+>R 0200
 Ejecutando en $0200...
 Retorno de $0200
 ```
@@ -173,7 +173,7 @@ Guardando MIPROG.BIN...
 Cargando MIPROG.BIN en $0200...
 256 bytes cargados
 
->G 0200
+>R 0200
 ```
 
 ---
@@ -255,7 +255,7 @@ ld65 -C programa.cfg -o MIPROG.BIN miprog.o
 ```
 >SD
 >LOAD MIPROG.BIN 0200
->G 0200
+>R 0200
 ```
 
 ---
@@ -349,7 +349,7 @@ ld65 -C programa.cfg -o MIPROG.BIN crt0.o miprog.o
 >SD
 >LOAD MIPROG.BIN 0200
 >D 0200 20          ; Verificar que cargó
->G 0200             ; Ejecutar
+>R 0200             ; Ejecutar
 ```
 
 ---
@@ -368,7 +368,7 @@ Cargados 0006 bytes
 0202  8D 01 C0  STA $C001
 0205  60        RTS
 
->G 0200
+>R 0200
 ```
 
 Este programa:
@@ -533,7 +533,7 @@ echo   1. Copia %NAME%.BIN a la SD Card
 echo   2. En el monitor:
 echo      ^>SD
 echo      ^>LOAD %NAME%.BIN 0200
-echo      ^>G 0200
+echo      ^>R 0200
 ```
 
 ---
