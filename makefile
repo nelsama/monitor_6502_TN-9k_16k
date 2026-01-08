@@ -58,8 +58,9 @@ SDCARD_ASM_OBJ = $(BUILD_DIR)/sdcard_asm.o
 MICROFS_OBJ = $(BUILD_DIR)/microfs.o
 MICROFS_ASM_OBJ = $(BUILD_DIR)/microfs_asm.o
 XMODEM_OBJ = $(BUILD_DIR)/xmodem.o
+ROMAPI_OBJ = $(BUILD_DIR)/romapi.o
 
-OBJS = $(STARTUP_OBJ) $(MAIN_OBJ) $(UART_OBJ) $(MONITOR_OBJ) $(SPI_OBJ) $(SDCARD_OBJ) $(SDCARD_ASM_OBJ) $(MICROFS_OBJ) $(MICROFS_ASM_OBJ) $(XMODEM_OBJ) $(VECTORS_OBJ)
+OBJS = $(STARTUP_OBJ) $(MAIN_OBJ) $(UART_OBJ) $(MONITOR_OBJ) $(SPI_OBJ) $(SDCARD_OBJ) $(SDCARD_ASM_OBJ) $(MICROFS_OBJ) $(MICROFS_ASM_OBJ) $(XMODEM_OBJ) $(ROMAPI_OBJ) $(VECTORS_OBJ)
 
 # ============================================
 # TARGET PRINCIPAL
@@ -128,6 +129,10 @@ $(MICROFS_ASM_OBJ): $(MICROFS_DIR)/microfs_asm.s
 $(XMODEM_OBJ): $(SRC_DIR)/xmodem.c
 	$(CC65) $(CFLAGS) $(INCLUDES) -o $(BUILD_DIR)/xmodem.s $<
 	$(CA65) -t none -o $@ $(BUILD_DIR)/xmodem.s
+
+# ROMAPI (Jump Table)
+$(ROMAPI_OBJ): $(SRC_DIR)/romapi.s
+	$(CA65) -t none -o $@ $<
 
 # ============================================
 # ENLAZADO

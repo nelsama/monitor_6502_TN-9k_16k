@@ -297,7 +297,70 @@ ld65 -C examples/leds/config/programa.cfg -o EJEMPLO.BIN ejemplo.o
 
 ---
 
+## ROM API (Jump Table)
+
+Los programas standalone pueden llamar funciones de la ROM sin incluir las librerías.
+La ROM expone una **jump table** en dirección **$BF00**.
+
+### Direcciones
+
+| Dirección | Función | Descripción |
+|-----------|---------|-------------|
+| `$BF00` | `sd_init()` | Inicializar SD Card |
+| `$BF03` | `mfs_mount()` | Montar filesystem |
+| `$BF06` | `mfs_open(name)` | Abrir archivo |
+| `$BF09` | `mfs_read(buf,len)` | Leer datos |
+| `$BF0C` | `mfs_close()` | Cerrar archivo |
+| `$BF0F` | `mfs_get_size()` | Obtener tamaño |
+| `$BF12` | `mfs_list(idx,info)` | Listar archivos |
+| `$BF15` | `uart_init()` | Inicializar UART |
+| `$BF18` | `uart_putc(c)` | Enviar carácter |
+| `$BF1B` | `uart_getc()` | Recibir carácter |
+| `$BF1E` | `uart_puts(str)` | Enviar string |
+| `$BF21` | `uart_rx_ready()` | Verificar RX |
+| `$BF24` | `uart_tx_ready()` | Verificar TX |
+
+### Uso desde C
+
+```c
+#include "romapi.h"    // En include/romapi.h
+
+// Usar macros predefinidas
+rom_mfs_open("TEST.SID");
+uint16_t size = rom_mfs_get_size();
+rom_mfs_read(buffer, 512);
+rom_mfs_close();
+
+rom_uart_puts("Hola desde ROM API!\r\n");
+```
+
+### Uso desde Ensamblador
+
+```asm
+; Llamar función directamente
+JSR $BF00       ; sd_init()
+JSR $BF03       ; mfs_mount()
+
+; Pasar parámetros según convención CC65
+LDA #<filename  ; Low byte del puntero
+LDX #>filename  ; High byte del puntero
+JSR $BF06       ; mfs_open(filename)
+```
+
+### Ventajas
+
+- **Menos código**: No incluir librerías en cada programa
+- **Sin conflictos**: Reutiliza estado existente de SD/FS
+- **Más RAM**: Programas más pequeños (ej: SID Player 4.6KB vs 7.5KB)
+
+---
+
 ## Changelog
+
+### v2.2.0 (2026-01-08)
+- **Feature:** ROM API - Jump Table en $BF00 para programas standalone
+- **Feature:** SID Player usando ROM API (~4.6KB vs ~7.5KB)
+- **Feature:** Header `include/romapi.h` para programas en C
 
 ### v2.1.0 (2026-01-08)
 - **Feature:** Comando XRECV para transferencia XMODEM desde PC

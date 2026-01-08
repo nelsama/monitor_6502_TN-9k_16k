@@ -10,6 +10,7 @@
         .export _sid_clear
         .export _sid_copy_to_memory
         .export _sid_call
+        .export _rom_read_file
         
         .import pushax, popax
         .importzp ptr1, ptr2, tmp1, tmp2
@@ -23,6 +24,53 @@ SID_BASE        = $D400
 ; Código
 ;-----------------------------------------------------------------------------
         .code
+
+;-----------------------------------------------------------------------------
+; uint16_t rom_read_file(void *buf, uint16_t len)
+; Llama a mfs_read_ext de la ROM API
+; Esta versión usa parámetros en ZP fijo ($F0-$F3), no el stack de CC65
+;-----------------------------------------------------------------------------
+        .importzp sp            ; Software stack del SID Player (en $20)
+
+; Parámetros para mfs_read_ext (en ZP fijo)
+EXT_BUF_LO  = $F0
+EXT_BUF_HI  = $F1
+EXT_LEN_LO  = $F2
+EXT_LEN_HI  = $F3
+
+; ROM API dirección
+ROMAPI_MFS_READ_EXT = $BF27
+
+.proc _rom_read_file
+        ; len viene en A/X, buf está en nuestro software stack (sp en $20+)
+        
+        ; Guardar len en parámetros fijos
+        sta     EXT_LEN_LO
+        stx     EXT_LEN_HI
+        
+        ; Obtener buf de nuestro stack
+        ldy     #0
+        lda     (sp),y          ; buf low
+        sta     EXT_BUF_LO
+        iny
+        lda     (sp),y          ; buf high
+        sta     EXT_BUF_HI
+        
+        ; Limpiar nuestro stack (consumir el parámetro buf)
+        clc
+        lda     sp
+        adc     #2
+        sta     sp
+        bcc     :+
+        inc     sp+1
+:
+        ; Llamar a mfs_read_ext de la ROM
+        ; Parámetros ya están en $F0-$F3
+        jsr     ROMAPI_MFS_READ_EXT
+        
+        ; Resultado viene en A/X
+        rts
+.endproc
 
 ;-----------------------------------------------------------------------------
 ; void sid_clear(void)

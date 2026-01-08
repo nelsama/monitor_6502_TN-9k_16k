@@ -30,10 +30,10 @@ _init:
     txs
     
     ; Inicializar stack pointer de CC65 (software stack)
-    ; Usar $2DFF como tope del stack (debajo de $2E00)
-    lda #<$2DFF
+    ; Usar $3DFF como tope del stack
+    lda #<$3DFF
     sta sp
-    lda #>$2DFF
+    lda #>$3DFF
     sta sp+1
     
     ; Inicializar BSS a ceros

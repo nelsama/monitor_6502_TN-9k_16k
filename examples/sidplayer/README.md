@@ -10,12 +10,13 @@ Reproductor de archivos .sid (PSID v1/v2) para el Monitor 6502 con chip SID.
 - **Controles intuitivos**: Pausa, siguiente, anterior
 - **LEDs sincronizados**: Efectos visuales durante reproducción
 - **Timing preciso**: Usa timer hardware para 50Hz exactos
+- **Usa ROM API**: No incluye librerías, las llama desde ROM (~5KB)
 
 ## Compatibilidad
 
 ### ✅ Funciona bien con:
-- Melodías clásicas de C64 (Commando, Wizball, Last Ninja...)
-- Compositores: Rob Hubbard, Martin Galway, Ben Daglish, Jeroen Tel
+- Melodías clásicas de C64 (Commando, Wizball, Last Ninja, Ikari Warriors...)
+- Compositores: Rob Hubbard, Martin Galway, Ben Daglish, Jeroen Tel, Laxity
 - SIDs que usan timing PAL estándar (50Hz)
 - Archivos con playAddress != 0 (no-IRQ)
 
@@ -23,13 +24,32 @@ Reproductor de archivos .sid (PSID v1/v2) para el Monitor 6502 con chip SID.
 - No soporta samples digitalizados (digi-samples)
 - No soporta 2SID/Stereo
 - No IRQ (solo polling a 50Hz)
+- SIDs máximo ~7.5KB (cargan en $0800-$25FF)
 - Algunos efectos de filtro pueden sonar diferente
+
+## Mapa de Memoria
+
+```
+$0000-$01FF  Zero Page y Stack del sistema
+$0200-$07FF  Variables del monitor
+$0800-$25FF  ← Datos SID (máx ~7.5KB)
+$2600-$3CFF  ← SID Player (~5KB)
+$3D00-$3DFF  Stack del player
+$8000-$BEFF  ROM Monitor
+$BF00-$BFF9  ROM API (Jump Table)
+$BFFA-$BFFF  Vectores 6502
+$D400-$D41F  Chip SID
+```
 
 ## Uso
 
 ### 1. Preparar archivos
-```
-# Copiar el reproductor a la SD Card
+```bash
+# Compilar el reproductor
+cd examples/sidplayer
+make
+
+# Copiar a la SD Card
 copy output\sidplay.bin X:\SIDPLAY
 
 # Copiar archivos .sid (nombres 8.3)
@@ -40,92 +60,97 @@ copy *.sid X:\
 ```
 En el monitor:
 
-> LOAD SIDPLAY
-SIDPLAY cargado, 4567 bytes
-> R
+> LOAD SIDPLAY 2600
+SIDPLAY cargado, 4908 bytes
+> R 2600
 
 ================================
-  SID PLAYER 6502
-  Para archivos PSID v1/v2
+  SID PLAYER 6502 v1.0
 ================================
 
-Montando SD Card...
-SD Card OK!
-
-Archivo .sid (Q=salir): COMMANDO
+Archivo .sid (Q=salir): IKARI
 ```
 
 ### 3. Controles durante reproducción
 | Tecla | Función |
 |-------|---------|
-| `ESPACIO` | Pausa / Continuar |
-| `N` | Siguiente canción |
-| `P` | Canción anterior |
-| `1-9` | Ir a canción específica |
-| `Q` | Volver al menú |
+| ESPACIO | Pausa / Continuar |
+| N | Siguiente canción |
+| P | Canción anterior |
+| 1-9 | Ir a canción específica |
+| Q | Volver al menú principal |
+
+## ROM API
+
+Este programa usa la ROM API del monitor (jump table en $BF00).
+No necesita incluir las librerías SD/MicroFS/UART.
+
+### Funciones usadas:
+```
+$BF03 - mfs_mount()      Montar sistema de archivos
+$BF06 - mfs_open()       Abrir archivo
+$BF27 - mfs_read_ext()   Leer datos (parámetros en ZP $F0-$F3)
+$BF0C - mfs_close()      Cerrar archivo
+$BF0F - mfs_get_size()   Obtener tamaño
+$BF18 - uart_putc()      Enviar carácter
+$BF1B - uart_getc()      Recibir carácter
+$BF21 - uart_rx_ready()  Verificar RX
+```
+
+### mfs_read_ext ($BF27)
+Función especial para programas externos que evita conflictos con el 
+software stack de CC65. Los parámetros se pasan en posiciones fijas de ZP:
+
+```
+$F0-$F1 = puntero al buffer destino
+$F2-$F3 = cantidad de bytes a leer
+Retorna: A/X = bytes leídos
+```
 
 ## Compilación
 
-```batch
-cd examples\sidplayer
+```bash
+cd examples/sidplayer
+make clean
 make
 ```
 
-Genera: `output/sidplay.bin`
+Requiere:
+- CC65 instalado (CC65_HOME configurado en makefile)
+- Monitor con ROM API (jump table en $BF00)
 
-## Formato PSID
+## Notas Técnicas
 
-El reproductor parsea el header PSID:
+### Timing
+- Usa timer hardware en $C038-$C03C
+- 50Hz PAL = 20,000 µs por frame
+- Llamada a play() cada frame
+
+### SID
+- Base: $D400
+- 25 registros (3 voces + filtro)
+- Limpieza de registros antes de cada canción
+
+### Formato PSID
+- Header: 76-124 bytes
+- Direcciones en big-endian
+- init = inicialización (A = número canción)
+- play = llamar cada frame
+
+## Archivos
+
 ```
-Offset  Tamaño  Campo
-------  ------  -----
-$00     4       Magic ("PSID" o "RSID")
-$04     2       Versión (big-endian)
-$06     2       Offset a datos
-$08     2       Load Address
-$0A     2       Init Address
-$0C     2       Play Address
-$0E     2       Número de canciones
-$10     2       Canción inicial
-$12     4       Flags de velocidad
-$16     32      Nombre
-$36     32      Autor
-$56     32      Copyright
+sidplayer/
+├── src/
+│   ├── main.c          # Código principal
+│   ├── sid_player.s    # Funciones ASM (incluyendo rom_read_file wrapper)
+│   └── startup.s       # Inicialización CC65
+├── config/
+│   └── programa.cfg    # Linker config ($2600)
+├── makefile
+└── README.md
 ```
 
-## Obtener archivos SID
+## Historial
 
-Los archivos .sid se pueden descargar de:
-- [HVSC](https://www.hvsc.c64.org/) - High Voltage SID Collection (90,000+ SIDs)
-- [DeepSID](https://deepsid.chordian.net/) - Reproductor web con búsqueda
-
-### Recomendaciones para empezar:
-```
-COMMANDO.SID    - Rob Hubbard
-WIZBALL.SID     - Martin Galway  
-LASTNIN2.SID    - Ben Daglish
-CYBERNOI.SID    - Jeroen Tel
-BUBBLE.SID      - Varios
-```
-
-## Notas técnicas
-
-- **Timer**: Usa $C038-$C03C (contador microsegundos) para timing
-- **SID**: Escribe directamente a $D400-$D418
-- **RAM**: Carga SID en $3000+ (deja espacio para el player)
-- **LEDs**: Actualiza $C001 con patrón rotativo
-
-## Troubleshooting
-
-**"Error: No es archivo PSID/RSID"**
-- El archivo no tiene header válido o está corrupto
-
-**"Error: SID no cabe en RAM"**  
-- El SID es muy grande o tiene loadAddress conflictivo
-
-**No hay sonido**
-- Verificar que el archivo tenga playAddress != 0
-- Algunos SIDs RSID requieren IRQ (no soportado)
-
-**Suena mal/rápido**
-- El SID puede usar timing NTSC (60Hz) - suena 20% más rápido
+- **v1.0** - Versión inicial usando ROM API con mfs_read_ext
