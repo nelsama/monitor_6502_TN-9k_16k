@@ -877,12 +877,12 @@ static void mon_help(void) {
     uart_puts("G addr     Ejecutar\r\n");
     uart_puts("F addr l v Fill\r\n");
     uart_puts("M addr [n] Desensamblar\r\n");
-    uart_puts("XRECV addr XMODEM receive\r\n");
+    uart_puts("XRECV [addr] XMODEM (def $0800)\r\n");
     uart_puts("I/S/T/V    Mem info/scan/test/vista\r\n");
     uart_puts("--- SD ---\r\n");
-    uart_puts("SD/LS SAVE/LOAD/DEL/CAT\r\n");
+    uart_puts("SD/LS/SDFORMAT SAVE/LOAD/DEL/CAT\r\n");
     uart_puts("H/?/Q Ayuda/Salir\r\n");
-    uart_puts("RAM: $0200-$3DFF\r\n");
+    uart_puts("RAM prog: $0800-$3DFF\r\n");
 }
 
 /* Ayuda detallada por comando (compacta para ahorrar ROM) */
@@ -970,9 +970,10 @@ static void mon_help_sd(const char *cmd) {
         uart_puts("Ej: SAVE PROG.BIN 0200 100\r\n");
     }
     else if (cmd_match(cmd, "LOAD")) {
-        uart_puts("LOAD file addr\r\n");
+        uart_puts("LOAD file [addr]\r\n");
         uart_puts("Carga archivo a memoria\r\n");
-        uart_puts("Ej: LOAD PROG.BIN 0200\r\n");
+        uart_puts("addr default=$0800\r\n");
+        uart_puts("Ej: LOAD PROG.BIN, LOAD P.BIN 1000\r\n");
     }
     else if (cmd_match(cmd, "DEL")) {
         uart_puts("DEL file - Eliminar archivo\r\n");
@@ -982,8 +983,17 @@ static void mon_help_sd(const char *cmd) {
         uart_puts("CAT file - Ver contenido hex\r\n");
         uart_puts("Ej: CAT PROG.BIN\r\n");
     }
+    else if (cmd_match(cmd, "SDFORMAT")) {
+        uart_puts("SDFORMAT - Formatear SD\r\n");
+        uart_puts("BORRA todos los archivos!\r\n");
+    }
+    else if (cmd_match(cmd, "XRECV")) {
+        uart_puts("XRECV [addr] - Recibir XMODEM\r\n");
+        uart_puts("addr default=$0800\r\n");
+        uart_puts("Ej: XRECV, XRECV 1000\r\n");
+    }
     else {
-        uart_puts("Cmds SD: SD,LS,SAVE,LOAD,DEL,CAT\r\n");
+        uart_puts("Cmds SD: SD,LS,SAVE,LOAD,DEL,CAT,SDFORMAT\r\n");
     }
 }
 
