@@ -1,4 +1,4 @@
-# Monitor 6502 v2.1.0 + SD Card + XMODEM - Tang Nano 9K
+# Monitor 6502 v2.2.0 + SD Card + XMODEM - Tang Nano 9K
 
 🚀 **Monitor/Debugger interactivo** para CPU 6502 sobre FPGA Tang Nano 9K via UART con soporte de **SD Card** y **XMODEM**.
 
@@ -359,8 +359,10 @@ JSR $BF06       ; mfs_open(filename)
 
 ### v2.2.0 (2026-01-08)
 - **Feature:** ROM API - Jump Table en $BF00 para programas standalone
-- **Feature:** SID Player usando ROM API (~4.6KB vs ~7.5KB)
+- **Feature:** mfs_read_ext ($BF27) con parámetros en ZP fijo para programas externos
+- **Feature:** SID Player usando ROM API (~5KB vs ~7.5KB con librerías)
 - **Feature:** Header `include/romapi.h` para programas en C
+- **Docs:** Documentación ROM API actualizada
 
 ### v2.1.0 (2026-01-08)
 - **Feature:** Comando XRECV para transferencia XMODEM desde PC
