@@ -4,12 +4,13 @@ Colección de programas de ejemplo para ejecutar en el Monitor 6502.
 
 ## Ejemplos Disponibles
 
-| Carpeta | Descripción |
-|---------|-------------|
-| [adventure/](adventure/) | Juego de aventura de texto con SID y LEDs |
-| [leds/](leds/) | Efecto Knight Rider con LEDs (plantilla base) |
-| [sid/](sid/) | Demo polifónico del chip SID con 3 voces |
-| [trivia/](trivia/) | Juego de preguntas y respuestas |
+| Carpeta | Descripción | Lenguaje |
+|---------|-------------|----------|
+| [adventure/](adventure/) | Juego de aventura de texto con SID y LEDs | ASM |
+| [leds/](leds/) | Efecto Knight Rider con LEDs (plantilla base) | ASM |
+| [sid/](sid/) | Demo polifónico del chip SID con 3 voces | ASM |
+| [sidplayer/](sidplayer/) | **Reproductor de archivos .sid** desde SD Card | C+ASM |
+| [trivia/](trivia/) | Juego de preguntas y respuestas | ASM |
 
 ## Cómo Usar
 
@@ -21,6 +22,27 @@ Colección de programas de ejemplo para ejecutar en el Monitor 6502.
    LOAD NOMBRE
    R
    ```
+
+## SID Player - Reproductor de Música
+
+El nuevo **sidplayer** permite reproducir archivos `.sid` (música de Commodore 64):
+
+```
+> LOAD SIDPLAY
+> R
+
+Archivo .sid: COMMANDO
+Cargando: COMMANDO.SID (4 KB)
+================================
+  SID PLAYER 6502 v1.0
+================================
+Titulo: Commando
+Autor:  Rob Hubbard
+--------------------------------
+Cancion: 1/3 [>>>]
+```
+
+Controles: `ESPACIO`=Pausa, `N`/`P`=Siguiente/Anterior, `Q`=Salir
 
 ## Crear Tu Propio Ejemplo
 
