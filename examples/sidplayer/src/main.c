@@ -243,9 +243,7 @@ uint8_t parse_psid_header(void) {
  * ============================================================================ */
 void show_sid_info(void) {
     uart_puts("\r\n");
-    uart_puts("================================\r\n");
-    uart_puts("  SID PLAYER 6502 v1.0\r\n");
-    uart_puts("================================\r\n");
+    uart_puts("--------------------------------\r\n");
     
     /* Nombre */
     uart_puts("Titulo: ");
@@ -455,8 +453,7 @@ int main(void) {
     /* Banner */
     uart_puts("\r\n");
     uart_puts("================================\r\n");
-    uart_puts("  SID PLAYER 6502\r\n");
-    uart_puts("  (usando ROM API)\r\n");
+    uart_puts("  SID PLAYER 6502 v1.0.0\r\n");
     uart_puts("================================\r\n\r\n");
     
     /* Intentar montar filesystem (por si no está montado) */

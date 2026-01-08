@@ -157,7 +157,14 @@ sidplayer/
 └── README.md
 ```
 
-## Historial
+## Changelog
 
-- **v1.1** - Timing ajustado a 60Hz, documentación de compatibilidad
-- **v1.0** - Versión inicial usando ROM API con mfs_read_ext
+### v1.0.0 (2026-01-08)
+- Timing ajustado a 60Hz (NTSC)
+- Pausa silencia el SID correctamente
+- Salida al monitor con Q funciona
+- `sid_clear()` mejorado (apaga gates antes de limpiar)
+- Documentación de compatibilidad de SIDs
+- Usa ROM API con mfs_read_ext
+- Soporte multi-canción (N/P/1-9)
+- LEDs sincronizados con la música
