@@ -359,14 +359,14 @@ uint8_t load_sid_file(const char *filename) {
         data_size = file_size - header.dataOffset;
     }
     
-    /* Verificar que cabe en RAM */
-    if (load_addr < 0x0800 || load_addr + data_size > 0x3E00) {
+    /* Verificar que cabe en RAM sin colisionar con el programa (en $1800+) */
+    if (load_addr < 0x0800 || load_addr + data_size > 0x1800) {
         uart_puts("Error: SID no cabe en RAM\r\n");
         uart_puts("  Load: $");
         uart_print_hex16(load_addr);
-        uart_puts(" Size: ");
-        uart_print_dec(data_size / 256);
-        uart_puts(" pages\r\n");
+        uart_puts(" End: $");
+        uart_print_hex16(load_addr + data_size);
+        uart_puts(" (max $1800)\r\n");
         mfs_close();
         return 0;
     }

@@ -76,7 +76,7 @@ all: dirs $(TARGET)
 	@echo   2. Copiar archivos .sid a la SD
 	@echo   3. En el monitor:
 	@echo      LOAD SIDPLAY
-	@echo      R
+	@echo      R 1800
 	@echo   4. Introducir nombre del archivo .sid
 	@echo ========================================
 
