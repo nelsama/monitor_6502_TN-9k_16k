@@ -44,6 +44,7 @@
 
 /* Funciones especiales para programas externos */
 #define ROMAPI_MFS_READ_EXT 0xBF27  /* mfs_read con params en ZP $F0-$F3 */
+#define ROMAPI_XMODEM_RECV  0xBF2A  /* xmodem_receive(dest_addr) */
 
 /* Magic y versión */
 #define ROMAPI_MAGIC_ADDR   0xBF50
@@ -85,6 +86,9 @@ typedef struct {
 #define rom_uart_rx_ready() (((uint8_t (*)(void))ROMAPI_UART_RX_READY)())
 #define rom_uart_tx_ready() (((uint8_t (*)(void))ROMAPI_UART_TX_READY)())
 
+/* XMODEM */
+#define rom_xmodem_receive(addr) (((int (*)(unsigned int))ROMAPI_XMODEM_RECV)(addr))
+
 /* ===========================================================================
  * NOTA SOBRE mfs_read_ext ($BF27)
  * ===========================================================================
@@ -105,7 +109,7 @@ typedef struct {
 
 /* ===========================================================================
  * CÓDIGOS DE ERROR (compatibles con las librerías originales)
- * =========================================================================== */ */
+ * =========================================================================== */
 
 /* SD Card */
 #define SD_OK               0x00
@@ -122,5 +126,11 @@ typedef struct {
 #define MFS_ERR_NOTFOUND    3
 #define MFS_ERR_FULL        4
 #define MFS_ERR_EXISTS      5
+
+/* XMODEM */
+#define XMODEM_ERROR_TIMEOUT   -1
+#define XMODEM_ERROR_CANCELLED -2
+#define XMODEM_ERROR_SYNC      -3
+#define XMODEM_ERROR_CHECKSUM  -4
 
 #endif /* ROMAPI_H */

@@ -5,12 +5,13 @@ Reproductor de archivos .sid (PSID v1/v2) para el Monitor 6502 con chip SID.
 ## Características
 
 - **Compatible con PSID v1/v2**: Formato estándar de archivos SID
+- **Carga desde SD o XMODEM**: Dos formas de cargar SIDs
 - **Multi-canción**: Navega entre canciones del archivo
 - **Info en pantalla**: Muestra título, autor y copyright
 - **Controles intuitivos**: Pausa, siguiente, anterior
 - **LEDs sincronizados**: Efectos visuales durante reproducción
 - **Timing preciso**: Usa timer hardware para 60Hz (NTSC)
-- **Usa ROM API**: No incluye librerías, las llama desde ROM (~5KB)
+- **Usa ROM API**: No incluye librerías, las llama desde ROM (~5.5KB)
 
 ## Compatibilidad
 
@@ -67,14 +68,15 @@ copy *.sid X:\
 En el monitor:
 
 > LOAD SIDPLAY 2600
-SIDPLAY cargado, 4908 bytes
+SIDPLAY cargado, 5439 bytes
 > R 2600
 
 ================================
-  SID PLAYER 6502 v1.0
+  SID PLAYER 6502 v1.1.0
 ================================
 
-Archivo .sid (Q=salir): IKARI
+SID (Q=salir, X=XMODEM): IKARI     <- nombre de archivo en SD
+SID (Q=salir, X=XMODEM): X         <- recibe por XMODEM
 ```
 
 ### 3. Controles durante reproducción
@@ -158,6 +160,11 @@ sidplayer/
 ```
 
 ## Changelog
+
+### v1.1.0 (2026-01-08)
+- Soporte XMODEM para cargar SIDs por serial
+- Usa ROM API xmodem_receive ($BF2A)
+- Buffer reducido de 512 a 256 bytes
 
 ### v1.0.0 (2026-01-08)
 - Timing ajustado a 60Hz (NTSC)

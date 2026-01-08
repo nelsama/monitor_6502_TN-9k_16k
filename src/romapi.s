@@ -34,6 +34,7 @@
 .import _uart_puts
 .import _uart_rx_ready
 .import _uart_tx_ready
+.import _xmodem_receive
 
 ; ===========================================================================
 ; SEGMENTO ROMAPI - Posición fija en $BF00
@@ -111,6 +112,15 @@ uart_tx_ready_entry:
 ;         Output: A/X = bytes leídos
 mfs_read_ext_entry:
     JMP _mfs_read_ext
+
+; ---------------------------------------------------------------------------
+; FUNCIONES XMODEM (Base: $BF2A)
+; ---------------------------------------------------------------------------
+; $BF2A - xmodem_receive: Recibe archivo por XMODEM
+;         Input: A/X = dirección destino (little-endian: A=low, X=high)
+;         Output: A/X = bytes recibidos (positivo) o código error (negativo)
+xmodem_receive_entry:
+    JMP _xmodem_receive
 
 ; ---------------------------------------------------------------------------
 ; TABLA DE VERSIÓN Y MAGIC (al final)

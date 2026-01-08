@@ -36,6 +36,7 @@
 #define ROMAPI_UART_PUTC    ((void (*)(char))0xBF18)
 #define ROMAPI_UART_GETC    ((char (*)(void))0xBF1B)
 #define ROMAPI_UART_RX_READY ((uint8_t (*)(void))0xBF21)
+#define ROMAPI_XMODEM_RECV  ((int (*)(unsigned int))0xBF2A)
 
 /* Macros para llamar funciones de ROM */
 #define rom_mfs_mount()     ROMAPI_MFS_MOUNT()
@@ -46,6 +47,7 @@
 #define rom_uart_putc(c)    ROMAPI_UART_PUTC(c)
 #define rom_uart_getc()     ROMAPI_UART_GETC()
 #define rom_uart_rx_ready() ROMAPI_UART_RX_READY()
+#define rom_xmodem_receive(a) ROMAPI_XMODEM_RECV(a)
 
 /* Hardware */
 #define LEDS            (*(volatile uint8_t *)0xC001)
@@ -90,7 +92,7 @@ typedef struct {
  * VARIABLES GLOBALES
  * ============================================================================ */
 static psid_header_t header;
-static uint8_t file_buffer[512];   /* Buffer de lectura */
+static uint8_t file_buffer[256];   /* Buffer de lectura */
 static uint8_t current_song;       /* Canción actual (0-based) */
 static uint8_t total_songs;        /* Total de canciones */
 static uint8_t paused;             /* Estado de pausa */
@@ -297,7 +299,64 @@ void show_status(void) {
 }
 
 /* ============================================================================
- * CARGAR ARCHIVO SID
+ * CARGAR SID POR XMODEM
+ * ============================================================================ */
+uint8_t load_sid_xmodem(void) {
+    int bytes;
+    uint16_t data_size;
+    uint8_t *src;
+    
+    /* Recibe a $0800 */
+    uart_puts("XMODEM listo...\r\n");
+    bytes = rom_xmodem_receive(0x0800);
+    
+    if (bytes <= 0) {
+        uart_puts("Error\r\n");
+        return 0;
+    }
+    
+    /* Copiar header */
+    memcpy(&header, (void*)0x0800, sizeof(header));
+    
+    if (!parse_psid_header()) {
+        uart_puts("No es PSID\r\n");
+        return 0;
+    }
+    
+    total_songs = (header.songs > 255) ? 255 : header.songs;
+    current_song = (header.startSong > 0) ? header.startSong - 1 : 0;
+    init_addr = header.initAddress;
+    play_addr = header.playAddress;
+    
+    if (header.loadAddress == 0) {
+        src = (uint8_t *)(0x0800 + header.dataOffset);
+        load_addr = src[0] | ((uint16_t)src[1] << 8);
+        src += 2;
+        data_size = bytes - header.dataOffset - 2;
+    } else {
+        load_addr = header.loadAddress;
+        src = (uint8_t *)(0x0800 + header.dataOffset);
+        data_size = bytes - header.dataOffset;
+    }
+    
+    if (load_addr < 0x0800 || load_addr + data_size > 0x2600) {
+        uart_puts("No cabe\r\n");
+        return 0;
+    }
+    
+    /* Mover datos si es necesario */
+    if (load_addr != (uint16_t)src) {
+        sid_copy_to_memory(src, load_addr, data_size);
+    }
+    
+    uart_puts("OK $");
+    uart_print_hex16(load_addr);
+    print_newline();
+    return 1;
+}
+
+/* ============================================================================
+ * CARGAR ARCHIVO SID DESDE SD
  * ============================================================================ */
 uint8_t load_sid_file(const char *filename) {
     uint16_t file_size;
@@ -453,7 +512,7 @@ int main(void) {
     /* Banner */
     uart_puts("\r\n");
     uart_puts("================================\r\n");
-    uart_puts("  SID PLAYER 6502 v1.0.0\r\n");
+    uart_puts("  SID PLAYER 6502 v1.1.0\r\n");
     uart_puts("================================\r\n\r\n");
     
     /* Intentar montar filesystem (por si no está montado) */
@@ -468,7 +527,7 @@ int main(void) {
     /* Loop principal - permitir cargar múltiples SIDs */
     while (1) {
         /* Pedir nombre de archivo */
-        uart_puts("Archivo .sid (Q=salir): ");
+        uart_puts("SID (Q=salir, X=XMODEM): ");
         read_line(filename, sizeof(filename));
         to_upper(filename);
         
@@ -479,16 +538,23 @@ int main(void) {
             return 0;
         }
         
-        /* Agregar extensión si falta */
-        if (strlen(filename) > 0 && strstr(filename, ".SID") == 0) {
-            if (strlen(filename) < 12) {
-                strcat(filename, ".SID");
+        /* XMODEM? */
+        if (filename[0] == 'X' && filename[1] == '\0') {
+            if (!load_sid_xmodem()) {
+                continue;
             }
-        }
-        
-        /* Cargar archivo */
-        if (!load_sid_file(filename)) {
-            continue;
+        } else {
+            /* Agregar extensión si falta */
+            if (strlen(filename) > 0 && strstr(filename, ".SID") == 0) {
+                if (strlen(filename) < 12) {
+                    strcat(filename, ".SID");
+                }
+            }
+            
+            /* Cargar archivo desde SD */
+            if (!load_sid_file(filename)) {
+                continue;
+            }
         }
         
         /* Mostrar info */
