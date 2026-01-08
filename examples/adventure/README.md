@@ -35,7 +35,7 @@ Explora las habitaciones, encuentra objetos útiles y escapa con el oro!
 | `I` | Ver inventario |
 | `G` | Coger objeto |
 | `H` | Mostrar ayuda |
-| `Q` | Salir del juego |
+| `Q` | Salir (vuelve al monitor) |
 
 ## Objetos
 
@@ -105,7 +105,7 @@ make
 
 ```
 LOAD ADVENT
-G 0800
+R
 ```
 
 ## Hardware Utilizado
