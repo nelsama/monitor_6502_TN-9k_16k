@@ -306,7 +306,7 @@ uint8_t load_sid_xmodem(void) {
     uint16_t data_size;
     uint8_t *src;
     
-    /* Recibe a $0800 */
+    /* Recibe a $0800 - área de SIDs */
     uart_puts("XMODEM listo...\r\n");
     bytes = rom_xmodem_receive(0x0800);
     
@@ -315,7 +315,7 @@ uint8_t load_sid_xmodem(void) {
         return 0;
     }
     
-    /* Copiar header */
+    /* Copiar header a variable global */
     memcpy(&header, (void*)0x0800, sizeof(header));
     
     if (!parse_psid_header()) {
@@ -339,15 +339,15 @@ uint8_t load_sid_xmodem(void) {
         data_size = bytes - header.dataOffset;
     }
     
+    /* Verificar límites: SID debe cargar en $1000-$25FF */
     if (load_addr < 0x0800 || load_addr + data_size > 0x2600) {
         uart_puts("No cabe\r\n");
         return 0;
     }
     
-    /* Mover datos si es necesario */
-    if (load_addr != (uint16_t)src) {
-        sid_copy_to_memory(src, load_addr, data_size);
-    }
+    /* Copiar datos SID a su destino */
+    /* sid_copy_to_memory detecta solapamiento y copia hacia atrás si es necesario */
+    sid_copy_to_memory(src, load_addr, data_size);
     
     uart_puts("OK $");
     uart_print_hex16(load_addr);

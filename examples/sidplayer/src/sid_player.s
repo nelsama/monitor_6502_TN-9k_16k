@@ -101,7 +101,7 @@ ROMAPI_MFS_READ_EXT = $BF27
 
 ;-----------------------------------------------------------------------------
 ; void sid_copy_to_memory(uint8_t *src, uint16_t dest, uint16_t len)
-; Copia len bytes desde src a dest
+; Copia len bytes desde src a dest, hacia atrás para evitar solapamiento
 ; Parámetros cc65: src en stack, dest en stack, len en A/X
 ;-----------------------------------------------------------------------------
 .proc _sid_copy_to_memory
@@ -119,33 +119,63 @@ ROMAPI_MFS_READ_EXT = $BF27
         sta     ptr1            ; src low
         stx     ptr1+1          ; src high
         
-        ; Copiar byte por byte
-        ldy     #0
-@loop:
         ; Verificar si len == 0
         lda     tmp1
         ora     tmp2
         beq     @done
         
-        ; Copiar un byte
+        ; Ajustar punteros al final: ptr += len - 1
+        clc
+        lda     ptr1
+        adc     tmp1
+        sta     ptr1
+        lda     ptr1+1
+        adc     tmp2
+        sta     ptr1+1
+        
+        lda     ptr1
+        bne     :+
+        dec     ptr1+1
+:       dec     ptr1
+        
+        clc
+        lda     ptr2
+        adc     tmp1
+        sta     ptr2
+        lda     ptr2+1
+        adc     tmp2
+        sta     ptr2+1
+        
+        lda     ptr2
+        bne     :+
+        dec     ptr2+1
+:       dec     ptr2
+        
+        ldy     #0
+@loop:
         lda     (ptr1),y
         sta     (ptr2),y
         
-        ; Incrementar punteros
-        iny
-        bne     @no_inc
-        inc     ptr1+1
-        inc     ptr2+1
-@no_inc:
+        ; Decrementar punteros
+        lda     ptr1
+        bne     :+
+        dec     ptr1+1
+:       dec     ptr1
+        
+        lda     ptr2
+        bne     :+
+        dec     ptr2+1
+:       dec     ptr2
         
         ; Decrementar len
         lda     tmp1
-        bne     @dec_lo
+        bne     :+
         dec     tmp2
-@dec_lo:
-        dec     tmp1
+:       dec     tmp1
         
-        jmp     @loop
+        lda     tmp1
+        ora     tmp2
+        bne     @loop
         
 @done:
         rts
