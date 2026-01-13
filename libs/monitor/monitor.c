@@ -487,17 +487,19 @@ static void mon_info(void) {
     uart_puts(" bytes)");
     mon_newline();
     
-    uart_puts("ROM:        $8000-$9FFF (~8 KB)");
+    uart_puts("ROM:        $8000-$BFFF (16 KB)");
     mon_newline();
     
     uart_puts("I/O:        $C000-$C0FF");
     mon_newline();
     mon_newline();
     
-    uart_puts("RAM libre para programas:");
+    uart_puts("Monitor BSS: $0200-$07FF");
     mon_newline();
-    uart_puts("  $0200-$3DFF (");
-    mon_print_dec(0x3DFF - 0x0200 + 1);
+    uart_puts("RAM para programas:");
+    mon_newline();
+    uart_puts("  $0800-$3DFF (");
+    mon_print_dec(0x3DFF - 0x0800 + 1);
     uart_puts(" bytes)");
     mon_newline();
 }
