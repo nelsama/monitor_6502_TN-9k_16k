@@ -44,9 +44,6 @@ Todo en **HEXADECIMAL** (sin prefijo `$` ni `0x`)
 | Comando | Sintaxis | Descripción |
 |---------|----------|-------------|
 | **I** | `I` | Info del sistema (mapa de memoria) |
-| **S** | `S addr len` | Escanear memoria libre ($00 o $FF) |
-| **T** | `T addr len` | Test de RAM (¡destruye datos!) |
-| **V** | `V` | Mapa visual de uso de RAM |
 
 ### Comandos SD Card
 
