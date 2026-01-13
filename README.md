@@ -258,10 +258,11 @@ Ver documentación completa en `examples/leds/README.md`
 | Rango | Uso |
 |-------|-----|
 | `$0002-$001F` | Zero Page del Monitor (**NO USAR**) |
-| `$0020-$005F` | Zero Page disponible para programas |
+| `$0020-$007F` | Zero Page disponible para programas |
 | `$0100-$01FF` | Stack del 6502 (compartido) |
-| `$0400-$3DFF` | **RAM para programas** |
-| `$3E00-$3FFF` | Stack del Monitor |
+| `$0200-$07FF` | BSS del Monitor (**NO USAR**) |
+| `$0800-$3DFF` | **RAM para programas** |
+| `$3E00-$3FFF` | Stack de CC65 |
 | `$C001` | Puerto LEDs (lógica negativa) |
 
 ### Programa en Ensamblador (Manual)
