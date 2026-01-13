@@ -9,7 +9,7 @@ Reproductor de archivos .sid (PSID v1/v2) para el Monitor 6502 con chip SID.
 - **Multi-canción**: Navega entre canciones del archivo
 - **Info en pantalla**: Muestra título, autor y copyright
 - **Controles intuitivos**: Pausa, siguiente, anterior
-- **LEDs sincronizados**: Efectos visuales durante reproducción
+- **VU meter en LEDs**: 3 modos (Max/3ch/Off) con envolventes del SID
 - **Timing preciso**: Usa timer hardware para 60Hz (NTSC)
 - **Usa ROM API**: No incluye librerías, las llama desde ROM (~5.5KB)
 
@@ -40,12 +40,12 @@ Reproductor de archivos .sid (PSID v1/v2) para el Monitor 6502 con chip SID.
 $0000-$01FF  Zero Page y Stack del sistema
 $0200-$07FF  Variables del monitor
 $0800-$25FF  ← Datos SID (máx ~7.5KB)
-$2600-$3CFF  ← SID Player (~5KB)
-$3D00-$3DFF  Stack del player
+$2600-$3EFF  ← SID Player (~6.25KB)
+$3F00-$3FFF  Stack del player
 $8000-$BEFF  ROM Monitor
 $BF00-$BFF9  ROM API (Jump Table)
 $BFFA-$BFFF  Vectores 6502
-$D400-$D41F  Chip SID
+$D400-$D41F  Chip SID (+ registros extendidos $D41D-$D41F)
 ```
 
 ## Uso
@@ -72,7 +72,8 @@ SIDPLAY cargado, 5439 bytes
 > R 2600
 
 ================================
-  SID PLAYER 6502 v1.1.0
+  SID PLAYER 6502 v1.2.0
+  V=VU mode (Max/3ch/Off)
 ================================
 
 SID (Q=salir, X=XMODEM): IKARI     <- nombre de archivo en SD
@@ -85,8 +86,16 @@ SID (Q=salir, X=XMODEM): X         <- recibe por XMODEM
 | ESPACIO | Pausa / Continuar |
 | N | Siguiente canción |
 | P | Canción anterior |
+| V | Cambiar modo VU meter |
 | 1-9 | Ir a canción específica |
 | Q | Volver al menú principal |
+
+### Modos VU meter (tecla V)
+| Modo | Descripción |
+|------|-------------|
+| Max | 6 LEDs muestran el máximo de las 3 voces |
+| 3ch | 2 LEDs por canal (V1=LED1-2, V2=LED3-4, V3=LED5-6) |
+| Off | LEDs apagados |
 
 ## ROM API
 
@@ -160,6 +169,15 @@ sidplayer/
 ```
 
 ## Changelog
+
+### v1.2.0 (2026-01-13)
+- VU meter en LEDs con 3 modos seleccionables (tecla V)
+  - Max: 6 LEDs muestran máximo de 3 voces
+  - 3ch: 2 LEDs por canal (visualiza cada voz)
+  - Off: LEDs apagados
+- LEDs apagados al inicio, en pausa y al cambiar canción
+- Usa registros extendidos SID ($D41D-$D41F) para envelopes
+- Optimización de memoria (buffer reducido)
 
 ### v1.1.0 (2026-01-08)
 - Soporte XMODEM para cargar SIDs por serial

@@ -13,6 +13,7 @@
  *   N        - Siguiente canción
  *   P        - Canción anterior  
  *   Q        - Salir al monitor
+ *   V        - Cambiar modo VU meter (Max/3ch/Off)
  *   1-9      - Ir a canción específica
  *
  * Uso: 
@@ -62,6 +63,16 @@
 
 /* SID Base */
 #define SID_BASE        0xD400
+#define SID_ENV3        (*(volatile uint8_t *)0xD41C)  /* Envelope voz 3 (SID original) */
+#define SID_ENV1        (*(volatile uint8_t *)0xD41D)  /* Envelope voz 1 (extendido) */
+#define SID_ENV2        (*(volatile uint8_t *)0xD41E)  /* Envelope voz 2 (extendido) */
+#define SID_ENV_MAX     (*(volatile uint8_t *)0xD41F)  /* Máximo de los 3 (extendido) */
+
+/* Modos de VU meter */
+#define VU_MODE_MAX     0   /* 6 LEDs muestran el máximo de las 3 voces */
+#define VU_MODE_3CH     1   /* 2 LEDs por canal (V1=LED1-2, V2=LED3-4, V3=LED5-6) */
+#define VU_MODE_OFF     2   /* VU meter apagado */
+#define VU_MODE_COUNT   3
 
 /* Funciones ASM del player */
 extern void sid_clear(void);
@@ -92,15 +103,15 @@ typedef struct {
  * VARIABLES GLOBALES
  * ============================================================================ */
 static psid_header_t header;
-static uint8_t file_buffer[256];   /* Buffer de lectura */
+static uint8_t file_buffer[100];   /* Buffer de lectura (reducido) */
 static uint8_t current_song;       /* Canción actual (0-based) */
 static uint8_t total_songs;        /* Total de canciones */
 static uint8_t paused;             /* Estado de pausa */
+static uint8_t vu_mode;            /* Modo VU meter (0=Max, 1=3ch, 2=Off) */
 static uint16_t init_addr;         /* Dirección init */
 static uint16_t play_addr;         /* Dirección play */
 static uint16_t load_addr;         /* Dirección de carga */
 static uint32_t timer_last;        /* Timer para timing */
-static uint8_t led_counter;        /* Contador para LEDs */
 
 /* ============================================================================
  * FUNCIONES UART (usando ROM API)
@@ -206,22 +217,6 @@ void timer_wait_frame(void) {
  * PARSEAR HEADER PSID
  * ============================================================================ */
 uint8_t parse_psid_header(void) {
-    /* Debug: mostrar magic leído */
-    uart_puts("Magic: ");
-    uart_print_hex8(header.magic[0]);
-    rom_uart_putc(' ');
-    uart_print_hex8(header.magic[1]);
-    rom_uart_putc(' ');
-    uart_print_hex8(header.magic[2]);
-    rom_uart_putc(' ');
-    uart_print_hex8(header.magic[3]);
-    uart_puts(" (");
-    rom_uart_putc(header.magic[0]);
-    rom_uart_putc(header.magic[1]);
-    rom_uart_putc(header.magic[2]);
-    rom_uart_putc(header.magic[3]);
-    uart_puts(")\r\n");
-    
     /* Verificar magic */
     if (header.magic[0] != 'P' && header.magic[0] != 'R') return 0;
     if (header.magic[1] != 'S') return 0;
@@ -450,7 +445,7 @@ uint8_t load_sid_file(const char *filename) {
         return 0;
     }
     
-    uart_puts("Copiando ");
+    uart_puts("Copiando ");;
     uart_print_dec(data_size / 256);
     uart_puts(" paginas a $");
     uart_print_hex16(load_addr);
@@ -509,10 +504,14 @@ int main(void) {
     uint8_t pattern;
     uint8_t result;
     
+    /* Apagar LEDs al inicio */
+    LEDS = 0xFF;
+    
     /* Banner */
     uart_puts("\r\n");
     uart_puts("================================\r\n");
-    uart_puts("  SID PLAYER 6502 v1.1.0\r\n");
+    uart_puts("  SID PLAYER 6502 v1.2.0\r\n");
+    uart_puts("  V=VU mode (Max/3ch/Off)\r\n");
     uart_puts("================================\r\n\r\n");
     
     /* Intentar montar filesystem (por si no está montado) */
@@ -562,6 +561,8 @@ int main(void) {
         
         /* Inicializar primera canción */
         paused = 0;
+        vu_mode = VU_MODE_MAX;  /* VU meter activado por defecto */
+        LEDS = 0xFF;           /* Apagar LEDs al iniciar */
         init_song(current_song);
         
         /* Loop de reproducción */
@@ -575,6 +576,7 @@ int main(void) {
                         paused = !paused;
                         if (paused) {
                             sid_clear();  /* Silenciar al pausar */
+                            LEDS = 0xFF;  /* Apagar LEDs al pausar */
                         } else {
                             timer_last = timer_read();
                         }
@@ -608,6 +610,16 @@ int main(void) {
                         print_newline();
                         goto next_file;
                         
+                    case 'v':
+                    case 'V':  /* Cambiar modo VU meter */
+                        vu_mode = (vu_mode + 1) % VU_MODE_COUNT;
+                        LEDS = 0xFF;  /* Apagar LEDs al cambiar */
+                        uart_puts("\rVU: ");
+                        if (vu_mode == VU_MODE_MAX) uart_puts("Max ");
+                        else if (vu_mode == VU_MODE_3CH) uart_puts("3ch ");
+                        else uart_puts("Off ");
+                        break;
+                        
                     default:
                         /* Números 1-9 para ir a canción */
                         if (key >= '1' && key <= '9') {
@@ -629,13 +641,35 @@ int main(void) {
                 /* Esperar siguiente frame (50Hz) */
                 timer_wait_frame();
                 
-                /* Actualizar LEDs con efecto */
-                led_counter++;
-                if ((led_counter & 0x07) == 0) {
-                    pattern = LEDS;
-                    pattern = ((pattern << 1) | (pattern >> 5)) & 0x3F;
-                    LEDS = ~pattern;
+                /* VU meter según modo seleccionado */
+                pattern = 0;
+                if (vu_mode == VU_MODE_MAX) {
+                    /* Modo Max: 6 LEDs muestran el máximo de las 3 voces */
+                    num = SID_ENV_MAX;
+                    if (num > 20)  pattern |= 0x01;
+                    if (num > 60)  pattern |= 0x02;
+                    if (num > 100) pattern |= 0x04;
+                    if (num > 140) pattern |= 0x08;
+                    if (num > 180) pattern |= 0x10;
+                    if (num > 220) pattern |= 0x20;
                 }
+                else if (vu_mode == VU_MODE_3CH) {
+                    /* Modo 3 canales: 2 LEDs por voz */
+                    /* Voz 1: LED 1-2 */
+                    num = SID_ENV1;
+                    if (num > 40)  pattern |= 0x01;
+                    if (num > 140) pattern |= 0x02;
+                    /* Voz 2: LED 3-4 */
+                    num = SID_ENV2;
+                    if (num > 40)  pattern |= 0x04;
+                    if (num > 140) pattern |= 0x08;
+                    /* Voz 3: LED 5-6 */
+                    num = SID_ENV3;
+                    if (num > 40)  pattern |= 0x10;
+                    if (num > 140) pattern |= 0x20;
+                }
+                /* VU_MODE_OFF: pattern queda en 0 */
+                LEDS = ~pattern;  /* LEDs activos en bajo */
             }
         }
         
