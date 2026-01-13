@@ -20,8 +20,10 @@ Permite programar, depurar y ejecutar código en tiempo real a través de una in
 - ✅ Control de 6 LEDs
 - ✅ ROM de 16KB
 - ✅ Compilación con cc65
-- ✅ **Plantilla de programa** en ensamblador incluida ([examples/leds/](examples/leds))
-- ✅ **SID Player** incluido ([examples/sidplayer/](examples/sidplayer))
+- ✅ **Plantillas de programa** incluidas:
+  - [examples/leds/](examples/leds) - Ensamblador (Knight Rider)
+  - [examples/leds_c/](examples/leds_c) - C con ROM API (3 efectos)
+  - [examples/sidplayer/](examples/sidplayer) - Reproductor SID en C
 
 ---
 
@@ -168,6 +170,7 @@ Cargando MIPROG.BIN en $0800...
 | SPI CS | `$C012` | Chip Select SD |
 | UART Data | `$C020` | Datos TX/RX |
 | UART Status | `$C021` | Estado UART |
+| Timer | `$C030-$C03C` | Timer/RTC de 32-bit (ticks, microsegundos) |
 
 ---
 
@@ -184,11 +187,13 @@ Cargando MIPROG.BIN en $0800...
 │   ├── spi-6502-cc65/      # Bus SPI
 │   ├── sdcard-spi-6502-cc65/  # Driver SD Card
 │   └── microfs-6502-cc65/  # Sistema de archivos
-├── examples/               # 📁 EJEMPLOS Y PLANTILLAS
-│   └── leds/               # Plantilla: efecto Knight Rider
-│       ├── src/main.s      # Código fuente
-│       ├── config/programa.cfg # Configuración del linker
-│       ├── makefile        # Compilación
+├── ├── leds/               # Plantilla: efecto Knight Rider (ASM)
+│   │   ├── src/main.s      # Código fuente
+│   │   ├── config/programa.cfg # Configuración del linker
+│   │   ├── makefile        # Compilación
+│   │   └── README.md       # Documentación
+│   ├── leds_c/             # Plantilla: efectos LEDs (C + ROM API)
+│   └── sidplayer/          # Reproductor SID (C + ROM API)
 │       └── README.md       # Documentación
 ├── config/
 │   └── fpga.cfg            # Configuración del linker cc65
@@ -222,9 +227,12 @@ make
 ### Cargar en FPGA
 Copiar `output/rom.vhd` al proyecto FPGA y sintetizar con Gowin EDA.
 
----
+---s Plantillas (Recomendado)
 
-## Crear Programas para el Monitor
+Existen **tres plantillas** completas según tus necesidades:
+
+#### Plantilla en Ensamblador (`examples/leds/`)
+Ideal para programas pequeños y rápidos
 
 ### 🚀 Usar la Plantilla (Recomendado)
 
@@ -244,12 +252,39 @@ SD                      ; Inicializar SD
 LOAD LEDS.BIN           ; Cargar programa (default $0800)
 R                       ; Ejecutar
 ```
+ en ASM:**
+1. Copia la carpeta `examples/leds/` con otro nombre
+2. Edita `src/main.s` con tu código
+3. Compila con `make`
 
-O via XMODEM (sin SD):
+Ver [examples/leds/README.md](examples/leds/README.md)
+
+#### Plantilla en C (`examples/leds_c/`)
+Ideal para programas complejos usando ROM API:
+
+```bash
+cd examples/leds_c
+make        # Compilar
+make info   # Ver tamaño
 ```
-XRECV                   ; Recibir via XMODEM (default $0800)
-R                       ; Ejecutar
-```
+
+Características:
+- ✅ Usa **ROM API** (UART, Timer hardware)
+- ✅ Código en C más fácil de mantener
+- ✅ Tres efectos de LEDs con timing preciso
+- ✅ Tamaño compacto (~1.2KB)
+
+**Para crear tu propio programa en C:**
+1. Copia la carpeta `examples/leds_c/` con otro nombre
+2. Edita `src/main.c` con tu código
+3. Compila con `make`
+
+Ver [examples/leds_c/README.md](examples/leds_c/README.md)
+
+#### SID Player (`examples/sidplayer/`)
+Ejemplo avanzado: reproductor de archivos .sid
+
+Ver [examples/sidplayer/README.md](examples/sidplayer/README.md)
 
 **Para crear tu propio programa:**
 1. Copia la carpeta `examples/leds/` con otro nombre
@@ -289,6 +324,8 @@ Compilar:
 ```bash
 ca65 -t none -o ejemplo.o ejemplo.s
 ld65 -C examples/leds/config/programa.cfg -o EJEMPLO.BIN ejemplo.o
+> **Nota:** El Timer ($C030-$C03C) se accede directamente por hardware, no está en la ROM API.
+
 ```
 
 ### Cargar y ejecutar
