@@ -54,11 +54,12 @@ make map
 | Rango | Uso |
 |-------|-----|
 | `$0002-$001F` | Zero Page del Monitor (NO USAR) |
-| `$0020-$005F` | Zero Page disponible para programas |
+| `$0020-$007F` | Zero Page disponible para programas |
 | `$0100-$01FF` | Stack del 6502 (compartido) |
-| `$0400-$3DFF` | RAM para programas |
-| `$3E00-$3FFF` | Stack del Monitor |
-| `$C000-$C003` | Puertos de I/O |
+| `$0200-$07FF` | BSS del Monitor (NO USAR) |
+| `$0800-$3DFF` | RAM para programas |
+| `$3E00-$3FFF` | Stack de CC65 |
+| `$C000-$C0FF` | Puertos de I/O |
 
 ## Puertos de Hardware
 
@@ -93,11 +94,11 @@ LEDS = $C001    ; Puerto de LEDs (6 bits, lógica negativa)
 
 ## Notas Importantes
 
-- El código **inicia en $0400** (segmento STARTUP)
-- Usar **Zero Page $20-$5F** para variables (no $02-$1F)
+- El código **inicia en $0800** (segmento STARTUP)
+- Usar **Zero Page $20-$7F** para variables (no $02-$1F)
 - Los LEDs usan **lógica negativa** (0=encendido)
 - El programa puede usar `JSR`/`RTS` normalmente (stack $0100-$01FF)
-- Para volver al monitor, el programa debe terminar con un loop infinito
+- Para volver al monitor, terminar con `RTS`
 
 ## Efectos Incluidos en main.s
 
