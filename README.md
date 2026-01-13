@@ -112,11 +112,14 @@ Ejecutando en $0800...
 Retorno de $0800
 ```
 
+
 ### Usar SD Card
 ```
 >SD
-SD Card inicializada OK
-Tipo: SDHC
+Inicializando SD Card...
+  SD OK, tipo: SD
+Montando MicroFS...
+  FS montado OK
 
 >LS
 PROG.BIN      256
