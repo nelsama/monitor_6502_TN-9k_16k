@@ -72,7 +72,7 @@ SIDPLAY cargado, ~5.5KB
 > R 2700
 
 ================================
-  SID PLAYER 6502 v1.2.0
+  SID PLAYER 6502 v1.2.1
   V=VU mode (Max/3ch/Off)
 ================================
 
