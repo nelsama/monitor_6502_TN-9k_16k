@@ -878,7 +878,7 @@ static void mon_help(void) {
     uart_puts("F addr l v Fill\r\n");
     uart_puts("M addr [n] Desensamblar\r\n");
     uart_puts("XRECV [addr] XMODEM (def $0800)\r\n");
-    uart_puts("I/S/T/V    Mem info/scan/test/vista\r\n");
+    uart_puts("I          Info memoria\r\n");
     uart_puts("--- SD ---\r\n");
     uart_puts("SD/LS/SDFORMAT SAVE/LOAD/DEL/CAT\r\n");
     uart_puts("H/?/Q Ayuda/Salir\r\n");
@@ -926,19 +926,6 @@ static void mon_help_cmd(char cmd) {
         case 'I':
             uart_puts("I - Info mapa memoria\r\n");
             uart_puts("Muestra rangos: ZP,Stack,RAM,I/O,ROM\r\n");
-            break;
-        case 'S':
-            uart_puts("S addr len - Scan mem libre\r\n");
-            uart_puts("Busca bloques 00/FF\r\n");
-            uart_puts("Ej: S 0200 1000\r\n");
-            break;
-        case 'T':
-            uart_puts("T addr len - Test RAM\r\n");
-            uart_puts("DESTRUYE datos! Ej: T 0200 100\r\n");
-            break;
-        case 'V':
-            uart_puts("V - Vista mapa RAM\r\n");
-            uart_puts(".=vacio #=usado X=mixto\r\n");
             break;
         case 'Q':
             uart_puts("Q - Salir del monitor\r\n");
