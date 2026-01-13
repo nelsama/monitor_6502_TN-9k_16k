@@ -334,8 +334,8 @@ uint8_t load_sid_xmodem(void) {
         data_size = bytes - header.dataOffset;
     }
     
-    /* Verificar límites: SID debe cargar en $1000-$25FF */
-    if (load_addr < 0x0800 || load_addr + data_size > 0x2600) {
+    /* Verificar límites: SID debe cargar en $0800-$26FF */
+    if (load_addr < 0x0800 || load_addr + data_size > 0x2700) {
         uart_puts("No cabe\r\n");
         return 0;
     }
@@ -433,14 +433,14 @@ uint8_t load_sid_file(const char *filename) {
         data_size = file_size - header.dataOffset;
     }
     
-    /* Verificar que cabe en RAM sin colisionar con el programa (en $2600+) */
-    if (load_addr < 0x0800 || load_addr + data_size > 0x2600) {
+    /* Verificar que cabe en RAM sin colisionar con el programa (en $2700+) */
+    if (load_addr < 0x0800 || load_addr + data_size > 0x2700) {
         uart_puts("Error: SID no cabe en RAM\r\n");
         uart_puts("  Load: $");
         uart_print_hex16(load_addr);
         uart_puts(" End: $");
         uart_print_hex16(load_addr + data_size);
-        uart_puts(" (max $2600)\r\n");
+        uart_puts(" (max $2700)\r\n");
         rom_mfs_close();
         return 0;
     }
@@ -510,7 +510,7 @@ int main(void) {
     /* Banner */
     uart_puts("\r\n");
     uart_puts("================================\r\n");
-    uart_puts("  SID PLAYER 6502 v1.2.0\r\n");
+    uart_puts("  SID PLAYER 6502 v1.2.1\r\n");
     uart_puts("  V=VU mode (Max/3ch/Off)\r\n");
     uart_puts("================================\r\n\r\n");
     

@@ -17,7 +17,7 @@ Reproductor de archivos .sid (PSID v1/v2) para el Monitor 6502 con chip SID.
 
 ### ✅ Funciona con SIDs que:
 - **Cargan en $1000** (dirección estándar de demoscene)
-- **Tamaño < 5.5KB** (para no chocar con el player en $2600)
+- **Tamaño < 7.75KB** (para no chocar con el player en $2700)
 - **Zero Page en $80-$EF** (o que no usen ZP)
 - playAddress != 0 (no-IRQ, polling)
 
@@ -29,7 +29,7 @@ Reproductor de archivos .sid (PSID v1/v2) para el Monitor 6502 con chip SID.
 ### ❌ NO funciona con SIDs que:
 - Cargan fuera de $1000 (ej: $5000, $AE00, $BFF0) - fuera del RAM de 16KB
 - Usan Zero Page por debajo de $80 (conflicto con monitor/CC65)
-- Requieren más de 5.5KB de datos
+- Requieren más de 7.75KB de datos
 - Usan samples digitalizados (digi-samples)
 - Requieren 2SID/Stereo
 - Necesitan IRQ real (este player usa polling a 60Hz)
@@ -39,8 +39,8 @@ Reproductor de archivos .sid (PSID v1/v2) para el Monitor 6502 con chip SID.
 ```
 $0000-$01FF  Zero Page y Stack del sistema
 $0200-$07FF  Variables del monitor
-$0800-$25FF  ← Datos SID (máx ~7.5KB)
-$2600-$3EFF  ← SID Player (~6.25KB)
+$0800-$26FF  ← Datos SID (máx ~7.75KB)
+$2700-$3EFF  ← SID Player (~6KB)
 $3F00-$3FFF  Stack del player
 $8000-$BEFF  ROM Monitor
 $BF00-$BFF9  ROM API (Jump Table)
@@ -67,9 +67,9 @@ copy *.sid X:\
 ```
 En el monitor:
 
-> LOAD SIDPLAY 2600
-SIDPLAY cargado, 5439 bytes
-> R 2600
+> LOAD SIDPLAY 2700
+SIDPLAY cargado, ~5.5KB
+> R 2700
 
 ================================
   SID PLAYER 6502 v1.2.0
@@ -163,12 +163,17 @@ sidplayer/
 │   ├── sid_player.s    # Funciones ASM (incluyendo rom_read_file wrapper)
 │   └── startup.s       # Inicialización CC65
 ├── config/
-│   └── programa.cfg    # Linker config ($2600)
+│   └── programa.cfg    # Linker config ($2700)
 ├── makefile
 └── README.md
 ```
 
 ## Changelog
+
+### v1.2.1 (2026-01-13)
+- Player movido a $2700 (antes $2600)
+- SIDs ahora pueden usar hasta ~7.75KB (antes ~7.5KB)
+- Corregido límite en XMODEM para coincidir con nuevo layout
 
 ### v1.2.0 (2026-01-13)
 - VU meter en LEDs con 3 modos seleccionables (tecla V)
