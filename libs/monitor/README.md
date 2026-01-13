@@ -1,4 +1,4 @@
-# Monitor 6502 v2.0.5 + SD Card
+# Monitor 6502 v2.3.0 + SD Card
 
 Monitor/debugger interactivo para el procesador 6502 a través de UART para Tang Nano 9K con soporte de SD Card.
 
@@ -10,7 +10,7 @@ Monitor/debugger interactivo para el procesador 6502 a través de UART para Tang
 - ✅ Ejecución de código en cualquier dirección
 - ✅ Desensamblador completo 6502
 - ✅ Fill de memoria
-- ✅ Análisis de memoria RAM (scan, test, mapa visual)
+- ✅ Info de memoria (comando I)
 - ✅ **SD Card**: guardar, cargar, listar, eliminar archivos
 - ✅ **XMODEM**: transferencia de archivos desde PC
 - ✅ Ayuda contextual por comando (`H cmd`)
@@ -53,9 +53,6 @@ Monitor/debugger interactivo para el procesador 6502 a través de UART para Tang
 | Comando | Sintaxis | Descripción |
 |---------|----------|-------------|
 | **I** | `I` | Info del sistema (mapa de memoria) |
-| **S** | `S addr len` | Escanear memoria libre ($00 o $FF) |
-| **T** | `T addr len` | Test de RAM (¡destruye datos!) |
-| **V** | `V` | Mapa visual de uso de RAM |
 
 ## Comandos SD Card
 
@@ -82,17 +79,17 @@ Monitor/debugger interactivo para el procesador 6502 a través de UART para Tang
 
 ### Leer memoria
 ```
->R 0200
-$0200 = $A9
+>RD 0800
+$0800 = $A9
 
->R C001
+>RD C001
 $C001 = $3F
 ```
 
 ### Escribir memoria
 ```
->W 0200 EA
-$0200 <- $EA
+>W 0800 EA
+$0800 <- $EA
 
 >W C001 3F
 $C001 <- $3F    (enciende LEDs)
@@ -107,23 +104,23 @@ $C001 <- $3F    (enciende LEDs)
 
 ### Cargar programa manualmente
 ```
->L 0200
-Modo carga en $0200 (terminar con '.')
+>L 0800
+Modo carga en $0800 (terminar con '.')
 :A9 3F 8D 01 C0 60 .
 Cargados 0006 bytes
 ```
 
 ### Ejecutar código
 ```
->R 0200
-Ejecutando en $0200...
-Retorno de $0200
+>R 0800
+Ejecutando en $0800...
+Retorno de $0800
 ```
 
 ### Desensamblar
 ```
->M 0200
-0200  A9 3F     LDA #$3F
+>M 0800
+0800  A9 3F     LDA #$3F
 0202  8D 01 C0  STA $C001
 0205  60        RTS
 ```
@@ -139,7 +136,7 @@ Filled $0300-$03FF con $EA
 >H L
 L addr - Cargar hex interactivo
 Escribe bytes, '.' termina
-Ej: L 0200 -> A9 01 8D 01 C0 60 .
+Ej: L 0800 -> A9 01 8D 01 C0 60 .
 ```
 
 ---
@@ -162,18 +159,18 @@ TEST.BIN     128
 
 ### Guardar programa a SD
 ```
->SAVE MIPROG.BIN 0200 100
+>SAVE MIPROG.BIN 0800 100
 Guardando MIPROG.BIN...
 256 bytes guardados
 ```
 
 ### Cargar programa desde SD
 ```
->LOAD MIPROG.BIN 0200
-Cargando MIPROG.BIN en $0200...
+>LOAD MIPROG.BIN 0800
+Cargando MIPROG.BIN en $0800...
 256 bytes cargados
 
->R 0200
+>R 0800
 ```
 
 ---
@@ -189,7 +186,7 @@ Puedes crear programas en **Ensamblador** o **C**, compilarlos, y cargarlos al m
 Crea un archivo `miprog.s`:
 
 ```asm
-; miprog.s - Programa para cargar en $0200
+; miprog.s - Programa para cargar en $0800
 ; Ejemplo: Parpadeo de LEDs
 
 .segment "CODE"
@@ -228,7 +225,7 @@ Crea `programa.cfg`:
 
 ```
 MEMORY {
-    RAM: start = $0200, size = $3C00, file = %O;
+    RAM: start = $0800, size = $3C00, file = %O;
 }
 SEGMENTS {
     CODE: load = RAM, type = rw;
@@ -244,7 +241,7 @@ SEGMENTS {
 # Ensamblar
 ca65 -t none -o miprog.o miprog.s
 
-# Linkear a binario desde $0200
+# Linkear a binario desde $0800
 ld65 -C programa.cfg -o MIPROG.BIN miprog.o
 ```
 
@@ -254,8 +251,8 @@ ld65 -C programa.cfg -o MIPROG.BIN miprog.o
 2. En el monitor:
 ```
 >SD
->LOAD MIPROG.BIN 0200
->R 0200
+>LOAD MIPROG.BIN 0800
+>R 0800
 ```
 
 ---
@@ -267,7 +264,7 @@ ld65 -C programa.cfg -o MIPROG.BIN miprog.o
 Crea un archivo `miprog.c`:
 
 ```c
-/* miprog.c - Programa para cargar en $0200 */
+/* miprog.c - Programa para cargar en $0800 */
 
 /* Puerto de LEDs */
 #define LEDS (*(volatile unsigned char*)0xC001)
@@ -339,7 +336,7 @@ cc65 -t none -O --cpu 6502 -o miprog.s miprog.c
 ca65 -t none -o miprog.o miprog.s
 ca65 -t none -o crt0.o crt0.s
 
-# Linkear (crt0 primero para que _init esté en $0200)
+# Linkear (crt0 primero para que _init esté en $0800)
 ld65 -C programa.cfg -o MIPROG.BIN crt0.o miprog.o
 ```
 
@@ -347,9 +344,9 @@ ld65 -C programa.cfg -o MIPROG.BIN crt0.o miprog.o
 
 ```
 >SD
->LOAD MIPROG.BIN 0200
->D 0200 20          ; Verificar que cargó
->R 0200             ; Ejecutar
+>LOAD MIPROG.BIN 0800
+>D 0800 20          ; Verificar que cargó
+>R 0800             ; Ejecutar
 ```
 
 ---
@@ -359,16 +356,16 @@ ld65 -C programa.cfg -o MIPROG.BIN crt0.o miprog.o
 Para programas pequeños, puedes introducir los bytes directamente:
 
 ```
->L 0200
+>L 0800
 :A9 3F 8D 01 C0 60 .
 Cargados 0006 bytes
 
->M 0200 3
-0200  A9 3F     LDA #$3F
+>M 0800 3
+0800  A9 3F     LDA #$3F
 0202  8D 01 C0  STA $C001
 0205  60        RTS
 
->R 0200
+>R 0800
 ```
 
 Este programa:
@@ -532,8 +529,8 @@ echo Para usar:
 echo   1. Copia %NAME%.BIN a la SD Card
 echo   2. En el monitor:
 echo      ^>SD
-echo      ^>LOAD %NAME%.BIN 0200
-echo      ^>R 0200
+echo      ^>LOAD %NAME%.BIN 0800
+echo      ^>R 0800
 ```
 
 ---
@@ -541,7 +538,7 @@ echo      ^>R 0200
 ## Notas Técnicas
 
 - **Buffer de entrada**: 64 caracteres máximo por línea
-- **RAM usable**: `$0200-$3DFF` (~15KB para tus programas)
+- **RAM usable**: `$0800-$3DFF` (~15KB para tus programas)
 - **Retorno al monitor**: Tu código debe terminar con `RTS` ($60)
 - **SD Card**: Formato nombres 8.3 mayúsculas (ej: `PROG.BIN`)
 - **Velocidad**: CPU 6502 @ 3.375 MHz
