@@ -35,6 +35,9 @@
 .import _uart_rx_ready
 .import _uart_tx_ready
 .import _xmodem_receive
+.import _get_micros
+.import _delay_us
+.import _delay_ms
 
 ; ===========================================================================
 ; SEGMENTO ROMAPI - Posición fija en $BF00
@@ -121,6 +124,21 @@ mfs_read_ext_entry:
 ;         Output: A/X = bytes recibidos (positivo) o código error (negativo)
 xmodem_receive_entry:
     JMP _xmodem_receive
+
+; ---------------------------------------------------------------------------
+; FUNCIONES TIMER (Base: $BF2D) - Solo funciones esenciales
+; ---------------------------------------------------------------------------
+; $BF2D - get_micros (retorna uint32_t en sreg:A:X)
+get_micros_entry:
+    JMP _get_micros
+
+; $BF30 - delay_us (param: uint16_t en A:X)
+delay_us_entry:
+    JMP _delay_us
+
+; $BF33 - delay_ms (param: uint16_t en A:X)
+delay_ms_entry:
+    JMP _delay_ms
 
 ; ---------------------------------------------------------------------------
 ; TABLA DE VERSIÓN Y MAGIC (al final)

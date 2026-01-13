@@ -359,19 +359,31 @@ La ROM expone una **jump table** en dirección **$BF00**.
 | `$BF1E` | `uart_puts(str)` | Enviar string |
 | `$BF21` | `uart_rx_ready()` | Verificar RX |
 | `$BF24` | `uart_tx_ready()` | Verificar TX |
+| `$BF27` | `mfs_read_ext()` | Lectura MicroFS (ZP) |
+| `$BF2A` | `xmodem_receive(addr)` | Recibir XMODEM |
+| **`$BF2D`** | **`get_micros()`** | **Leer microsegundos** |
+| **`$BF30`** | **`delay_us(us)`** | **Delay microsegundos** |
+| **`$BF33`** | **`delay_ms(ms)`** | **Delay milisegundos** |
 
 ### Uso desde C
 
 ```c
 #include "romapi.h"    // En include/romapi.h
 
-// Usar macros predefinidas
+// Sistema de archivos
 rom_mfs_open("TEST.SID");
 uint16_t size = rom_mfs_get_size();
 rom_mfs_read(buffer, 512);
 rom_mfs_close();
 
+// UART
 rom_uart_puts("Hola desde ROM API!\r\n");
+
+// Timer (NEW!)
+rom_delay_ms(100);              // Delay de 100ms
+uint32_t start = rom_get_micros();
+// ... código ...
+uint32_t elapsed = rom_get_micros() - start;
 ```
 
 ### Uso desde Ensamblador

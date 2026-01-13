@@ -46,6 +46,11 @@
 #define ROMAPI_MFS_READ_EXT 0xBF27  /* mfs_read con params en ZP $F0-$F3 */
 #define ROMAPI_XMODEM_RECV  0xBF2A  /* xmodem_receive(dest_addr) */
 
+/* Timer - Solo funciones esenciales */
+#define ROMAPI_GET_MICROS   0xBF2D
+#define ROMAPI_DELAY_US     0xBF30
+#define ROMAPI_DELAY_MS     0xBF33
+
 /* Magic y versión */
 #define ROMAPI_MAGIC_ADDR   0xBF50
 #define ROMAPI_MAGIC        "ROMAPI"
@@ -88,6 +93,36 @@ typedef struct {
 
 /* XMODEM */
 #define rom_xmodem_receive(addr) (((int (*)(unsigned int))ROMAPI_XMODEM_RECV)(addr))
+
+/* Timer - Solo funciones esenciales */
+#define rom_get_micros()    (((uint32_t (*)(void))ROMAPI_GET_MICROS)())
+#define rom_delay_us(us)    (((void (*)(uint16_t))ROMAPI_DELAY_US)(us))
+#define rom_delay_ms(ms)    (((void (*)(uint16_t))ROMAPI_DELAY_MS)(ms))
+
+/* ===========================================================================
+ * EJEMPLOS DE USO
+ * ===========================================================================
+ * 
+ * Delays:
+ *   rom_delay_ms(100);        // Delay de 100ms
+ *   rom_delay_us(500);        // Delay de 500 microsegundos
+ * 
+ * Medición de tiempo:
+ *   uint32_t start = rom_get_micros();
+ *   // ... código ...
+ *   uint32_t elapsed = rom_get_micros() - start;
+ * 
+ * UART:
+ *   rom_uart_puts("Hola mundo!\r\n");
+ *   char c = rom_uart_getc();
+ * 
+ * SD Card + MicroFS:
+ *   rom_sd_init();
+ *   rom_mfs_mount();
+ *   rom_mfs_open("FILE.TXT");
+ *   rom_mfs_read(buffer, 256);
+ *   rom_mfs_close();
+ */
 
 /* ===========================================================================
  * NOTA SOBRE mfs_read_ext ($BF27)

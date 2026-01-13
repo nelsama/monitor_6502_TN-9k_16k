@@ -14,35 +14,29 @@
  *   R 0800
  * 
  * ROM API utilizada:
- *   - rom_uart_init()   - Inicializar UART
- *   - rom_uart_puts()   - Enviar string
+ *   - rom_uart_putc()   - Enviar caracteres
+ *   - rom_delay_ms()    - Delays en milisegundos
  * ============================================================================
  */
 
 #include <stdint.h>
 
 /* ============================================================================
+ * ROM API - Timer y UART
+ * ============================================================================ */
+
+/* Timer */
+#define ROMAPI_DELAY_MS     ((void (*)(uint16_t))0xBF3C)
+#define rom_delay_ms(ms)    ROMAPI_DELAY_MS(ms)
+
+/* UART */
+#define ROMAPI_UART_PUTC    ((void (*)(char))0xBF18)
+#define rom_uart_putc(c)    ROMAPI_UART_PUTC(c)
+
+/* ============================================================================
  * HARDWARE
  * ============================================================================ */
 #define LEDS            (*(volatile uint8_t *)0xC001)   /* LEDs (lógica negativa) */
-
-/* Timer - 32-bit microsecond counter */
-#define TIMER_USEC_0    (*(volatile uint8_t *)0xC038)
-#define TIMER_USEC_1    (*(volatile uint8_t *)0xC039)
-#define TIMER_USEC_2    (*(volatile uint8_t *)0xC03A)
-#define TIMER_USEC_3    (*(volatile uint8_t *)0xC03B)
-#define TIMER_LATCH     (*(volatile uint8_t *)0xC03C)
-#define LATCH_USEC      0x02
-
-/* ============================================================================
- * ROM API - UART
- * ============================================================================ */
-
-/* Definir punteros a funciones en ROM */
-#define ROMAPI_UART_PUTC    ((void (*)(char))0xBF18)
-
-/* Macro para llamar función de ROM */
-#define rom_uart_putc(c)    ROMAPI_UART_PUTC(c)
 
 /* Función para enviar strings usando ROM API */
 void uart_print(const char *s) {
@@ -50,46 +44,21 @@ void uart_print(const char *s) {
 }
 
 /* ============================================================================
- * FUNCIONES DE DELAY
+ * FUNCIONES DE DELAY (usando ROM API)
  * ============================================================================ */
-
-/**
- * Leer timer de microsegundos (32-bit)
- */
-uint32_t timer_read(void) {
-    uint32_t t;
-    TIMER_LATCH = LATCH_USEC;
-    t = TIMER_USEC_0;
-    t |= ((uint32_t)TIMER_USEC_1 << 8);
-    t |= ((uint32_t)TIMER_USEC_2 << 16);
-    t |= ((uint32_t)TIMER_USEC_3 << 24);
-    return t;
-}
-
-/**
- * Delay en microsegundos
- */
-void delay_us(uint32_t us) {
-    uint32_t start = timer_read();
-    uint32_t target = start + us;
-    
-    while (timer_read() < target) {
-        /* Esperar */
-    }
-}
 
 /**
  * Delay corto (~100ms)
  */
 void delay_short(void) {
-    delay_us(100000);   /* 100ms */
+    rom_delay_ms(100);   /* 100ms */
 }
 
 /**
  * Delay largo (~300ms)
  */
 void delay_long(void) {
-    delay_us(300000);   /* 300ms */
+    rom_delay_ms(300);   /* 300ms */
 }
 
 /* ============================================================================

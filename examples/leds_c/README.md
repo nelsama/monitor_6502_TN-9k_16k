@@ -102,7 +102,7 @@ Para salir, presionar `CTRL+C` o resetear el monitor.
 ## ROM API Utilizada
 
 Este programa usa la **ROM API** del monitor, lo que permite:
-- ✅ Código más compacto (~2KB vs ~5KB con librerías)
+- ✅ Código más compacto (~777 bytes vs ~1224 bytes con implementación propia)
 - ✅ Sin conflictos con el estado del monitor
 - ✅ No necesita incluir librerías UART/Timer
 
@@ -110,7 +110,10 @@ Este programa usa la **ROM API** del monitor, lo que permite:
 
 | Dirección | Función | Uso en el programa |
 |-----------|---------|-------------------|
-| `$BF1E` | `uart_puts(str)` | Enviar strings al terminal |
+| `$BF18` | `uart_putc(char)` | Enviar caracteres al terminal |
+| `$BF2D` | `get_micros()` | Leer contador de microsegundos |
+| `$BF30` | `delay_us(us)` | Delays en microsegundos |
+| `$BF33` | `delay_ms(ms)` | Delays en milisegundos |
 
 Para usar otras funciones de la ROM API, consultar [`include/romapi.h`](../../include/romapi.h) en la raíz del proyecto.
 
@@ -144,15 +147,15 @@ void mi_funcion(void) {
 ## Ejemplo: Llamar ROM API desde C
 
 ```c
-/* Declarar función en ROM */
-void uart_print(const char *str) {
-    __asm__ ("lda %v", str);
-    __asm__ ("ldx %v+1", str);
-    __asm__ ("jsr $BF1E");  /* rom_uart_puts */
-}
+/* Declarar funciones en ROM usando direcciones de la Jump Table */
+#define ROMAPI_UART_PUTC    ((void (*)(char))0xBF18)
+#define ROMAPI_DELAY_MS     ((void (*)(uint16_t))0xBF33)
 
 /* Usar en tu código */
-uart_print("Hola desde ROM API!\r\n");
+void mi_funcion(void) {
+    ROMAPI_UART_PUTC('H');
+    ROMAPI_DELAY_MS(100);  /* Delay de 100ms */
+}
 ```
 
 ## Diferencias con la Versión en Ensamblador
