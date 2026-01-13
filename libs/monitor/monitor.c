@@ -10,6 +10,9 @@
 #include "../microfs-6502-cc65/microfs.h"
 #include "../../src/xmodem.h"
 
+/* Hardware */
+#define LEDS (*(volatile unsigned char *)0xC001)
+
 /* Buffer de entrada */
 static char input_buffer[MON_BUFFER_SIZE];
 static uint8_t input_pos;
@@ -1335,6 +1338,9 @@ void monitor_init(void) {
 
 void monitor_run(void) {
     uint8_t result;
+    
+    /* Apagar LEDs al iniciar */
+    LEDS = 0xFF;
     
     mon_newline();
     uart_puts("================================");
