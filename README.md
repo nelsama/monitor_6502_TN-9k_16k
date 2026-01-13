@@ -399,4 +399,5 @@ JSR $BF06       ; mfs_open(filename)
 
 ## Licencia
 
-MIT
+Este proyecto está licenciado bajo la **GNU General Public License v3.0**.
+Consulta el archivo LICENSE para más detalles.
