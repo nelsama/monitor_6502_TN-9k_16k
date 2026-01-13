@@ -1,3 +1,4 @@
+
 # Monitor 6502 v2.3.0 + SD Card + XMODEM - Tang Nano 9K
 
 🚀 **Monitor/Debugger interactivo** para CPU 6502 sobre FPGA Tang Nano 9K via UART con soporte de **SD Card** y **XMODEM**.
@@ -19,7 +20,8 @@ Permite programar, depurar y ejecutar código en tiempo real a través de una in
 - ✅ Control de 6 LEDs
 - ✅ ROM de 16KB
 - ✅ Compilación con cc65
-- ✅ **Plantilla de programa** en ensamblador incluida (`examples/leds/`)
+- ✅ **Plantilla de programa** en ensamblador incluida ([examples/leds/](examples/leds))
+- ✅ **SID Player** incluido ([examples/sidplayer/](examples/sidplayer))
 
 ---
 
