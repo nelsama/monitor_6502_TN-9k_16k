@@ -83,11 +83,11 @@ Todo en **HEXADECIMAL** (sin prefijo `$` ni `0x`)
 
 ### Operaciones básicas de memoria
 ```
->R 0200          ; Leer byte en $0200
-$0200 = $A9
+>RD 0800         ; Leer byte en $0800
+$0800 = $A9
 
->W 0200 FF       ; Escribir $FF en $0200
-$0200 <- $FF
+>W 0800 FF       ; Escribir $FF en $0800
+$0800 <- $FF
 
 >D 8000 40       ; Dump 64 bytes desde $8000
 8000: A9 00 8D 01 C0 A9 C0 8D  03 C0 20 00 90 A2 FF CA  |..........  ....|
@@ -95,19 +95,19 @@ $0200 <- $FF
 
 ### Cargar y ejecutar programa
 ```
->L 0200
-Modo carga en $0200 (terminar con '.')
+>L 0800
+Modo carga en $0800 (terminar con '.')
 :A9 3F 8D 01 C0 60 .
 Cargados 0006 bytes
 
->M 0200 3
-0200  A9 3F     LDA #$3F
-0202  8D 01 C0  STA $C001
-0205  60        RTS
+>M 0800 3
+0800  A9 3F     LDA #$3F
+0802  8D 01 C0  STA $C001
+0805  60        RTS
 
->R 0200
-Ejecutando en $0200...
-Retorno de $0200
+>R 0800
+Ejecutando en $0800...
+Retorno de $0800
 ```
 
 ### Usar SD Card
@@ -121,15 +121,15 @@ PROG.BIN      256
 TEST.DAT     1024
 2 archivos
 
->SAVE MIPROG.BIN 0200 100
+>SAVE MIPROG.BIN 0800 100
 Guardando MIPROG.BIN...
 256 bytes guardados
 
->LOAD MIPROG.BIN 0200
-Cargando MIPROG.BIN en $0200...
+>LOAD MIPROG.BIN
+Cargando MIPROG.BIN en $0800...
 256 bytes cargados
 
->R 0200
+>R
 ```
 
 ---
