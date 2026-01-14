@@ -20,18 +20,7 @@
  */
 
 #include <stdint.h>
-
-/* ============================================================================
- * ROM API - Timer y UART
- * ============================================================================ */
-
-/* Timer */
-#define ROMAPI_DELAY_MS     ((void (*)(uint16_t))0xBF33)
-#define rom_delay_ms(ms)    ROMAPI_DELAY_MS(ms)
-
-/* UART */
-#define ROMAPI_UART_PUTC    ((void (*)(char))0xBF18)
-#define rom_uart_putc(c)    ROMAPI_UART_PUTC(c)
+#include "../../../include/romapi.h"
 
 /* ============================================================================
  * HARDWARE
