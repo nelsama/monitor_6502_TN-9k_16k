@@ -26,7 +26,7 @@
  * ============================================================================ */
 
 /* Timer */
-#define ROMAPI_DELAY_MS     ((void (*)(uint16_t))0xBF3C)
+#define ROMAPI_DELAY_MS     ((void (*)(uint16_t))0xBF33)
 #define rom_delay_ms(ms)    ROMAPI_DELAY_MS(ms)
 
 /* UART */
