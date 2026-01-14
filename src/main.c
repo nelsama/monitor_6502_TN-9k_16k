@@ -43,8 +43,7 @@ int main(void) {
     /* Mensaje de bienvenida */
     uart_puts("\r\n");
     uart_puts("##### 6502 SYSTEM READY #####\r\n");
-    uart_puts("Monitor 16K ROM + Timer API\r\n");
-    uart_puts("Build: 14-Ene-2026\r\n");
+    uart_puts("Monitor 16K ROM\r\n");
     uart_puts("Iniciando Monitor...\r\n");
     
     /* Iniciar y ejecutar el monitor en bucle */
