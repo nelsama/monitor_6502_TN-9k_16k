@@ -147,16 +147,22 @@ void mi_funcion(void) {
 ## Ejemplo: Llamar ROM API desde C
 
 ```c
-/* Declarar funciones en ROM usando direcciones de la Jump Table */
-#define ROMAPI_UART_PUTC    ((void (*)(char))0xBF18)
-#define ROMAPI_DELAY_MS     ((void (*)(uint16_t))0xBF33)
+/* Incluir el header de ROM API */
+#include "../../../include/romapi.h"
 
 /* Usar en tu código */
 void mi_funcion(void) {
-    ROMAPI_UART_PUTC('H');
-    ROMAPI_DELAY_MS(100);  /* Delay de 100ms */
+    rom_uart_putc('H');        /* Enviar caracter */
+    rom_delay_ms(100);         /* Delay de 100ms */
+    
+    /* Otras funciones disponibles */
+    rom_uart_puts("Hello\n");  /* Enviar string */
+    uint32_t t = rom_get_micros();  /* Leer microsegundos */
+    rom_delay_us(500);         /* Delay de 500 microsegundos */
 }
 ```
+
+**Nota**: El header `romapi.h` define todas las funciones ROM disponibles con sus prototipos correctos. Ver [`include/romapi.h`](../../include/romapi.h) para la lista completa.
 
 ## Diferencias con la Versión en Ensamblador
 
