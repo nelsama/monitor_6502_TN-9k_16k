@@ -4,28 +4,28 @@ startup.o:
     ZEROPAGE          Offs=000000  Size=000006  Align=00001  Fill=0000
     STARTUP           Offs=000000  Size=000047  Align=00001  Fill=0000
 main.o:
-    CODE              Offs=000000  Size=00019D  Align=00001  Fill=0000
-    RODATA            Offs=000000  Size=00007E  Align=00001  Fill=0000
+    CODE              Offs=000000  Size=000196  Align=00001  Fill=0000
+    RODATA            Offs=000000  Size=000084  Align=00001  Fill=0000
 D:\cc65\lib\none.lib(decsp1.o):
-    CODE              Offs=00019D  Size=000009  Align=00001  Fill=0000
+    CODE              Offs=000196  Size=000009  Align=00001  Fill=0000
 D:\cc65\lib\none.lib(incax1.o):
-    CODE              Offs=0001A6  Size=000007  Align=00001  Fill=0000
+    CODE              Offs=00019F  Size=000007  Align=00001  Fill=0000
 D:\cc65\lib\none.lib(incsp1.o):
-    CODE              Offs=0001AD  Size=000007  Align=00001  Fill=0000
+    CODE              Offs=0001A6  Size=000007  Align=00001  Fill=0000
 D:\cc65\lib\none.lib(incsp2.o):
-    CODE              Offs=0001B4  Size=000016  Align=00001  Fill=0000
+    CODE              Offs=0001AD  Size=000016  Align=00001  Fill=0000
 D:\cc65\lib\none.lib(jmpvec.o):
     DATA              Offs=000000  Size=000003  Align=00001  Fill=0000
 D:\cc65\lib\none.lib(ldaxsp.o):
-    CODE              Offs=0001CA  Size=000009  Align=00001  Fill=0000
+    CODE              Offs=0001C3  Size=000009  Align=00001  Fill=0000
 D:\cc65\lib\none.lib(pusha.o):
-    CODE              Offs=0001D3  Size=000016  Align=00001  Fill=0000
+    CODE              Offs=0001CC  Size=000016  Align=00001  Fill=0000
 D:\cc65\lib\none.lib(pushax.o):
-    CODE              Offs=0001E9  Size=00001A  Align=00001  Fill=0000
+    CODE              Offs=0001E2  Size=00001A  Align=00001  Fill=0000
 D:\cc65\lib\none.lib(shl.o):
-    CODE              Offs=000203  Size=000033  Align=00001  Fill=0000
+    CODE              Offs=0001FC  Size=000033  Align=00001  Fill=0000
 D:\cc65\lib\none.lib(staxsp.o):
-    CODE              Offs=000236  Size=00000B  Align=00001  Fill=0000
+    CODE              Offs=00022F  Size=00000B  Align=00001  Fill=0000
 D:\cc65\lib\none.lib(zeropage.o):
     ZEROPAGE          Offs=000006  Size=00001A  Align=00001  Fill=0000
 
@@ -36,23 +36,23 @@ Name                   Start     End    Size  Align
 ----------------------------------------------------
 ZEROPAGE              000020  00003F  000020  00001
 STARTUP               000800  000846  000047  00001
-CODE                  000847  000A87  000241  00001
-RODATA                000A88  000B05  00007E  00001
-DATA                  000B06  000B08  000003  00001
+CODE                  000847  000A80  00023A  00001
+RODATA                000A81  000B04  000084  00001
+DATA                  000B05  000B07  000003  00001
 
 
 Exports list by name:
 ---------------------
-__BSS_RUN__               000B09 RLA    __BSS_SIZE__              000000 REA    
+__BSS_RUN__               000B08 RLA    __BSS_SIZE__              000000 REA    
 __STARTUP__               000001 REA    _main                     00097A RLA    
-aslaxy                    000A51 RLA    decsp1                    0009E4 RLA    
-incax1                    0009ED RLA    incsp1                    0009F4 RLA    
-incsp2                    000A03 RLA    jmpvec                    000B06 RLA    
-ldax0sp                   000A11 RLA    ldaxysp                   000A13 RLA    
-popax                     0009FB RLA    ptr1                      00002E RLZ    
-pusha                     000A1E RLA    pushax                    000A34 RLA    
+aslaxy                    000A4A RLA    decsp1                    0009DD RLA    
+incax1                    0009E6 RLA    incsp1                    0009ED RLA    
+incsp2                    0009FC RLA    jmpvec                    000B05 RLA    
+ldax0sp                   000A0A RLA    ldaxysp                   000A0C RLA    
+popax                     0009F4 RLA    ptr1                      00002E RLZ    
+pusha                     000A17 RLA    pushax                    000A2D RLA    
 regsave                   00002A RLZ    sp                        000026 RLZ    
-staxysp                   000A7F RLA    tmp1                      000036 RLZ    
+staxysp                   000A78 RLA    tmp1                      000036 RLZ    
 
 
 
@@ -61,13 +61,13 @@ Exports list by value:
 __BSS_SIZE__              000000 REA    __STARTUP__               000001 REA    
 sp                        000026 RLZ    regsave                   00002A RLZ    
 ptr1                      00002E RLZ    tmp1                      000036 RLZ    
-_main                     00097A RLA    decsp1                    0009E4 RLA    
-incax1                    0009ED RLA    incsp1                    0009F4 RLA    
-popax                     0009FB RLA    incsp2                    000A03 RLA    
-ldax0sp                   000A11 RLA    ldaxysp                   000A13 RLA    
-pusha                     000A1E RLA    pushax                    000A34 RLA    
-aslaxy                    000A51 RLA    staxysp                   000A7F RLA    
-jmpvec                    000B06 RLA    __BSS_RUN__               000B09 RLA    
+_main                     00097A RLA    decsp1                    0009DD RLA    
+incax1                    0009E6 RLA    incsp1                    0009ED RLA    
+popax                     0009F4 RLA    incsp2                    0009FC RLA    
+ldax0sp                   000A0A RLA    ldaxysp                   000A0C RLA    
+pusha                     000A17 RLA    pushax                    000A2D RLA    
+aslaxy                    000A4A RLA    staxysp                   000A78 RLA    
+jmpvec                    000B05 RLA    __BSS_RUN__               000B08 RLA    
 
 
 
@@ -82,40 +82,40 @@ __STARTUP__ (startup.o):
 _main (main.o):
     startup.o                 src\startup.s(11)
 aslaxy (shl.o):
-    main.o                    src\main.s(312)
+    main.o                    src\main.s(309)
 decsp1 (decsp1.o):
-    main.o                    src\main.s(312)
-    main.o                    src\main.s(312)
-    main.o                    src\main.s(312)
+    main.o                    src\main.s(309)
+    main.o                    src\main.s(309)
+    main.o                    src\main.s(309)
 incax1 (incax1.o):
-    main.o                    src\main.s(312)
+    main.o                    src\main.s(309)
 incsp1 (incsp1.o):
-    main.o                    src\main.s(312)
-    main.o                    src\main.s(312)
+    main.o                    src\main.s(309)
+    main.o                    src\main.s(309)
 incsp2 (incsp2.o):
-    main.o                    src\main.s(312)
-    main.o                    src\main.s(312)
-    main.o                    src\main.s(312)
-    main.o                    src\main.s(312)
+    main.o                    src\main.s(309)
+    main.o                    src\main.s(309)
+    main.o                    src\main.s(309)
+    main.o                    src\main.s(309)
 jmpvec (jmpvec.o):
-    main.o                    src\main.s(312)
-    main.o                    src\main.s(312)
-    main.o                    src\main.s(312)
+    main.o                    src\main.s(309)
+    main.o                    src\main.s(309)
+    main.o                    src\main.s(309)
 ldax0sp (ldaxsp.o):
-    main.o                    src\main.s(312)
+    main.o                    src\main.s(309)
 ldaxysp (ldaxsp.o):
-    main.o                    src\main.s(312)
+    main.o                    src\main.s(309)
 popax (incsp2.o):
     shl.o                     runtime/shl.s(15)
 ptr1 (zeropage.o):
     main.o                    src\main.s(11)
 pusha (pusha.o):
-    main.o                    src\main.s(312)
-    main.o                    src\main.s(312)
+    main.o                    src\main.s(309)
+    main.o                    src\main.s(309)
 pushax (pushax.o):
-    main.o                    src\main.s(312)
-    main.o                    src\main.s(312)
-    main.o                    src\main.s(312)
+    main.o                    src\main.s(309)
+    main.o                    src\main.s(309)
+    main.o                    src\main.s(309)
 regsave (zeropage.o):
     main.o                    src\main.s(10)
 sp (zeropage.o):
@@ -129,7 +129,7 @@ sp (zeropage.o):
     main.o                    src\main.s(10)
     startup.o                 src\startup.s(13)
 staxysp (staxsp.o):
-    main.o                    src\main.s(312)
+    main.o                    src\main.s(309)
 tmp1 (zeropage.o):
     shl.o                     runtime/shl.s(16)
 

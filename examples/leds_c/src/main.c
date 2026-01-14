@@ -138,8 +138,7 @@ int main(void) {
     uart_print("================================\r\n");
     uart_print("  LEDS Demo - Monitor 6502\r\n");
     uart_print("  Plantilla en C con ROM API\r\n");
-    uart_print("================================\r\n");
-    uart_print("Presiona CTRL+C para salir\r\n\r\n");
+    uart_print("================================\r\n\r\n");
     
     /* Apagar LEDs al inicio */
     LEDS = 0xFF;
