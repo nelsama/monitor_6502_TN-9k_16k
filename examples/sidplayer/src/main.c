@@ -25,32 +25,11 @@
 
 #include <stdint.h>
 #include <string.h>
+#include "../../../include/romapi.h"
 
 /* ============================================================================
- * ROM API - Funciones de la ROM vía Jump Table en $BF00
+ * HARDWARE
  * ============================================================================ */
-#define ROMAPI_MFS_MOUNT    ((uint8_t (*)(void))0xBF03)
-#define ROMAPI_MFS_OPEN     ((uint8_t (*)(const char*))0xBF06)
-#define ROMAPI_MFS_READ     ((uint16_t (*)(void*, uint16_t))0xBF09)
-#define ROMAPI_MFS_CLOSE    ((void (*)(void))0xBF0C)
-#define ROMAPI_MFS_GET_SIZE ((uint16_t (*)(void))0xBF0F)
-#define ROMAPI_UART_PUTC    ((void (*)(char))0xBF18)
-#define ROMAPI_UART_GETC    ((char (*)(void))0xBF1B)
-#define ROMAPI_UART_RX_READY ((uint8_t (*)(void))0xBF21)
-#define ROMAPI_XMODEM_RECV  ((int (*)(unsigned int))0xBF2A)
-
-/* Macros para llamar funciones de ROM */
-#define rom_mfs_mount()     ROMAPI_MFS_MOUNT()
-#define rom_mfs_open(n)     ROMAPI_MFS_OPEN(n)
-#define rom_mfs_read(b,l)   ROMAPI_MFS_READ(b,l)
-#define rom_mfs_close()     ROMAPI_MFS_CLOSE()
-#define rom_mfs_get_size()  ROMAPI_MFS_GET_SIZE()
-#define rom_uart_putc(c)    ROMAPI_UART_PUTC(c)
-#define rom_uart_getc()     ROMAPI_UART_GETC()
-#define rom_uart_rx_ready() ROMAPI_UART_RX_READY()
-#define rom_xmodem_receive(a) ROMAPI_XMODEM_RECV(a)
-
-/* Hardware */
 #define LEDS            (*(volatile uint8_t *)0xC001)
 
 /* Timer - 32-bit microsecond counter */
@@ -188,7 +167,7 @@ void to_upper(char *s) {
 }
 
 /* ============================================================================
- * TIMER - Para timing de 50Hz
+ * TIMER - Para timing de 60Hz
  * ============================================================================ */
 uint32_t timer_read(void) {
     uint32_t t;
