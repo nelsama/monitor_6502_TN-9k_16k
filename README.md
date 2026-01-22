@@ -344,6 +344,14 @@ ld65 -C examples/leds/config/programa.cfg -o EJEMPLO.BIN ejemplo.o
 Los programas standalone pueden llamar funciones de la ROM sin incluir las librerías.
 La ROM expone una **jump table** en dirección **$BF00**.
 
+### Referencias de Librerías
+
+Para información detallada sobre el funcionamiento de las funciones, consulta las librerías originales:
+
+- **UART**: [uart-6502-cc65](https://github.com/nelsama/uart-6502-cc65) - Comunicación serial, configuración baudrate
+- **MicroFS**: [microfs-6502-cc65](https://github.com/nelsama/microfs-6502-cc65) - Sistema de archivos, operaciones con SD
+- **Timer**: [timer-6502-cc65](https://github.com/nelsama/timer-6502-cc65) - Delays precisos, medición de tiempo
+
 ### Direcciones
 
 | Dirección | Función | Descripción |
