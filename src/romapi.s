@@ -34,6 +34,8 @@
 .import _uart_puts
 .import _uart_rx_ready
 .import _uart_tx_ready
+.import _uart_clear_errors
+.import _uart_set_baudrate
 .import _xmodem_receive
 .import _get_micros
 .import _delay_us
@@ -139,6 +141,17 @@ delay_us_entry:
 ; $BF33 - delay_ms (param: uint16_t en A:X)
 delay_ms_entry:
     JMP _delay_ms
+
+; ---------------------------------------------------------------------------
+; NUEVAS FUNCIONES UART (Base: $BF36) - Añadidas al final
+; ---------------------------------------------------------------------------
+; $BF36 - uart_clear_errors (limpia flags de error)
+uart_clear_errors_entry:
+    JMP _uart_clear_errors
+
+; $BF39 - uart_set_baudrate (param: divisor en A:X)
+uart_set_baudrate_entry:
+    JMP _uart_set_baudrate
 
 ; ---------------------------------------------------------------------------
 ; TABLA DE VERSIÓN Y MAGIC (al final)

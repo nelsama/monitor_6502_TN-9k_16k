@@ -873,7 +873,7 @@ static uint8_t cmd_match(const char *cmd, const char *pattern);
 
 static void mon_help(void) {
     mon_newline();
-    uart_puts("=== MONITOR 6502 ===\r\n");
+    uart_puts("=== MONITOR 6502 v2.4.0 ===\r\n");
     uart_puts("Valores HEX. H cmd=ayuda detallada\r\n");
     uart_puts("RD addr    Leer byte\r\n");
     uart_puts("W addr val Escribir\r\n");
@@ -1345,7 +1345,7 @@ void monitor_run(void) {
     mon_newline();
     uart_puts("================================");
     mon_newline();
-    uart_puts("  MONITOR 6502 v2.3.0 + SD");
+    uart_puts("  MONITOR 6502 v2.4.0 + SD");
     mon_newline();
     uart_puts("  Tang Nano 9K @ 3.375 MHz");
     mon_newline();

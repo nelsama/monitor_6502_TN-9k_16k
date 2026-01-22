@@ -169,7 +169,9 @@ Cargando MIPROG.BIN en $0800...
 | SPI Status | `$C011` | Estado SPI |
 | SPI CS | `$C012` | Chip Select SD |
 | UART Data | `$C020` | Datos TX/RX |
-| UART Status | `$C021` | Estado UART |
+| UART Status/Control | `$C021` | Estado UART (lectura) / Control (escritura) |
+| UART Baud Low | `$C022` | Divisor baudrate (byte bajo) |
+| UART Baud High | `$C023` | Divisor baudrate (byte alto) |
 | Timer | `$C030-$C03C` | Timer/RTC de 32-bit (ticks, microsegundos) |
 
 ---
@@ -364,6 +366,8 @@ La ROM expone una **jump table** en dirección **$BF00**.
 | **`$BF2D`** | **`get_micros()`** | **Leer microsegundos** |
 | **`$BF30`** | **`delay_us(us)`** | **Delay microsegundos** |
 | **`$BF33`** | **`delay_ms(ms)`** | **Delay milisegundos** |
+| `$BF36` | `uart_clear_errors()` | Limpiar flags error UART |
+| `$BF39` | `uart_set_baudrate(div)` | Configurar baudrate |
 
 ### Uso desde C
 
@@ -379,7 +383,12 @@ rom_mfs_close();
 // UART
 rom_uart_puts("Hola desde ROM API!\r\n");
 
-// Timer (NEW!)
+// Configurar baudrate UART
+rom_uart_set_baudrate(ROM_UART_BAUD_9600);    // Cambiar a 9600 bps
+rom_uart_set_baudrate(ROM_UART_BAUD_115200); // Volver a 115200 bps
+rom_uart_clear_errors();                      // Limpiar flags de error
+
+// Timer
 rom_delay_ms(100);              // Delay de 100ms
 uint32_t start = rom_get_micros();
 // ... código ...
@@ -408,6 +417,14 @@ JSR $BF06       ; mfs_open(filename)
 ---
 
 ## Changelog
+
+### v2.4.0 (2026-01-22)
+- **Feature:** ROM API - Funciones para configurar baudrate UART
+- **Feature:** `uart_set_baudrate()` en $BF39 para cambiar velocidad UART
+- **Feature:** `uart_clear_errors()` en $BF36 para limpiar flags de error
+- **Feature:** Constantes de baudrate predefinidas (9600, 19200, 38400, 57600, 115200 bps)
+- **Hardware:** Registros UART expandidos ($C022-$C023 para control de baudrate)
+- **Docs:** Actualizada documentación de ROM API y hardware
 
 ### v2.3.0 (2026-01-13)
 - **Change:** Menú de ayuda actualizado (S/T/V eliminados, deshabilitados por XMODEM)
