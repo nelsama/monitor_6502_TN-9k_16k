@@ -27,6 +27,14 @@ Permite programar, depurar y ejecutar código en tiempo real a través de una in
 
 ---
 
+## Monitor en Acción
+
+![Monitor 6502 con Putty](docs/images/monitor.png)
+
+*Monitor 6502 conectado via UART y visualizado en Putty*
+
+---
+
 ## Comandos del Monitor
 
 Todo en **HEXADECIMAL** (sin prefijo `$` ni `0x`)
