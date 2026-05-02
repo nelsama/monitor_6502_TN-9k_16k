@@ -17,6 +17,11 @@ CONFIG_DIR = config
 SCRIPTS_DIR = scripts
 
 # ============================================
+# VERSIÓN
+# ============================================
+VERSION = 2.4.1
+
+# ============================================
 # HERRAMIENTAS
 # ============================================
 CC65 = cc65
@@ -150,7 +155,7 @@ $(TARGET): $(OBJS)
 # GENERACIÓN DE ROM
 # ============================================
 rom: $(TARGET)
-	$(PYTHON) $(SCRIPTS_DIR)/bin2rom3.py $(TARGET) -s 16384 --name rom --data-width 8 -o $(OUTPUT_DIR)
+	$(PYTHON) $(SCRIPTS_DIR)/bin2rom3.py $(TARGET) -s 16384 --name rom --data-width 8 --version $(VERSION) -o $(OUTPUT_DIR)
 
 # ============================================
 # LIMPIEZA

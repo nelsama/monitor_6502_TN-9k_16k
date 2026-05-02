@@ -16,6 +16,7 @@ Permite programar, depurar y ejecutar código en tiempo real a través de una in
 - ✅ Análisis de memoria RAM (scan, test, mapa visual)
 - ✅ **SD Card**: guardar, cargar, listar, eliminar archivos
 - ✅ **XMODEM**: transferencia de archivos desde PC
+- ✅ **ROM API completa**: funciones de lectura y escritura para SD Card, UART, Timer, etc.
 - ✅ **Ayuda contextual** por comando (`H cmd`)
 - ✅ Control de 6 LEDs
 - ✅ ROM de 16KB
@@ -184,7 +185,68 @@ Cargando MIPROG.BIN en $0800...
 
 ---
 
-## Estructura del Proyecto
+## ROM API
+
+La ROM incluye una **API completa** para que programas externos puedan acceder a funciones del sistema sin incluir las librerías. La tabla de saltos está en `$BF00` y permite llamadas desde C o ensamblador.
+
+### Funciones Disponibles
+
+| Dirección | Función | Descripción |
+|-----------|---------|-------------|
+| `$BF00` | `sd_init()` | Inicializar SD Card |
+| `$BF03` | `mfs_mount()` | Montar sistema de archivos |
+| `$BF06` | `mfs_open(name)` | Abrir archivo |
+| `$BF09` | `mfs_read(buf, len)` | Leer datos |
+| `$BF0C` | `mfs_close()` | Cerrar archivo |
+| `$BF0F` | `mfs_get_size()` | Obtener tamaño |
+| `$BF12` | `mfs_list(idx, info)` | Listar archivos |
+| `$BF3C` | `mfs_create(name, size)` | **Crear archivo** |
+| `$BF3F` | `mfs_write(buf, len)` | **Escribir datos** |
+| `$BF42` | `mfs_delete(name)` | **Eliminar archivo** |
+| `$BF45` | `mfs_format()` | **Formatear SD** |
+| `$BF15` | `uart_init()` | Inicializar UART |
+| `$BF18` | `uart_putc(c)` | Enviar carácter |
+| `$BF1B` | `uart_getc()` | Recibir carácter |
+| `$BF1E` | `uart_puts(str)` | Enviar string |
+| `$BF21` | `uart_rx_ready()` | UART RX listo |
+| `$BF24` | `uart_tx_ready()` | UART TX listo |
+| `$BF2A` | `xmodem_receive(addr)` | Recibir via XMODEM |
+| `$BF2D` | `get_micros()` | Microsegundos |
+| `$BF30` | `delay_us(us)` | Retardo microsegundos |
+| `$BF33` | `delay_ms(ms)` | Retardo milisegundos |
+
+### Uso desde C
+
+```c
+#include "romapi.h"
+
+// Inicializar SD y montar FS
+rom_sd_init();
+rom_mfs_mount();
+
+// Crear y escribir archivo
+rom_mfs_create("test.txt", 100);
+rom_mfs_write("Hola Mundo!", 11);
+rom_mfs_close();
+
+// Leer archivo
+rom_mfs_open("test.txt");
+char buffer[100];
+int len = rom_mfs_read(buffer, 100);
+rom_mfs_close();
+```
+
+### Uso desde Ensamblador
+
+```asm
+    JSR $BF00   ; sd_init
+    JSR $BF03   ; mfs_mount
+    JSR $BF3C   ; mfs_create (parámetros en stack)
+```
+
+> 📝 **Nota**: Las funciones de escritura (`mfs_create`, `mfs_write`, `mfs_delete`, `mfs_format`) fueron agregadas en v2.4.1 para completar la API.
+
+---
 
 ```
 ├── src/
@@ -214,6 +276,21 @@ Cargando MIPROG.BIN en $0800...
 │   └── rom.vhd             # ROM generada para FPGA
 └── makefile                # Sistema de compilación
 ```
+
+---
+
+## Historial de Versiones
+
+### v2.4.1 (2026-05-02)
+- ✅ **ROM API completa**: Agregadas funciones de escritura para MicroFS (`mfs_create`, `mfs_write`, `mfs_delete`, `mfs_format`)
+- ✅ Actualización de versión en títulos de inicio y ROM generada
+- ✅ Mejoras en documentación de ROM API
+
+### v2.3.0 (2024-XX-XX)
+- ✅ Soporte completo SD Card con MicroFS
+- ✅ XMODEM para transferencia de archivos
+- ✅ ROM API inicial con funciones de lectura
+- ✅ Plantillas de programas incluidas
 
 ---
 

@@ -26,7 +26,7 @@ def format_vhdl_data(data, data_width, offset):
 
     return ";\n        ".join(elements) + ";"
 
-def generate_vhdl_rom(data, full_data_len,rom_name="rom", data_width=8, addr_width=None, offset=0):
+def generate_vhdl_rom(data, full_data_len,rom_name="rom", data_width=8, addr_width=None, offset=0, version="2.4.1"):
     """
     Genera un módulo VHDL completo con:
     - Bus de direcciones
@@ -40,6 +40,7 @@ def generate_vhdl_rom(data, full_data_len,rom_name="rom", data_width=8, addr_wid
     vhdl_template = f"""-- ======================================================
 -- ROM generada automáticamente con Python
 -- Fecha: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+-- Versión del Monitor: {version}
 -- Tamaño: {full_data_len} bytes
 -- Ancho de datos: {data_width} bits
 -- Ancho de dirección: {addr_width} bits
@@ -105,7 +106,7 @@ def generate_intel_hex(data, offset):
     hex_lines.append(":00000001FF")
     return "\n".join(hex_lines)
 
-def bin_to_rom(input_file, output_dir, rom_size, rom_name="rom", data_width=8, addr_width=None, fill_byte=0xFF, offset=0):
+def bin_to_rom(input_file, output_dir, rom_size, rom_name="rom", data_width=8, addr_width=None, fill_byte=0xFF, offset=0, version="2.4.1"):
     """Convierte binario a múltiples formatos"""
     # Leer y ajustar datos
     
@@ -132,7 +133,7 @@ def bin_to_rom(input_file, output_dir, rom_size, rom_name="rom", data_width=8, a
 
     # Generar archivo VHDL
     vhdl_path = output_dir / f"{rom_name}.vhd"
-    vhdl_content = generate_vhdl_rom(padded_data, len(padded_data),rom_name=rom_name, data_width=data_width, addr_width=addr_width, offset=0)
+    vhdl_content = generate_vhdl_rom(padded_data, len(padded_data),rom_name=rom_name, data_width=data_width, addr_width=addr_width, offset=0, version=version)
     vhdl_path.write_text(vhdl_content)
     print(f"Generado: {vhdl_path}")
 
@@ -171,6 +172,7 @@ if __name__ == "__main__":
                         help='Byte de relleno (ej: 0x00, 255)')
     parser.add_argument('--offset', type=parse_int, default=0,
                         help='Offset inicial en la salida Intel HEX (en bytes)')
+    parser.add_argument('--version', default='2.4.1', help='Versión del monitor')
 
     args = parser.parse_args()
 
@@ -183,7 +185,8 @@ if __name__ == "__main__":
             data_width=args.data_width,
             addr_width=args.addr_width,
             fill_byte=args.fill,
-            offset=args.offset
+            offset=args.offset,
+            version=args.version
         )
     except Exception as e:
         print(f"❌ Error: {e}")
