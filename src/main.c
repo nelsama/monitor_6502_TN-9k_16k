@@ -43,7 +43,7 @@ int main(void) {
     /* Mensaje de bienvenida */
     uart_puts("\r\n");
     uart_puts("##### 6502 SYSTEM READY #####\r\n");
-    uart_puts("Monitor 6502 v2.4.1 - 16K ROM\r\n");
+    uart_puts("Monitor 6502 " VERSION " - 16K ROM\r\n");
     uart_puts("Iniciando Monitor...\r\n");
     
     /* Iniciar y ejecutar el monitor en bucle */

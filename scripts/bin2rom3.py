@@ -172,7 +172,7 @@ if __name__ == "__main__":
                         help='Byte de relleno (ej: 0x00, 255)')
     parser.add_argument('--offset', type=parse_int, default=0,
                         help='Offset inicial en la salida Intel HEX (en bytes)')
-    parser.add_argument('--version', default='2.4.1', help='Versión del monitor')
+    parser.add_argument('--version', default='v2.4.1', help='Versión del monitor')
 
     args = parser.parse_args()
 

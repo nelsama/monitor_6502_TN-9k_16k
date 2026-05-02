@@ -19,7 +19,7 @@ SCRIPTS_DIR = scripts
 # ============================================
 # VERSIÓN
 # ============================================
-VERSION = 2.4.1
+VERSION = v2.4.1
 
 # ============================================
 # HERRAMIENTAS
@@ -35,7 +35,7 @@ PYTHON = py
 # ============================================
 CONFIG = $(CONFIG_DIR)/fpga.cfg
 PLATAFORMA = $(CC65_HOME)\lib\none.lib
-CFLAGS = -t none -O --cpu 6502
+CFLAGS = -t none -O --cpu 6502 -DVERSION=\"$(VERSION)\"
 
 # ============================================
 # LIBRERÍAS
@@ -93,7 +93,8 @@ dirs:
 
 # Main
 $(MAIN_OBJ): $(SRC_DIR)/main.c
-	$(CL65) -t none $(INCLUDES) -c -o $@ $<
+	$(CC65) $(CFLAGS) $(INCLUDES) -o $(BUILD_DIR)/main.s $<
+	$(CA65) -t none -o $@ $(BUILD_DIR)/main.s
 
 # UART (assembler)
 $(UART_OBJ): $(UART_DIR)/uart.s

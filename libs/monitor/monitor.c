@@ -873,7 +873,7 @@ static uint8_t cmd_match(const char *cmd, const char *pattern);
 
 static void mon_help(void) {
     mon_newline();
-    uart_puts("=== MONITOR 6502 v2.4.0 ===\r\n");
+    uart_puts("=== MONITOR 6502 " VERSION " ===\r\n");
     uart_puts("Valores HEX. H cmd=ayuda detallada\r\n");
     uart_puts("RD addr    Leer byte\r\n");
     uart_puts("W addr val Escribir\r\n");
