@@ -18,6 +18,10 @@
 #ifndef MONITOR_H
 #define MONITOR_H
 
+#ifndef VERSION
+#define VERSION "unknown"
+#endif
+
 #include <stdint.h>
 
 /* Tamaño máximo del buffer de entrada */

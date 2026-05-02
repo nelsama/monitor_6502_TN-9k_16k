@@ -1345,7 +1345,9 @@ void monitor_run(void) {
     mon_newline();
     uart_puts("================================");
     mon_newline();
-    uart_puts("  MONITOR 6502 v2.4.0 + SD");
+    uart_puts("  MONITOR 6502 ");
+    uart_puts(VERSION);
+    uart_puts(" + SD");
     mon_newline();
     uart_puts("  Tang Nano 9K @ 3.375 MHz");
     mon_newline();
