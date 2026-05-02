@@ -28,6 +28,10 @@
 .import _mfs_close
 .import _mfs_get_size
 .import _mfs_list
+.import _mfs_create
+.import _mfs_write
+.import _mfs_delete
+.import _mfs_format
 .import _uart_init
 .import _uart_putc
 .import _uart_getc
@@ -154,16 +158,31 @@ uart_set_baudrate_entry:
     JMP _uart_set_baudrate
 
 ; ---------------------------------------------------------------------------
-; TABLA DE VERSIÓN Y MAGIC (al final)
+; NUEVAS FUNCIONES MICROFS - ESCRITURA (Base: $BF3C)
 ; ---------------------------------------------------------------------------
+; $BF3C - mfs_create (param: name ptr in AX, size in stack)
+mfs_create_entry:
+    JMP _mfs_create
+
+; $BF3F - mfs_write (params: buffer in AX, len in stack)
+mfs_write_entry:
+    JMP _mfs_write
+
+; $BF42 - mfs_delete (param: name ptr in AX)
+mfs_delete_entry:
+    JMP _mfs_delete
+
+; $BF45 - mfs_format
+mfs_format_entry:
+    JMP _mfs_format
 ; Padding hasta $BF50 para futuras expansiones
 .res $50 - (* - _romapi_start), $EA   ; Relleno con NOP
 
 ; $BF50 - Magic number y versión
 romapi_magic:
     .byte "ROMAPI"      ; Magic: "ROMAPI"
-    .byte $01           ; Versión major
-    .byte $00           ; Versión minor
+    .byte $02           ; Versión major
+    .byte $04           ; Versión minor
 
 ; ===========================================================================
 ; FIN ROMAPI

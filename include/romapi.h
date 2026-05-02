@@ -55,6 +55,12 @@
 #define ROMAPI_UART_CLEAR_ERRORS 0xBF36
 #define ROMAPI_UART_SET_BAUDRATE 0xBF39
 
+/* MicroFS - Nuevas funciones de escritura */
+#define ROMAPI_MFS_CREATE   0xBF3C
+#define ROMAPI_MFS_WRITE    0xBF3F
+#define ROMAPI_MFS_DELETE   0xBF42
+#define ROMAPI_MFS_FORMAT   0xBF45
+
 /* Magic y versión */
 #define ROMAPI_MAGIC_ADDR   0xBF50
 #define ROMAPI_MAGIC        "ROMAPI"
@@ -86,6 +92,12 @@ typedef struct {
 } rom_mfs_fileinfo_t;
 
 #define rom_mfs_list(idx,info) (((uint8_t (*)(uint8_t, rom_mfs_fileinfo_t*))ROMAPI_MFS_LIST)(idx, info))
+
+/* MicroFS - Funciones de escritura */
+#define rom_mfs_create(name,size) (((uint8_t (*)(const char*, uint16_t))ROMAPI_MFS_CREATE)(name, size))
+#define rom_mfs_write(buf,len) (((uint16_t (*)(const void*, uint16_t))ROMAPI_MFS_WRITE)(buf, len))
+#define rom_mfs_delete(name) (((uint8_t (*)(const char*))ROMAPI_MFS_DELETE)(name))
+#define rom_mfs_format() (((uint8_t (*)(void))ROMAPI_MFS_FORMAT)())
 
 /* UART */
 #define rom_uart_init()     (((void (*)(void))ROMAPI_UART_INIT)())
