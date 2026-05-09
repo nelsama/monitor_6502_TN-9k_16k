@@ -4,19 +4,19 @@
  * ============================================================================
  * Carga archivos .sid desde SD Card y los reproduce usando el chip SID
  * Compatible con formato PSID v1/v2 (la mayoría de SIDs clásicos)
- * 
+ *
  * NOTA: Usa ROM API - requiere monitor con jump table en $BF00
  *       No incluye librerías SD/MicroFS, las llama desde ROM
- * 
+ *
  * Controles:
  *   ESPACIO  - Pausa/Continuar
  *   N        - Siguiente canción
- *   P        - Canción anterior  
+ *   P        - Canción anterior
  *   Q        - Salir al monitor
  *   V        - Cambiar modo VU meter (Max/3ch/Off)
  *   1-9      - Ir a canción específica
  *
- * Uso: 
+ * Uso:
  *   LOAD SIDPLAY 1000
  *   R 1000
  *   (luego ingresa nombre del archivo)
@@ -39,6 +39,14 @@
 #define TIMER_USEC_3    (*(volatile uint8_t *)0xC03B)
 #define TIMER_LATCH     (*(volatile uint8_t *)0xC03C)
 #define LATCH_USEC      0x02
+
+/*
+ * FRAME_USEC: Microsegundos entre frames (60Hz = 16667 us).
+ * Aumenta este valor si la música va muy rápida.
+ * Disminúyelo si va muy lenta.
+ * Ej: 17500 = ~57Hz, 20000 = 50Hz (PAL)
+ */
+#define FRAME_USEC      18320    /*16667   -   NTSC 60Hz*/
 
 /* SID Base */
 #define SID_BASE        0xD400
@@ -91,7 +99,6 @@ static uint16_t init_addr;         /* Dirección init */
 static uint16_t play_addr;         /* Dirección play */
 static uint16_t load_addr;         /* Dirección de carga */
 static uint32_t timer_last;        /* Timer para timing */
-
 /* ============================================================================
  * FUNCIONES UART (usando ROM API)
  * ============================================================================ */
@@ -134,10 +141,10 @@ uint16_t swap16(uint16_t val) {
 void read_line(char *buf, uint8_t max) {
     uint8_t i = 0;
     char c;
-    
+
     while (i < max - 1) {
         c = rom_uart_getc();
-        
+
         if (c == '\r' || c == '\n') {
             break;
         }
@@ -181,14 +188,14 @@ uint32_t timer_read(void) {
 
 /* Esperar N microsegundos desde última llamada */
 void timer_wait_frame(void) {
-    /* 16667 us = 60Hz (NTSC timing) - más rápido que PAL */
-    uint32_t target = timer_last + 16667;
+    /* FRAME_USEC us = 60Hz (NTSC timing) */
+    uint32_t target = timer_last + FRAME_USEC;
     uint32_t now;
-    
+
     do {
         now = timer_read();
     } while (now < target);
-    
+
     timer_last = now;
 }
 
@@ -201,7 +208,7 @@ uint8_t parse_psid_header(void) {
     if (header.magic[1] != 'S') return 0;
     if (header.magic[2] != 'I') return 0;
     if (header.magic[3] != 'D') return 0;
-    
+
     /* Convertir valores big-endian */
     header.version     = swap16(header.version);
     header.dataOffset  = swap16(header.dataOffset);
@@ -210,7 +217,7 @@ uint8_t parse_psid_header(void) {
     header.playAddress = swap16(header.playAddress);
     header.songs       = swap16(header.songs);
     header.startSong   = swap16(header.startSong);
-    
+
     return 1;
 }
 
@@ -220,25 +227,25 @@ uint8_t parse_psid_header(void) {
 void show_sid_info(void) {
     uart_puts("\r\n");
     uart_puts("--------------------------------\r\n");
-    
+
     /* Nombre */
     uart_puts("Titulo: ");
     header.name[31] = '\0';
     uart_puts(header.name);
     print_newline();
-    
+
     /* Autor */
     uart_puts("Autor:  ");
     header.author[31] = '\0';
     uart_puts(header.author);
     print_newline();
-    
+
     /* Copyright */
     uart_puts("(C):    ");
     header.copyright[31] = '\0';
     uart_puts(header.copyright);
     print_newline();
-    
+
     /* Info técnica */
     uart_puts("--------------------------------\r\n");
     uart_puts("Canciones: ");
@@ -264,7 +271,7 @@ void show_status(void) {
     uart_print_dec(current_song + 1);
     rom_uart_putc('/');
     uart_print_dec(total_songs);
-    
+
     if (paused) {
         uart_puts(" [PAUSA]  ");
     } else {
@@ -279,29 +286,29 @@ uint8_t load_sid_xmodem(void) {
     int bytes;
     uint16_t data_size;
     uint8_t *src;
-    
+
     /* Recibe a $0800 - área de SIDs */
     uart_puts("XMODEM listo...\r\n");
     bytes = rom_xmodem_receive(0x0800);
-    
+
     if (bytes <= 0) {
         uart_puts("Error\r\n");
         return 0;
     }
-    
+
     /* Copiar header a variable global */
     memcpy(&header, (void*)0x0800, sizeof(header));
-    
+
     if (!parse_psid_header()) {
         uart_puts("No es PSID\r\n");
         return 0;
     }
-    
+
     total_songs = (header.songs > 255) ? 255 : header.songs;
     current_song = (header.startSong > 0) ? header.startSong - 1 : 0;
     init_addr = header.initAddress;
     play_addr = header.playAddress;
-    
+
     if (header.loadAddress == 0) {
         src = (uint8_t *)(0x0800 + header.dataOffset);
         load_addr = src[0] | ((uint16_t)src[1] << 8);
@@ -312,17 +319,17 @@ uint8_t load_sid_xmodem(void) {
         src = (uint8_t *)(0x0800 + header.dataOffset);
         data_size = bytes - header.dataOffset;
     }
-    
+
     /* Verificar límites: SID debe cargar en $0800-$26FF */
     if (load_addr < 0x0800 || load_addr + data_size > 0x2700) {
         uart_puts("No cabe\r\n");
         return 0;
     }
-    
+
     /* Copiar datos SID a su destino */
     /* sid_copy_to_memory detecta solapamiento y copia hacia atrás si es necesario */
     sid_copy_to_memory(src, load_addr, data_size);
-    
+
     uart_puts("OK $");
     uart_print_hex16(load_addr);
     print_newline();
@@ -340,13 +347,13 @@ uint8_t load_sid_file(const char *filename) {
     uint16_t to_skip;
     uint16_t chunk;
     uint8_t skip_buf[2];
-    
+
     /* Abrir archivo usando ROM API */
     if (rom_mfs_open(filename) != 0) {
         uart_puts("Error: Archivo no encontrado\r\n");
         return 0;
     }
-    
+
     file_size = rom_mfs_get_size();
     uart_puts("Cargando: ");
     uart_puts(filename);
@@ -355,35 +362,35 @@ uint8_t load_sid_file(const char *filename) {
     uart_puts(" KB, ");
     uart_print_hex16(file_size);
     uart_puts(" bytes)\r\n");
-    
+
     /* Leer header PSID (76 bytes mínimo) */
     bytes_read = rom_read_file(&header, sizeof(header));
-    
+
     if (bytes_read < 76) {  /* Mínimo header v1 */
         uart_puts("Error: Header muy corto\r\n");
         rom_mfs_close();
         return 0;
     }
-    
+
     /* Parsear header */
     if (!parse_psid_header()) {
         uart_puts("Error: No es archivo PSID/RSID\r\n");
         rom_mfs_close();
         return 0;
     }
-    
+
     /* Guardar info */
     total_songs = (header.songs > 255) ? 255 : header.songs;
     current_song = (header.startSong > 0) ? header.startSong - 1 : 0;
     init_addr = header.initAddress;
     play_addr = header.playAddress;
-    
+
     /* Si loadAddress es 0, los primeros 2 bytes de datos son la dirección */
     if (header.loadAddress == 0) {
         /* Posicionar al inicio de datos */
         rom_mfs_close();
         rom_mfs_open(filename);
-        
+
         /* Saltar header */
         to_skip = header.dataOffset;
         while (to_skip > 0) {
@@ -391,7 +398,7 @@ uint8_t load_sid_file(const char *filename) {
             rom_read_file(file_buffer, chunk);
             to_skip -= chunk;
         }
-        
+
         /* Primeros 2 bytes son load address (little-endian) */
         rom_read_file(skip_buf, 2);
         load_addr = skip_buf[0] | ((uint16_t)skip_buf[1] << 8);
@@ -401,7 +408,7 @@ uint8_t load_sid_file(const char *filename) {
         /* Cerrar y reabrir para posicionar */
         rom_mfs_close();
         rom_mfs_open(filename);
-        
+
         /* Saltar header */
         to_skip = header.dataOffset;
         while (to_skip > 0) {
@@ -411,7 +418,7 @@ uint8_t load_sid_file(const char *filename) {
         }
         data_size = file_size - header.dataOffset;
     }
-    
+
     /* Verificar que cabe en RAM sin colisionar con el programa (en $2700+) */
     if (load_addr < 0x0800 || load_addr + data_size > 0x2700) {
         uart_puts("Error: SID no cabe en RAM\r\n");
@@ -423,33 +430,33 @@ uint8_t load_sid_file(const char *filename) {
         rom_mfs_close();
         return 0;
     }
-    
+
     uart_puts("Copiando ");;
     uart_print_dec(data_size / 256);
     uart_puts(" paginas a $");
     uart_print_hex16(load_addr);
     print_newline();
-    
+
     /* Cargar datos a memoria */
     dest = load_addr;
     while (data_size > 0) {
         chunk = (data_size > sizeof(file_buffer)) ? sizeof(file_buffer) : data_size;
         bytes_read = rom_read_file(file_buffer, chunk);
         if (bytes_read == 0) break;
-        
+
         /* Copiar a memoria de destino */
         sid_copy_to_memory(file_buffer, dest, bytes_read);
-        
+
         dest += bytes_read;
         data_size -= bytes_read;
-        
+
         /* Indicador de progreso */
         rom_uart_putc('.');
     }
     print_newline();
-    
+
     rom_mfs_close();
-    
+
     uart_puts("Cargado OK!\r\n");
     return 1;
 }
@@ -460,16 +467,16 @@ uint8_t load_sid_file(const char *filename) {
 void init_song(uint8_t song_num) {
     /* Limpiar SID */
     sid_clear();
-    
+
     /* Llamar init con número de canción en A */
     sid_init_song(init_addr, song_num);
-    
+
     /* Iniciar timer */
     timer_last = timer_read();
-    
+
     /* Actualizar LEDs - patrón según canción */
     LEDS = ~(1 << (song_num % 6));
-    
+
     show_status();
 }
 
@@ -482,17 +489,17 @@ int main(void) {
     uint8_t num;
     uint8_t pattern;
     uint8_t result;
-    
+
     /* Apagar LEDs al inicio */
     LEDS = 0xFF;
-    
+
     /* Banner */
     uart_puts("\r\n");
     uart_puts("================================\r\n");
     uart_puts("  SID PLAYER 6502 v1.2.1\r\n");
     uart_puts("  V=VU mode (Max/3ch/Off)\r\n");
     uart_puts("================================\r\n\r\n");
-    
+
     /* Intentar montar filesystem (por si no está montado) */
     uart_puts("Montando SD...");
     result = rom_mfs_mount();
@@ -501,21 +508,21 @@ int main(void) {
         return 1;
     }
     uart_puts("OK\r\n\r\n");
-    
+
     /* Loop principal - permitir cargar múltiples SIDs */
     while (1) {
         /* Pedir nombre de archivo */
         uart_puts("SID (Q=salir, X=XMODEM): ");
         read_line(filename, sizeof(filename));
         to_upper(filename);
-        
+
         /* Salir? */
         if (filename[0] == 'Q' && filename[1] == '\0') {
             sid_clear();
             uart_puts("Hasta luego!\r\n");
             return 0;
         }
-        
+
         /* XMODEM? */
         if (filename[0] == 'X' && filename[1] == '\0') {
             if (!load_sid_xmodem()) {
@@ -528,28 +535,28 @@ int main(void) {
                     strcat(filename, ".SID");
                 }
             }
-            
+
             /* Cargar archivo desde SD */
             if (!load_sid_file(filename)) {
                 continue;
             }
         }
-        
+
         /* Mostrar info */
         show_sid_info();
-        
+
         /* Inicializar primera canción */
         paused = 0;
         vu_mode = VU_MODE_MAX;  /* VU meter activado por defecto */
         LEDS = 0xFF;           /* Apagar LEDs al iniciar */
         init_song(current_song);
-        
+
         /* Loop de reproducción */
         while (1) {
             /* Verificar tecla */
             if (rom_uart_rx_ready()) {
                 key = rom_uart_getc();
-                
+
                 switch (key) {
                     case ' ':  /* Pausa/Play */
                         paused = !paused;
@@ -561,7 +568,7 @@ int main(void) {
                         }
                         show_status();
                         break;
-                        
+
                     case 'n':
                     case 'N':  /* Siguiente */
                         if (current_song < total_songs - 1) {
@@ -571,7 +578,7 @@ int main(void) {
                         }
                         init_song(current_song);
                         break;
-                        
+
                     case 'p':
                     case 'P':  /* Anterior */
                         if (current_song > 0) {
@@ -581,14 +588,14 @@ int main(void) {
                         }
                         init_song(current_song);
                         break;
-                        
+
                     case 'q':
                     case 'Q':  /* Salir - volver a pedir archivo */
                         sid_clear();
                         LEDS = 0xFF;
                         print_newline();
                         goto next_file;
-                        
+
                     case 'v':
                     case 'V':  /* Cambiar modo VU meter */
                         vu_mode = (vu_mode + 1) % VU_MODE_COUNT;
@@ -598,7 +605,7 @@ int main(void) {
                         else if (vu_mode == VU_MODE_3CH) uart_puts("3ch ");
                         else uart_puts("Off ");
                         break;
-                        
+
                     default:
                         /* Números 1-9 para ir a canción */
                         if (key >= '1' && key <= '9') {
@@ -611,15 +618,15 @@ int main(void) {
                         break;
                 }
             }
-            
+
             /* Si no está pausado, reproducir frame */
             if (!paused && play_addr != 0) {
                 /* Llamar rutina play */
                 sid_call(play_addr);
-                
+
                 /* Esperar siguiente frame (50Hz) */
                 timer_wait_frame();
-                
+
                 /* VU meter según modo seleccionado */
                 pattern = 0;
                 if (vu_mode == VU_MODE_MAX) {
@@ -651,10 +658,10 @@ int main(void) {
                 LEDS = ~pattern;  /* LEDs activos en bajo */
             }
         }
-        
+
 next_file:
         continue;
     }
-    
+
     return 0;
 }
