@@ -1,5 +1,5 @@
 
-# Monitor 6502 v2.4.1 + SD Card + XMODEM - Tang Nano 9K
+# Monitor 6502 v2.4.2 + SD Card + XMODEM - Tang Nano 9K
 
 🚀 **Monitor/Debugger interactivo** para CPU 6502 sobre FPGA Tang Nano 9K via UART con soporte de **SD Card** y **XMODEM**.
 
@@ -280,6 +280,12 @@ rom_mfs_close();
 ---
 
 ## Historial de Versiones
+
+### v2.4.2 (2026-05-11)
+- **Fix**: Comando `R` ahora usa `last_addr` como default (la última dirección usada por LOAD o XRECV) en lugar de `$0800` fijo
+- **Fix**: `XRECV` ahora actualiza `last_addr` para que `R` ejecute desde allí
+- **Feature**: Implementada `mfs_read_ext` en MicroFS para ROM API ($BF27), usada por SID Player y BASIC
+- **Version**: Bump a v2.4.2
 
 ### v2.4.1 (2026-05-02)
 - ✅ **ROM API completa**: Agregadas funciones de escritura para MicroFS (`mfs_create`, `mfs_write`, `mfs_delete`, `mfs_format`)
