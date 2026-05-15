@@ -1,7 +1,7 @@
 
-# Monitor 6502 v2.4.2 + SD Card + XMODEM - Tang Nano 9K
+# Monitor 6502 v2.5.0 + SD Card + XMODEM + SPI + I2C - Tang Nano 9K
 
-🚀 **Monitor/Debugger interactivo** para CPU 6502 sobre FPGA Tang Nano 9K via UART con soporte de **SD Card** y **XMODEM**.
+🚀 **Monitor/Debugger interactivo** para CPU 6502 sobre FPGA Tang Nano 9K via UART con soporte de **SD Card**, **XMODEM**, **SPI** e **I2C**.
 
 Permite programar, depurar y ejecutar código en tiempo real a través de una interfaz de comandos estilo Wozmon.
 
@@ -16,8 +16,10 @@ Permite programar, depurar y ejecutar código en tiempo real a través de una in
 - ✅ Análisis de memoria RAM (scan, test, mapa visual)
 - ✅ **SD Card**: guardar, cargar, listar, eliminar archivos
 - ✅ **XMODEM**: transferencia de archivos desde PC
-- ✅ **ROM API completa**: funciones de lectura y escritura para SD Card, UART, Timer, etc.
-- ✅ **Ayuda contextual** por comando (`H cmd`)
+- ✅ **ROM API completa**: funciones para SD Card, UART, Timer, SPI, I2C, XMODEM
+- ✅ **SPI** en ROM API: init, select, deselect, transfer, send, receive, busy
+- ✅ **I2C** en ROM API: init, start, stop, write_byte, read_byte, write, read
+- ✅ **Ayuda contextual por comando (`H cmd`)
 - ✅ Control de 6 LEDs
 - ✅ ROM de 16KB
 - ✅ Compilación con cc65
@@ -200,20 +202,38 @@ La ROM incluye una **API completa** para que programas externos puedan acceder a
 | `$BF0C` | `mfs_close()` | Cerrar archivo |
 | `$BF0F` | `mfs_get_size()` | Obtener tamaño |
 | `$BF12` | `mfs_list(idx, info)` | Listar archivos |
-| `$BF3C` | `mfs_create(name, size)` | **Crear archivo** |
-| `$BF3F` | `mfs_write(buf, len)` | **Escribir datos** |
-| `$BF42` | `mfs_delete(name)` | **Eliminar archivo** |
-| `$BF45` | `mfs_format()` | **Formatear SD** |
+| `$BF27` | `mfs_read_ext()` | Leer con params en ZP ($F0-$F3) |
+| `$BF3C` | `mfs_create(name, size)` | Crear archivo |
+| `$BF3F` | `mfs_write(buf, len)` | Escribir datos |
+| `$BF42` | `mfs_delete(name)` | Eliminar archivo |
+| `$BF45` | `mfs_format()` | Formatear SD |
 | `$BF15` | `uart_init()` | Inicializar UART |
 | `$BF18` | `uart_putc(c)` | Enviar carácter |
 | `$BF1B` | `uart_getc()` | Recibir carácter |
 | `$BF1E` | `uart_puts(str)` | Enviar string |
 | `$BF21` | `uart_rx_ready()` | UART RX listo |
 | `$BF24` | `uart_tx_ready()` | UART TX listo |
+| `$BF36` | `uart_clear_errors()` | Limpiar flags error UART |
+| `$BF39` | `uart_set_baudrate(div)` | Configurar baudrate UART |
 | `$BF2A` | `xmodem_receive(addr)` | Recibir via XMODEM |
 | `$BF2D` | `get_micros()` | Microsegundos |
 | `$BF30` | `delay_us(us)` | Retardo microsegundos |
 | `$BF33` | `delay_ms(ms)` | Retardo milisegundos |
+| `$BF48` | `spi_init()` | Inicializar SPI |
+| `$BF4B` | `spi_select(cs)` | Seleccionar chip SPI |
+| `$BF4E` | `spi_deselect()` | Deseleccionar chip |
+| `$BF51` | `spi_transfer(data)` | Transferir byte SPI |
+| `$BF54` | `spi_send(data)` | Enviar byte SPI |
+| `$BF57` | `spi_receive()` | Recibir byte SPI |
+| `$BF5A` | `spi_busy()` | Verificar si SPI ocupado |
+| `$BF5D` | `i2c_init()` | Inicializar I2C |
+| `$BF60` | `i2c_start(dev, rw)` | Iniciar comunicación I2C |
+| `$BF63` | `i2c_stop()` | Detener comunicación I2C |
+| `$BF66` | `i2c_write_byte(data)` | Escribir byte I2C |
+| `$BF69` | `i2c_read_byte(ack)` | Leer byte I2C |
+| `$BF6C` | `i2c_write(dev,mem,ab,buf,cnt)` | Escribir bloque I2C |
+| `$BF6F` | `i2c_read(dev,mem,ab,buf,cnt)` | Leer bloque I2C |
+| `$BF78` | Magic "ROMAPI" + versión | Identificador de ROM API |
 
 ### Uso desde C
 
@@ -281,11 +301,17 @@ rom_mfs_close();
 
 ## Historial de Versiones
 
+### v2.5.0 (2026-05-15)
+- **Feature**: **SPI** en ROM API ($BF48-$BF5A): init, select, deselect, transfer, send, receive, busy
+- **Feature**: **I2C** en ROM API ($BF5D-$BF6F): init, start, stop, write_byte, read_byte, write, read
+- **Feature**: Banner simplificado (ahorra espacio en ROM)
+- **Feature**: Implementada `mfs_read_ext` en MicroFS para ROM API ($BF27)
+- **Fix**: Comando `R` ahora usa `last_addr` como default en lugar de `$0800` fijo
+- **Fix**: `XRECV` ahora actualiza `last_addr`
+- **Version**: Bump a v2.5.0
+
 ### v2.4.2 (2026-05-11)
-- **Fix**: Comando `R` ahora usa `last_addr` como default (la última dirección usada por LOAD o XRECV) en lugar de `$0800` fijo
-- **Fix**: `XRECV` ahora actualiza `last_addr` para que `R` ejecute desde allí
 - **Feature**: Implementada `mfs_read_ext` en MicroFS para ROM API ($BF27), usada por SID Player y BASIC
-- **Version**: Bump a v2.4.2
 
 ### v2.4.1 (2026-05-02)
 - ✅ **ROM API completa**: Agregadas funciones de escritura para MicroFS (`mfs_create`, `mfs_write`, `mfs_delete`, `mfs_format`)
@@ -306,11 +332,12 @@ rom_mfs_close();
 - [cc65](https://cc65.github.io/) instalado (configurar ruta en makefile)
 - Python 3 para el script de conversión
 - Librerías en `libs/` (clonar de repos separados):
-  - uart
-  - spi-6502-cc65
-  - sdcard-spi-6502-cc65
-  - microfs-6502-cc65
-  - monitor
+    - uart
+    - spi-6502-cc65
+    - i2c-6502-cc65
+    - sdcard-spi-6502-cc65
+    - microfs-6502-cc65
+    - monitor
 
 ### Compilar
 ```bash
