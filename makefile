@@ -19,7 +19,7 @@ SCRIPTS_DIR = scripts
 # ============================================
 # VERSIÓN
 # ============================================
-VERSION = v2.4.2
+VERSION = v2.5.0
 
 # ============================================
 # HERRAMIENTAS
@@ -47,8 +47,9 @@ SPI_DIR = $(LIB_DIR)/spi-6502-cc65
 SDCARD_DIR = $(LIB_DIR)/sdcard-spi-6502-cc65
 MICROFS_DIR = $(LIB_DIR)/microfs-6502-cc65
 TIMER_DIR = $(LIB_DIR)/timer-6502-cc65/src
+I2C_DIR = $(LIB_DIR)/i2c-6502-cc65
 
-INCLUDES = -I$(UART_DIR) -I$(MONITOR_DIR) -I$(SPI_DIR) -I$(SDCARD_DIR) -I$(MICROFS_DIR) -I$(TIMER_DIR)
+INCLUDES = -I$(UART_DIR) -I$(MONITOR_DIR) -I$(SPI_DIR) -I$(SDCARD_DIR) -I$(MICROFS_DIR) -I$(TIMER_DIR) -I$(I2C_DIR)
 
 # ============================================
 # ARCHIVOS OBJETO
@@ -66,8 +67,9 @@ MICROFS_ASM_OBJ = $(BUILD_DIR)/microfs_asm.o
 XMODEM_OBJ = $(BUILD_DIR)/xmodem.o
 ROMAPI_OBJ = $(BUILD_DIR)/romapi.o
 TIMER_OBJ = $(BUILD_DIR)/timer.o
+I2C_OBJ = $(BUILD_DIR)/i2c.o
 
-OBJS = $(STARTUP_OBJ) $(MAIN_OBJ) $(UART_OBJ) $(MONITOR_OBJ) $(SPI_OBJ) $(SDCARD_OBJ) $(SDCARD_ASM_OBJ) $(MICROFS_OBJ) $(MICROFS_ASM_OBJ) $(XMODEM_OBJ) $(ROMAPI_OBJ) $(TIMER_OBJ) $(VECTORS_OBJ)
+OBJS = $(STARTUP_OBJ) $(MAIN_OBJ) $(UART_OBJ) $(MONITOR_OBJ) $(SPI_OBJ) $(SDCARD_OBJ) $(SDCARD_ASM_OBJ) $(MICROFS_OBJ) $(MICROFS_ASM_OBJ) $(XMODEM_OBJ) $(ROMAPI_OBJ) $(TIMER_OBJ) $(I2C_OBJ) $(VECTORS_OBJ)
 
 # ============================================
 # TARGET PRINCIPAL
@@ -142,8 +144,12 @@ $(XMODEM_OBJ): $(SRC_DIR)/xmodem.c
 $(ROMAPI_OBJ): $(SRC_DIR)/romapi.s
 	$(CA65) -t none -o $@ $<
 
-# Timer (assembler) - Usar versión minimal para ahorrar espacio
+# Timer (assembler) - Usar versiÃ³n minimal para ahorrar espacio
 $(TIMER_OBJ): $(TIMER_DIR)/timer_minimal.s
+	$(CA65) -t none -o $@ $<
+
+# I2C (assembler)
+$(I2C_OBJ): $(I2C_DIR)/i2c.s
 	$(CA65) -t none -o $@ $<
 
 # ============================================

@@ -61,8 +61,26 @@
 #define ROMAPI_MFS_DELETE   0xBF42
 #define ROMAPI_MFS_FORMAT   0xBF45
 
-/* Magic y versión */
-#define ROMAPI_MAGIC_ADDR   0xBF50
+/* SPI */
+#define ROMAPI_SPI_INIT     0xBF48
+#define ROMAPI_SPI_SELECT   0xBF4B
+#define ROMAPI_SPI_DESELECT 0xBF4E
+#define ROMAPI_SPI_TRANSFER 0xBF51
+#define ROMAPI_SPI_SEND     0xBF54
+#define ROMAPI_SPI_RECEIVE  0xBF57
+#define ROMAPI_SPI_BUSY     0xBF5A
+
+/* I2C */
+#define ROMAPI_I2C_INIT      0xBF5D
+#define ROMAPI_I2C_START     0xBF60
+#define ROMAPI_I2C_STOP      0xBF63
+#define ROMAPI_I2C_WRITE_BYTE 0xBF66
+#define ROMAPI_I2C_READ_BYTE 0xBF69
+#define ROMAPI_I2C_WRITE     0xBF6C
+#define ROMAPI_I2C_READ      0xBF6F
+
+/* Magic y versiÃ³n */
+#define ROMAPI_MAGIC_ADDR   0xBF78
 #define ROMAPI_MAGIC        "ROMAPI"
 
 /* ===========================================================================
@@ -116,6 +134,26 @@ typedef struct {
 #define rom_get_micros()    (((uint32_t (*)(void))ROMAPI_GET_MICROS)())
 #define rom_delay_us(us)    (((void (*)(uint16_t))ROMAPI_DELAY_US)(us))
 #define rom_delay_ms(ms)    (((void (*)(uint16_t))ROMAPI_DELAY_MS)(ms))
+
+/* SPI */
+#define rom_spi_init()      (((void (*)(void))ROMAPI_SPI_INIT)())
+#define rom_spi_select(m)   (((void (*)(uint8_t))ROMAPI_SPI_SELECT)(m))
+#define rom_spi_deselect()  (((void (*)(void))ROMAPI_SPI_DESELECT)())
+#define rom_spi_transfer(d) (((uint8_t (*)(uint8_t))ROMAPI_SPI_TRANSFER)(d))
+#define rom_spi_send(d)     (((void (*)(uint8_t))ROMAPI_SPI_SEND)(d))
+#define rom_spi_receive()   (((uint8_t (*)(void))ROMAPI_SPI_RECEIVE)())
+#define rom_spi_busy()      (((uint8_t (*)(void))ROMAPI_SPI_BUSY)())
+
+/* I2C */
+#define rom_i2c_init()      (((void (*)(void))ROMAPI_I2C_INIT)())
+#define rom_i2c_start(dev,rw) (((uint8_t (*)(uint8_t, uint8_t))ROMAPI_I2C_START)(dev, rw))
+#define rom_i2c_stop()      (((void (*)(void))ROMAPI_I2C_STOP)())
+#define rom_i2c_write_byte(d) (((uint8_t (*)(uint8_t))ROMAPI_I2C_WRITE_BYTE)(d))
+#define rom_i2c_read_byte(a) (((uint8_t (*)(uint8_t))ROMAPI_I2C_READ_BYTE)(a))
+#define rom_i2c_write(dev,mem,addr_bytes,buf,cnt) \
+    (((uint8_t (*)(uint8_t, uint16_t, uint8_t, uint8_t*, uint8_t))ROMAPI_I2C_WRITE)(dev, mem, addr_bytes, buf, cnt))
+#define rom_i2c_read(dev,mem,addr_bytes,buf,cnt) \
+    (((uint8_t (*)(uint8_t, uint16_t, uint8_t, uint8_t*, uint8_t))ROMAPI_I2C_READ)(dev, mem, addr_bytes, buf, cnt))
 
 /* ===========================================================================
  * CONSTANTES DE BAUDRATE UART (para uso con rom_uart_set_baudrate)

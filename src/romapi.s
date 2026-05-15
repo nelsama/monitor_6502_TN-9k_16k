@@ -1,7 +1,7 @@
 ;; ===========================================================================
 ;; ROMAPI.S - API de ROM para programas standalone
 ;; ===========================================================================
-;; 
+;;
 ;; Jump Table fija en $BF00 para que programas externos puedan llamar
 ;; funciones de la ROM sin incluir las librerías.
 ;;
@@ -44,6 +44,24 @@
 .import _get_micros
 .import _delay_us
 .import _delay_ms
+
+; Importar funciones SPI
+.import _spi_init
+.import _spi_select
+.import _spi_deselect
+.import _spi_transfer
+.import _spi_send
+.import _spi_receive
+.import _spi_busy
+
+; Importar funciones I2C
+.import _i2c_init
+.import _i2c_start
+.import _i2c_stop
+.import _i2c_write_byte
+.import _i2c_read_byte
+.import _i2c_write
+.import _i2c_read
 
 ; ===========================================================================
 ; SEGMENTO ROMAPI - Posición fija en $BF00
@@ -175,10 +193,73 @@ mfs_delete_entry:
 ; $BF45 - mfs_format
 mfs_format_entry:
     JMP _mfs_format
-; Padding hasta $BF50 para futuras expansiones
-.res $50 - (* - _romapi_start), $EA   ; Relleno con NOP
 
-; $BF50 - Magic number y versión
+; ---------------------------------------------------------------------------
+; FUNCIONES SPI (Base: $BF48)
+; ---------------------------------------------------------------------------
+; $BF48 - spi_init
+spi_init_entry:
+    JMP _spi_init
+
+; $BF4B - spi_select (param: cs_mask en A)
+spi_select_entry:
+    JMP _spi_select
+
+; $BF4E - spi_deselect
+spi_deselect_entry:
+    JMP _spi_deselect
+
+; $BF51 - spi_transfer (param: data en A, retorna byte en A)
+spi_transfer_entry:
+    JMP _spi_transfer
+
+; $BF54 - spi_send (param: data en A)
+spi_send_entry:
+    JMP _spi_send
+
+; $BF57 - spi_receive (retorna byte en A)
+spi_receive_entry:
+    JMP _spi_receive
+
+; $BF5A - spi_busy (retorna status en A)
+spi_busy_entry:
+    JMP _spi_busy
+
+; ---------------------------------------------------------------------------
+; FUNCIONES I2C (Base: $BF5D)
+; ---------------------------------------------------------------------------
+; $BF5D - i2c_init
+i2c_init_entry:
+    JMP _i2c_init
+
+; $BF60 - i2c_start (params: device_addr en stack, rw en A)
+i2c_start_entry:
+    JMP _i2c_start
+
+; $BF63 - i2c_stop
+i2c_stop_entry:
+    JMP _i2c_stop
+
+; $BF66 - i2c_write_byte (param: data en A, retorna ACK en A)
+i2c_write_byte_entry:
+    JMP _i2c_write_byte
+
+; $BF69 - i2c_read_byte (param: ack en A, retorna byte en A)
+i2c_read_byte_entry:
+    JMP _i2c_read_byte
+
+; $BF6C - i2c_write (params en stack, retorna bytes escritos en A)
+i2c_write_entry:
+    JMP _i2c_write
+
+; $BF6F - i2c_read (params en stack, retorna bytes leidos en A)
+i2c_read_entry:
+    JMP _i2c_read
+
+; Padding hasta $BF78 para futuras expansiones
+.res $78 - (* - _romapi_start), $EA   ; Relleno con NOP
+
+; $BF78 - Magic number y versión
 romapi_magic:
     .byte "ROMAPI"      ; Magic: "ROMAPI"
     .byte $02           ; Versión major

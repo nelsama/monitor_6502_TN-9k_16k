@@ -41,10 +41,7 @@ int main(void) {
     uart_init();
     
     /* Mensaje de bienvenida */
-    uart_puts("\r\n");
-    uart_puts("##### 6502 SYSTEM READY #####\r\n");
-    uart_puts("Monitor 6502 " VERSION " - 16K ROM\r\n");
-    uart_puts("Iniciando Monitor...\r\n");
+    uart_puts("\r\nTang Nano 9K - 6502 @ 3.375 MHz\r\n");
     
     /* Iniciar y ejecutar el monitor en bucle */
     monitor_init();

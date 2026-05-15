@@ -61,11 +61,6 @@ static void mon_error(const char *msg) {
     mon_newline();
 }
 
-static void mon_ok(void) {
-    uart_puts("OK");
-    mon_newline();
-}
-
 /* ============================================
  * FUNCIONES DE CONVERSIÓN
  * ============================================ */
@@ -874,20 +869,20 @@ static uint8_t cmd_match(const char *cmd, const char *pattern);
 static void mon_help(void) {
     mon_newline();
     uart_puts("=== MONITOR 6502 " VERSION " ===\r\n");
-    uart_puts("Valores HEX. H cmd=ayuda detallada\r\n");
-    uart_puts("RD addr    Leer byte\r\n");
+    uart_puts("HEX. H cmd=ayuda\r\n");
+    uart_puts("RD addr Leer\r\n");
     uart_puts("W addr val Escribir\r\n");
     uart_puts("D addr len Dump hex\r\n");
     uart_puts("L addr     Cargar hex(.=fin)\r\n");
     uart_puts("R [addr]   Run (def $0800)\r\n");
     uart_puts("F addr l v Fill\r\n");
     uart_puts("M addr [n] Desensamblar\r\n");
-    uart_puts("XRECV [addr] XMODEM (def $0800)\r\n");
-    uart_puts("I          Info memoria\r\n");
-    uart_puts("--- SD ---\r\n");
-    uart_puts("SD/LS/SDFORMAT SAVE/LOAD/DEL/CAT\r\n");
-    uart_puts("H/?/Q Ayuda/Salir\r\n");
-    uart_puts("RAM prog: $0800-$3DFF\r\n");
+    uart_puts("XRECV XMODEM\r\n");
+    uart_puts("I Info mem\r\n");
+    uart_puts("SD:\r\n");
+    uart_puts("LS SAVE LOAD DEL CAT SDFMT\r\n");
+    uart_puts("H=ayuda Q=salir\r\n");
+    uart_puts("RAM: $0800-$3DFF\r\n");
 }
 
 /* Ayuda detallada por comando (compacta para ahorrar ROM) */
@@ -1344,17 +1339,11 @@ void monitor_run(void) {
     LEDS = 0xFF;
     
     mon_newline();
-    uart_puts("================================");
-    mon_newline();
-    uart_puts("  MONITOR 6502 ");
+    uart_puts("--- Monitor 6502 ");
     uart_puts(VERSION);
-    uart_puts(" + SD");
+    uart_puts(" ---");
     mon_newline();
-    uart_puts("  Tang Nano 9K @ 3.375 MHz");
-    mon_newline();
-    uart_puts("================================");
-    mon_newline();
-    uart_puts("Escribe H para ayuda, SD para SD Card");
+    uart_puts("H=ayuda, SD=SD Card, Q=salir");
     
     while (1) {
         mon_prompt();
