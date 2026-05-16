@@ -1,6 +1,6 @@
 -- ======================================================
 -- ROM generada automáticamente con Python
--- Fecha: 2026-05-16 18:01:24
+-- Fecha: 2026-05-16 18:03:52
 -- Versión del Monitor: v2.5.1
 -- Tamaño: 16384 bytes
 -- Ancho de datos: 8 bits
@@ -13871,7 +13871,7 @@ BEGIN
         when x"360C" => data_out<= x"2E";
         when x"360D" => data_out<= x"35";
         when x"360E" => data_out<= x"2E";
-        when x"360F" => data_out<= x"30";
+        when x"360F" => data_out<= x"31";
         when x"3610" => data_out<= x"20";
         when x"3611" => data_out<= x"3D";
         when x"3612" => data_out<= x"3D";
@@ -15795,7 +15795,7 @@ BEGIN
         when x"3D90" => data_out<= x"2E";
         when x"3D91" => data_out<= x"35";
         when x"3D92" => data_out<= x"2E";
-        when x"3D93" => data_out<= x"30";
+        when x"3D93" => data_out<= x"31";
         when x"3D94" => data_out<= x"00";
         when x"3D95" => data_out<= x"4C";
         when x"3D96" => data_out<= x"44";
