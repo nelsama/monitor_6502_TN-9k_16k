@@ -496,7 +496,7 @@ int main(void) {
     /* Banner */
     uart_puts("\r\n");
     uart_puts("================================\r\n");
-    uart_puts("  SID PLAYER 6502 v1.2.1\r\n");
+    uart_puts("  SID PLAYER 6502 v1.3.0\r\n");
     uart_puts("  V=VU mode (Max/3ch/Off)\r\n");
     uart_puts("================================\r\n\r\n");
 

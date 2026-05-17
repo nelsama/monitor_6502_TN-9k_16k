@@ -72,7 +72,7 @@ SIDPLAY cargado, ~5.5KB
 > R 2700
 
 ================================
-  SID PLAYER 6502 v1.2.1
+  SID PLAYER 6502 v1.3.0
   V=VU mode (Max/3ch/Off)
 ================================
 
@@ -169,6 +169,10 @@ sidplayer/
 ```
 
 ## Changelog
+
+### v1.3.0 (2026-05-15)
+- **Fix**: Ajustada velocidad de reproducción a NTSC (60Hz)
+- **Fix**: FRAME_USEC configurable en main.c (18320 us)
 
 ### v1.2.1 (2026-01-13)
 - Player movido a $2700 (antes $2600)
