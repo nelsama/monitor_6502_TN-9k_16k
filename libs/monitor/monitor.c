@@ -10,6 +10,9 @@
 #include "../microfs-6502-cc65/microfs.h"
 #include "../../src/xmodem.h"
 
+/* Reset por software */
+extern void soft_reset(void);
+
 /* Hardware */
 #define LEDS (*(volatile unsigned char *)0xC001)
 
@@ -881,7 +884,7 @@ static void mon_help(void) {
     uart_puts("I Info mem\r\n");
     uart_puts("SD:\r\n");
     uart_puts("LS SAVE LOAD DEL CAT SDFMT\r\n");
-    uart_puts("H=ayuda Q=salir\r\n");
+    uart_puts("H=ayuda Q=reset\r\n");
     uart_puts("RAM: $0800-$3DFF\r\n");
 }
 
@@ -1242,10 +1245,11 @@ uint8_t monitor_process_cmd(char *cmd) {
             uart_puts("Cmd deshabilitado p/ XMODEM\r\n");
             break;
             
-        case 'Q': /* Quit */
-            uart_puts("Saliendo del monitor...");
+        case 'Q': /* Reset */
+            uart_puts("Reset...");
             mon_newline();
-            return MON_EXIT;
+            soft_reset();
+            break;
             
         case 'H':
         case '?':
@@ -1343,7 +1347,7 @@ void monitor_run(void) {
     uart_puts(VERSION);
     uart_puts(" ---");
     mon_newline();
-    uart_puts("H=ayuda, SD=SD Card, Q=salir");
+    uart_puts("H=ayuda, SD=SD Card, Q=reset");
     
     while (1) {
         mon_prompt();

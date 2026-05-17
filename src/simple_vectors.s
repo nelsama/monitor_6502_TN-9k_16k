@@ -16,6 +16,12 @@ nmi_handler:
 irq_handler:
     rti
 
+; Reset por software - salta al vector RESET ($FFFC)
+; Equivalente a presionar el botón de reset
+.export _soft_reset
+_soft_reset:
+    jmp ($fffc)
+
 .segment "VECTORS"
 
 ; Tabla de vectores del 6502 ($BFFA-$BFFF)
