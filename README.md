@@ -47,6 +47,7 @@ Todo en **HEXADECIMAL** (sin prefijo `$` ni `0x`)
 | Comando | Sintaxis | Descripción |
 |---------|----------|-------------|
 | **R** | `R [addr]` | Ejecutar programa (default: $0800) |
+| **Q** | `Q` | Reset del monitor (como reset físico) |
 | **RD** | `RD addr` | Leer byte de memoria |
 | **W** | `W addr val` | Escribir byte en memoria |
 | **D** | `D addr [len]` | Dump memoria hex+ASCII (default: 64 bytes) |
@@ -302,6 +303,7 @@ rom_mfs_close();
 ## Historial de Versiones
 
 ### v2.5.1 (2026-05-15)
+- **Fix**: `Q` ahora hace reset real via `JMP ($FFFC)` (reinicia CPU y monitor)
 - **Fix**: Texto de ayuda más claro
 
 ### v2.5.0 (2026-05-15)
