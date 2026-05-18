@@ -190,8 +190,9 @@ uart_set_baudrate_entry:
 ; NUEVAS FUNCIONES MICROFS - ESCRITURA (Base: $BF3C)
 ; ---------------------------------------------------------------------------
 ; $BF3C - mfs_create (param: name ptr in AX, size in stack)
+; Wrapper: name ptr en $F4-$F5, size en $F6-$F7
 mfs_create_entry:
-    JMP _mfs_create
+    JMP mfs_create_wrap
 
 ; $BF3F - mfs_write (params: buffer in AX, len in stack)
 ; Wrapper: buf en $F4-$F5, len en $F6-$F7
@@ -355,6 +356,16 @@ _sd_write_sector_wrap:
     lda     $F4
     ldx     $F5
     jmp     _sd_write_sector
+
+; mfs_create_wrap: name ptr en $F4-$F5, size en $F6-$F7
+mfs_create_wrap:
+    lda     $F6
+    ldx     $F7
+    jsr     pushax      ; push size
+    lda     $F4
+    ldx     $F5
+    jsr     pushax      ; push name ptr
+    jmp     _mfs_create
 
 ; ===========================================================================
 ; FIN ROMAPI

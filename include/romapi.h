@@ -249,6 +249,12 @@ typedef struct {
  *   $F6-$F7 = cantidad de bytes a escribir
  *   Retorna: A/X = bytes escritos (uint16_t)
  * 
+ * === mfs_create (wrappeado) ===
+ * Uso: rom_mfs_create_via_zp()
+ *   $F4-$F5 = puntero al nombre del archivo
+ *   $F6-$F7 = tamaÃ±o del archivo
+ *   Retorna: A = 0 (OK) o cÃ³digo de error
+ * 
  * === sd_read_sector (wrappeado) ===
  * Uso: rom_sd_read_sector_via_zp()
  *   $F0-$F3 = nÃºmero de sector (uint32_t)
@@ -262,6 +268,11 @@ typedef struct {
  *   Retorna: A = 0 (OK) o cÃ³digo de error
  * ===========================================================================
  */
+
+#define rom_mfs_create_via_zp(name, size) \
+    (*(volatile uint16_t*)0xF4 = (uint16_t)(name), \
+     *(volatile uint16_t*)0xF6 = (size), \
+     ((uint8_t (*)(void))ROMAPI_MFS_CREATE)())
 
 /* ===========================================================================
  * MACROS PARA LLAMAR A FUNCIONES WRAPPEADAS (vÃ­a ZP fijo)
