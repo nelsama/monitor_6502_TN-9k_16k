@@ -188,6 +188,7 @@ Cargando MIPROG.BIN en $0800...
 | SPI Control | `$C043` | Control SPI (interrupts) |
 | SPI SS Mask | `$C044` | Máscara Slave Select |
 | SPI CS Enable | `$C045` | CS Enable (bit0=1 activa CS) |
+| **SD Card** | via SPI `$C040-$C045` | Tarjeta SD accesada por SPI (CS = bit0) |
 
 ---
 
