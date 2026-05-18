@@ -176,14 +176,18 @@ Cargando MIPROG.BIN en $0800...
 |--------|-----------|-------------|
 | LEDs | `$C001` | 6 LEDs (bits 0-5) |
 | LED Config | `$C003` | Configuración E/S (0=salida) |
-| SPI Data | `$C010` | Datos SPI (SD Card) |
-| SPI Status | `$C011` | Estado SPI |
-| SPI CS | `$C012` | Chip Select SD |
+| I2C | `$C010-$C014` | Bus I2C (prescaler, control, datos, cmd/status) |
 | UART Data | `$C020` | Datos TX/RX |
 | UART Status/Control | `$C021` | Estado UART (lectura) / Control (escritura) |
 | UART Baud Low | `$C022` | Divisor baudrate (byte bajo) |
 | UART Baud High | `$C023` | Divisor baudrate (byte alto) |
 | Timer | `$C030-$C03C` | Timer/RTC de 32-bit (ticks, microsegundos) |
+| SPI RX Data | `$C040` | Dato SPI recibido (read only) |
+| SPI TX Data | `$C041` | Dato a transmitir (write inicia TX) |
+| SPI Status | `$C042` | Estado SPI (RRDY, TRDY, TMT) |
+| SPI Control | `$C043` | Control SPI (interrupts) |
+| SPI SS Mask | `$C044` | Máscara Slave Select |
+| SPI CS Enable | `$C045` | CS Enable (bit0=1 activa CS) |
 
 ---
 
@@ -193,9 +197,16 @@ La ROM incluye una **API completa** para que programas externos puedan acceder a
 
 ### Funciones Disponibles
 
+**SD Card**
+
 | Dirección | Función | Descripción |
 |-----------|---------|-------------|
 | `$BF00` | `sd_init()` | Inicializar SD Card |
+
+**MicroFS (Sistema de archivos)**
+
+| Dirección | Función | Descripción |
+|-----------|---------|-------------|
 | `$BF03` | `mfs_mount()` | Montar sistema de archivos |
 | `$BF06` | `mfs_open(name)` | Abrir archivo |
 | `$BF09` | `mfs_read(buf, len)` | Leer datos |
@@ -207,6 +218,11 @@ La ROM incluye una **API completa** para que programas externos puedan acceder a
 | `$BF3F` | `mfs_write(buf, len)` | Escribir datos |
 | `$BF42` | `mfs_delete(name)` | Eliminar archivo |
 | `$BF45` | `mfs_format()` | Formatear SD |
+
+**UART**
+
+| Dirección | Función | Descripción |
+|-----------|---------|-------------|
 | `$BF15` | `uart_init()` | Inicializar UART |
 | `$BF18` | `uart_putc(c)` | Enviar carácter |
 | `$BF1B` | `uart_getc()` | Recibir carácter |
@@ -215,25 +231,50 @@ La ROM incluye una **API completa** para que programas externos puedan acceder a
 | `$BF24` | `uart_tx_ready()` | UART TX listo |
 | `$BF36` | `uart_clear_errors()` | Limpiar flags error UART |
 | `$BF39` | `uart_set_baudrate(div)` | Configurar baudrate UART |
-| `$BF2A` | `xmodem_receive(addr)` | Recibir via XMODEM |
-| `$BF2D` | `get_micros()` | Microsegundos |
-| `$BF30` | `delay_us(us)` | Retardo microsegundos |
-| `$BF33` | `delay_ms(ms)` | Retardo milisegundos |
+
+**XMODEM**
+
+| Dirección | Función | Descripción |
+|-----------|---------|-------------|
+| `$BF2A` | `xmodem_receive(addr)` | Recibir via XMODEM desde PC |
+
+**Timer**
+
+| Dirección | Función | Descripción |
+|-----------|---------|-------------|
+| `$BF2D` | `get_micros()` | Leer microsegundos desde reset |
+| `$BF30` | `delay_us(us)` | Retardo en microsegundos |
+| `$BF33` | `delay_ms(ms)` | Retardo en milisegundos |
+
+**SPI**
+
+| Dirección | Función | Descripción |
+|-----------|---------|-------------|
 | `$BF48` | `spi_init()` | Inicializar SPI |
 | `$BF4B` | `spi_select(cs)` | Seleccionar chip SPI |
 | `$BF4E` | `spi_deselect()` | Deseleccionar chip |
-| `$BF51` | `spi_transfer(data)` | Transferir byte SPI |
-| `$BF54` | `spi_send(data)` | Enviar byte SPI |
-| `$BF57` | `spi_receive()` | Recibir byte SPI |
-| `$BF5A` | `spi_busy()` | Verificar si SPI ocupado |
-| `$BF5D` | `i2c_init()` | Inicializar I2C |
-| `$BF60` | `i2c_start(dev, rw)` | Iniciar comunicación I2C |
-| `$BF63` | `i2c_stop()` | Detener comunicación I2C |
-| `$BF66` | `i2c_write_byte(data)` | Escribir byte I2C |
-| `$BF69` | `i2c_read_byte(ack)` | Leer byte I2C |
-| `$BF6C` | `i2c_write(dev,mem,ab,buf,cnt)` | Escribir bloque I2C |
-| `$BF6F` | `i2c_read(dev,mem,ab,buf,cnt)` | Leer bloque I2C |
-| `$BF78` | Magic "ROMAPI" + versión | Identificador de ROM API |
+| `$BF51` | `spi_transfer(data)` | Transferir byte (envía y recibe) |
+| `$BF54` | `spi_send(data)` | Enviar byte (ignora respuesta) |
+| `$BF57` | `spi_receive()` | Recibir byte (envía $FF) |
+| `$BF5A` | `spi_busy()` | Verificar si SPI está ocupado |
+
+**I2C**
+
+| Dirección | Función | Descripción |
+|-----------|---------|-------------|
+| `$BF5D` | `i2c_init()` | Inicializar bus I2C |
+| `$BF60` | `i2c_start(dev, rw)` | Iniciar comunicación (START) |
+| `$BF63` | `i2c_stop()` | Detener comunicación (STOP) |
+| `$BF66` | `i2c_write_byte(data)` | Escribir un byte (retorna ACK) |
+| `$BF69` | `i2c_read_byte(ack)` | Leer un byte (ACK/NACK) |
+| `$BF6C` | `i2c_write(dev,mem,ab,buf,cnt)` | Escribir bloque completo |
+| `$BF6F` | `i2c_read(dev,mem,ab,buf,cnt)` | Leer bloque completo |
+
+**Identificador de ROM API**
+
+| Dirección | Contenido |
+|-----------|-----------|
+| `$BF78` | Magic "ROMAPI" + versión (major $02, minor $04) |
 
 ### Uso desde C
 
