@@ -359,7 +359,7 @@ typedef struct {
  * 
  *  XMODEM (fastcall, directo) 
  *   int n = rom_xmodem_receive(0x1000);
- *   if (n > 0) { /* OK, n bytes */ }
+ *   if (n > 0) {  // OK, n bytes  }
  * 
  *  Deteccion de ROM API 
  *   if (*(uint16_t*)ROMAPI_MAGIC_ADDR == *(uint16_t*)"RO") {
