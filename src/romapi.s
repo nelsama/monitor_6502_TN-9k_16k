@@ -306,32 +306,32 @@ romapi_magic:
 ; stack de CC65 del monitor, permitiendo que programas externos
 ; llamen funciones que usan stack sin conflictos de sp.
 
-; mfs_read_wrap: buf en $F0-$F1, len en $F2-$F3
+; mfs_read_wrap: buf en $F0-$F1 (stack), len en $F2-$F3 (AX)
 mfs_read_wrap:
     lda     $F0
     ldx     $F1
-    jsr     pushax
+    jsr     pushax      ; push buf (1er param) al stack
     lda     $F2
     ldx     $F3
-    jmp     _mfs_read
+    jmp     _mfs_read   ; len (2do param) en AX
 
-; mfs_list_wrap: index en $F4, info ptr en $F5-$F6
+; mfs_list_wrap: index en $F4 (stack), info ptr en $F5-$F6 (AX)
 mfs_list_wrap:
     lda     $F4
     ldx     #0
-    jsr     pushax
+    jsr     pushax      ; push index (1er param) al stack
     lda     $F5
     ldx     $F6
-    jmp     _mfs_list
+    jmp     _mfs_list   ; info ptr (2do param) en AX
 
-; mfs_write_wrap: buf en $F4-$F5, len en $F6-$F7
+; mfs_write_wrap: buf en $F4-$F5 (stack), len en $F6-$F7 (AX)
 mfs_write_wrap:
     lda     $F4
     ldx     $F5
-    jsr     pushax
+    jsr     pushax      ; push buf (1er param) al stack
     lda     $F6
     ldx     $F7
-    jmp     _mfs_write
+    jmp     _mfs_write  ; len (2do param) en AX
 
 ; sd_read_sector_wrap: sector en $F0-$F3, buf en $F4-$F5
 _sd_read_sector_wrap:
@@ -357,15 +357,14 @@ _sd_write_sector_wrap:
     ldx     $F5
     jmp     _sd_write_sector
 
-; mfs_create_wrap: name ptr en $F4-$F5, size en $F6-$F7
+; mfs_create_wrap: name ptr en $F4-$F5 (stack), size en $F6-$F7 (AX)
 mfs_create_wrap:
-    lda     $F6
-    ldx     $F7
-    jsr     pushax      ; push size
     lda     $F4
     ldx     $F5
-    jsr     pushax      ; push name ptr
-    jmp     _mfs_create
+    jsr     pushax      ; push name (1er param) al stack
+    lda     $F6
+    ldx     $F7
+    jmp     _mfs_create ; size (2do param) en AX
 
 ; ===========================================================================
 ; FIN ROMAPI
