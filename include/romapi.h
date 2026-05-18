@@ -214,25 +214,89 @@ typedef struct {
  */
 
 /* ===========================================================================
- * NOTA SOBRE mfs_read_ext ($BF27)
+ * FUNCIONES CON PARÃMETROS EN ZP FIJO (para programas externos)
  * ===========================================================================
- * Para programas externos que tienen su propio software stack de CC65,
- * usar mfs_read_ext en lugar de mfs_read. Esta función recibe parámetros
- * en posiciones fijas de Zero Page en lugar del stack:
  * 
+ * Los programas externos tienen su propio software stack de CC65 en
+ * una direcciÃ³n ZP diferente a la del monitor. Las funciones que usan
+ * el stack para pasar parÃ¡metros NO PUEDEN llamarse directamente desde
+ * un programa externo porque leerÃ­an del stack equivocado.
+ * 
+ * Estas versiones con ZP fijo resuelven el problema: el programa externo
+ * escribe los parÃ¡metros en direcciones fijas de Zero Page y luego llama
+ * a la funciÃ³n. El wrapper en la ROM se encarga de pasar los parÃ¡metros
+ * al stack del monitor antes de llamar a la funciÃ³n real.
+ * 
+ * Las funciones que usan fastcall (solo registros A/X) SÃ pueden
+ * llamarse directamente sin wrapper.
+ * ===========================================================================
+ * 
+ * === mfs_read (wrappeado) ===
+ * Uso: rom_mfs_read_via_zp()
  *   $F0-$F1 = puntero al buffer destino
  *   $F2-$F3 = cantidad de bytes a leer
- *   Retorna: A/X = bytes leídos (uint16_t)
+ *   Retorna: A/X = bytes leÃ­dos (uint16_t)
  * 
- * Esto evita conflictos cuando el programa y la ROM usan diferentes
- * posiciones de ZP para el software stack pointer (sp).
+ * === mfs_list (wrappeado) ===
+ * Uso: rom_mfs_list_via_zp()
+ *   $F4     = Ã­ndice del archivo (0-15)
+ *   $F5-$F6 = puntero a mfs_fileinfo_t
+ *   Retorna: A = 0 (OK) o cÃ³digo de error
  * 
- * Ver examples/sidplayer para un ejemplo de uso con wrapper ASM.
+ * === mfs_write (wrappeado) ===
+ * Uso: rom_mfs_write_via_zp()
+ *   $F4-$F5 = puntero al buffer de datos
+ *   $F6-$F7 = cantidad de bytes a escribir
+ *   Retorna: A/X = bytes escritos (uint16_t)
+ * 
+ * === sd_read_sector (wrappeado) ===
+ * Uso: rom_sd_read_sector_via_zp()
+ *   $F0-$F3 = nÃºmero de sector (uint32_t)
+ *   $F4-$F5 = puntero al buffer (512 bytes)
+ *   Retorna: A = 0 (OK) o cÃ³digo de error
+ * 
+ * === sd_write_sector (wrappeado) ===
+ * Uso: rom_sd_write_sector_via_zp()
+ *   $F0-$F3 = nÃºmero de sector (uint32_t)
+ *   $F4-$F5 = puntero al buffer (512 bytes)
+ *   Retorna: A = 0 (OK) o cÃ³digo de error
  * ===========================================================================
  */
 
 /* ===========================================================================
- * CÓDIGOS DE ERROR (compatibles con las librerías originales)
+ * MACROS PARA LLAMAR A FUNCIONES WRAPPEADAS (vÃ­a ZP fijo)
+ * ===========================================================================
+ * Estas macros escriben los parÃ¡metros en Zero Page, luego llaman
+ * a la funciÃ³n de ROM API correspondiente.
+ * =========================================================================== */
+
+#define rom_mfs_read_via_zp(buf, len) \
+    (*(volatile uint16_t*)0xF0 = (uint16_t)(buf), \
+     *(volatile uint16_t*)0xF2 = (len), \
+     ((uint16_t (*)(void))ROMAPI_MFS_READ)())
+
+#define rom_mfs_list_via_zp(index, info) \
+    (*(volatile uint8_t*)0xF4 = (index), \
+     *(volatile uint16_t*)0xF5 = (uint16_t)(info), \
+     ((uint8_t (*)(void))ROMAPI_MFS_LIST)())
+
+#define rom_mfs_write_via_zp(buf, len) \
+    (*(volatile uint16_t*)0xF4 = (uint16_t)(buf), \
+     *(volatile uint16_t*)0xF6 = (len), \
+     ((uint16_t (*)(void))ROMAPI_MFS_WRITE)())
+
+#define rom_sd_read_sector_via_zp(sector, buf) \
+    (*(volatile uint32_t*)0xF0 = (sector), \
+     *(volatile uint16_t*)0xF4 = (uint16_t)(buf), \
+     ((uint8_t (*)(void))ROMAPI_SD_READ_SECTOR)())
+
+#define rom_sd_write_sector_via_zp(sector, buf) \
+    (*(volatile uint32_t*)0xF0 = (sector), \
+     *(volatile uint16_t*)0xF4 = (uint16_t)(buf), \
+     ((uint8_t (*)(void))ROMAPI_SD_WRITE_SECTOR)())
+
+/* ===========================================================================
+ * CÃDIGOS DE ERROR (compatibles con las librerÃ­as originales)
  * =========================================================================== */
 
 /* SD Card */

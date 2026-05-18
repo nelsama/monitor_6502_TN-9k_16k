@@ -69,6 +69,9 @@
 .import _sd_is_ready
 .import _sd_get_type
 
+; Importar runtime de CC65 para manipular stack
+.import pushax
+
 ; ===========================================================================
 ; SEGMENTO ROMAPI - Posición fija en $BF00
 ; ===========================================================================
@@ -95,8 +98,9 @@ mfs_open_entry:
     JMP _mfs_open
 
 ; $BF09 - mfs_read (params: buffer en AX, len en stack)
+; Wrapper: buf en $F0-$F1, len en $F2-$F3
 mfs_read_entry:
-    JMP _mfs_read
+    JMP mfs_read_wrap
 
 ; $BF0C - mfs_close
 mfs_close_entry:
@@ -107,8 +111,9 @@ mfs_get_size_entry:
     JMP _mfs_get_size
 
 ; $BF12 - mfs_list (params: index en A, info ptr en stack)
+; Wrapper: index en $F4, info ptr en $F5-$F6
 mfs_list_entry:
-    JMP _mfs_list
+    JMP mfs_list_wrap
 
 ; ---------------------------------------------------------------------------
 ; FUNCIONES UART (Base: $BF15)
@@ -189,8 +194,9 @@ mfs_create_entry:
     JMP _mfs_create
 
 ; $BF3F - mfs_write (params: buffer in AX, len in stack)
+; Wrapper: buf en $F4-$F5, len en $F6-$F7
 mfs_write_entry:
-    JMP _mfs_write
+    JMP mfs_write_wrap
 
 ; $BF42 - mfs_delete (param: name ptr in AX)
 mfs_delete_entry:
@@ -266,12 +272,14 @@ i2c_read_entry:
 ; FUNCIONES SD CARD - Acceso a sectores (Base: $BF72)
 ; ---------------------------------------------------------------------------
 ; $BF72 - sd_read_sector (params: sector en stack, buf ptr en AX)
+; Wrapper: lee sector de $F0-$F3, buf de $F4-$F5
 sd_read_sector_entry:
-    JMP _sd_read_sector
+    JMP _sd_read_sector_wrap
 
 ; $BF75 - sd_write_sector (params: sector en stack, buf ptr en AX)
+; Wrapper: lee sector de $F0-$F3, buf de $F4-$F5
 sd_write_sector_entry:
-    JMP _sd_write_sector
+    JMP _sd_write_sector_wrap
 
 ; $BF78 - sd_is_ready (retorna status en A)
 sd_is_ready_entry:
@@ -287,9 +295,66 @@ sd_get_type_entry:
 ; $BF84 - Magic number y versión
 romapi_magic:
     .byte "ROMAPI"      ; Magic: "ROMAPI"
-    .byte $02           ; Versión major
-    .byte $04           ; Versión minor
+    .byte $02           ; VersiÃ³n major
+    .byte $04           ; VersiÃ³n minor
+
+; ---------------------------------------------------------------------------
+; WRAPPERS CON ZP FIJO - Para programas externos
+; ---------------------------------------------------------------------------
+; Estos wrappers leen parÃ¡metros de Zero Page fijo y los pasan al
+; stack de CC65 del monitor, permitiendo que programas externos
+; llamen funciones que usan stack sin conflictos de sp.
+
+; mfs_read_wrap: buf en $F0-$F1, len en $F2-$F3
+mfs_read_wrap:
+    lda     $F0
+    ldx     $F1
+    jsr     pushax
+    lda     $F2
+    ldx     $F3
+    jmp     _mfs_read
+
+; mfs_list_wrap: index en $F4, info ptr en $F5-$F6
+mfs_list_wrap:
+    lda     $F4
+    ldx     #0
+    jsr     pushax
+    lda     $F5
+    ldx     $F6
+    jmp     _mfs_list
+
+; mfs_write_wrap: buf en $F4-$F5, len en $F6-$F7
+mfs_write_wrap:
+    lda     $F4
+    ldx     $F5
+    jsr     pushax
+    lda     $F6
+    ldx     $F7
+    jmp     _mfs_write
+
+; sd_read_sector_wrap: sector en $F0-$F3, buf en $F4-$F5
+_sd_read_sector_wrap:
+    lda     $F0
+    ldx     $F1
+    jsr     pushax
+    lda     $F2
+    ldx     $F3
+    jsr     pushax
+    lda     $F4
+    ldx     $F5
+    jmp     _sd_read_sector
+
+; sd_write_sector_wrap: sector en $F0-$F3, buf en $F4-$F5
+_sd_write_sector_wrap:
+    lda     $F0
+    ldx     $F1
+    jsr     pushax
+    lda     $F2
+    ldx     $F3
+    jsr     pushax
+    lda     $F4
+    ldx     $F5
+    jmp     _sd_write_sector
 
 ; ===========================================================================
 ; FIN ROMAPI
-; ===========================================================================
