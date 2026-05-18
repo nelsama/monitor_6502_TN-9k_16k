@@ -1,5 +1,5 @@
 
-# Monitor 6502 v2.5.3 + SD Card + XMODEM + SPI + I2C - Tang Nano 9K
+# Monitor 6502 v2.5.4 + SD Card + XMODEM + SPI + I2C - Tang Nano 9K
 
 🚀 **Monitor/Debugger interactivo** para CPU 6502 sobre FPGA Tang Nano 9K via UART con soporte de **SD Card**, **XMODEM**, **SPI** e **I2C**.
 
@@ -346,6 +346,15 @@ rom_mfs_close();
 ---
 
 ## Historial de Versiones
+
+### v2.5.4 (2026-05-17)
+- **Feature**: Wrappers ZP fijo en ROM API para funciones con stack. Ahora programas externos pueden usar:
+  - `mfs_read` ($BF09) via $F0-$F3
+  - `mfs_list` ($BF12) via $F4-$F6
+  - `mfs_create` ($BF3C) via $F4-$F7
+  - `mfs_write` ($BF3F) via $F4-$F7
+  - `sd_read_sector` ($BF72) via $F0-$F5
+  - `sd_write_sector` ($BF75) via $F0-$F5
 
 ### v2.5.3 (2026-05-17)
 - **Feature**: SD sector functions en ROM API: `sd_read_sector`, `sd_write_sector`, `sd_is_ready`, `sd_get_type`
