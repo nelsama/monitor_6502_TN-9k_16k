@@ -70,6 +70,12 @@
 #define ROMAPI_SPI_RECEIVE  0xBF57
 #define ROMAPI_SPI_BUSY     0xBF5A
 
+/* SD Card - Acceso a sectores */
+#define ROMAPI_SD_READ_SECTOR  0xBF72
+#define ROMAPI_SD_WRITE_SECTOR 0xBF75
+#define ROMAPI_SD_IS_READY     0xBF78
+#define ROMAPI_SD_GET_TYPE     0xBF7B
+
 /* I2C */
 #define ROMAPI_I2C_INIT      0xBF5D
 #define ROMAPI_I2C_START     0xBF60
@@ -80,7 +86,7 @@
 #define ROMAPI_I2C_READ      0xBF6F
 
 /* Magic y versiÃ³n */
-#define ROMAPI_MAGIC_ADDR   0xBF78
+#define ROMAPI_MAGIC_ADDR   0xBF84
 #define ROMAPI_MAGIC        "ROMAPI"
 
 /* ===========================================================================
@@ -143,6 +149,14 @@ typedef struct {
 #define rom_spi_send(d)     (((void (*)(uint8_t))ROMAPI_SPI_SEND)(d))
 #define rom_spi_receive()   (((uint8_t (*)(void))ROMAPI_SPI_RECEIVE)())
 #define rom_spi_busy()      (((uint8_t (*)(void))ROMAPI_SPI_BUSY)())
+
+/* SD Card - Acceso a sectores */
+#define rom_sd_read_sector(sector, buf) \
+    (((uint8_t (*)(uint32_t, uint8_t*))ROMAPI_SD_READ_SECTOR)(sector, buf))
+#define rom_sd_write_sector(sector, buf) \
+    (((uint8_t (*)(uint32_t, const uint8_t*))ROMAPI_SD_WRITE_SECTOR)(sector, buf))
+#define rom_sd_is_ready()   (((uint8_t (*)(void))ROMAPI_SD_IS_READY)())
+#define rom_sd_get_type()   (((uint8_t (*)(void))ROMAPI_SD_GET_TYPE)())
 
 /* I2C */
 #define rom_i2c_init()      (((void (*)(void))ROMAPI_I2C_INIT)())

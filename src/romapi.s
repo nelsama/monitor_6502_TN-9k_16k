@@ -63,6 +63,12 @@
 .import _i2c_write
 .import _i2c_read
 
+; Importar funciones SD Card (lectura/escritura de sectores)
+.import _sd_read_sector
+.import _sd_write_sector
+.import _sd_is_ready
+.import _sd_get_type
+
 ; ===========================================================================
 ; SEGMENTO ROMAPI - Posición fija en $BF00
 ; ===========================================================================
@@ -256,10 +262,29 @@ i2c_write_entry:
 i2c_read_entry:
     JMP _i2c_read
 
-; Padding hasta $BF78 para futuras expansiones
-.res $78 - (* - _romapi_start), $EA   ; Relleno con NOP
+; ---------------------------------------------------------------------------
+; FUNCIONES SD CARD - Acceso a sectores (Base: $BF72)
+; ---------------------------------------------------------------------------
+; $BF72 - sd_read_sector (params: sector en stack, buf ptr en AX)
+sd_read_sector_entry:
+    JMP _sd_read_sector
 
-; $BF78 - Magic number y versión
+; $BF75 - sd_write_sector (params: sector en stack, buf ptr en AX)
+sd_write_sector_entry:
+    JMP _sd_write_sector
+
+; $BF78 - sd_is_ready (retorna status en A)
+sd_is_ready_entry:
+    JMP _sd_is_ready
+
+; $BF7B - sd_get_type (retorna tipo SD en A)
+sd_get_type_entry:
+    JMP _sd_get_type
+
+; Padding hasta $BF84 para futuras expansiones
+.res $84 - (* - _romapi_start), $EA   ; Relleno con NOP
+
+; $BF84 - Magic number y versión
 romapi_magic:
     .byte "ROMAPI"      ; Magic: "ROMAPI"
     .byte $02           ; Versión major

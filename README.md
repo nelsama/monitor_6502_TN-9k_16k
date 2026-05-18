@@ -202,6 +202,10 @@ La ROM incluye una **API completa** para que programas externos puedan acceder a
 | Dirección | Función | Descripción |
 |-----------|---------|-------------|
 | `$BF00` | `sd_init()` | Inicializar SD Card |
+| `$BF72` | `sd_read_sector(sector, buf)` | Leer sector raw (512 bytes) |
+| `$BF75` | `sd_write_sector(sector, buf)` | Escribir sector raw |
+| `$BF78` | `sd_is_ready()` | Verificar si SD está lista |
+| `$BF7B` | `sd_get_type()` | Obtener tipo (SD/SDHC) |
 
 **MicroFS (Sistema de archivos)**
 
@@ -274,7 +278,7 @@ La ROM incluye una **API completa** para que programas externos puedan acceder a
 
 | Dirección | Contenido |
 |-----------|-----------|
-| `$BF78` | Magic "ROMAPI" + versión (major $02, minor $04) |
+| `$BF84` | Magic "ROMAPI" + versión (major $02, minor $04) |
 
 ### Uso desde C
 
