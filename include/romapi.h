@@ -3,25 +3,25 @@
  * 
  * La ROM expone una Jump Table fija en $BF00 con funciones del sistema.
  * Los programas standalone pueden llamar estas funciones sin incluir
- * las librerías, ahorrando espacio en RAM.
+ * las librerias, ahorrando espacio en RAM.
  * 
  * JUMP TABLE: $BF00 - $BFED (38 funciones)
  * MAGIC:      $BF84 - "ROMAPI" v2.4
  * 
- * ╔══════════════════════════════════════════════════════════╗
- * ║  CONVENCIÓN DE LLAMADA (CC65):                         ║
- * ║  - Fastcall: parámetros en A/X (funciona desde afuera) ║
- * ║  - Stack: parámetros por stack software CC65           ║
- * ║  - [ZP]: parámetros en Zero Page fijo ($F0-$F7)        ║
- * ║    Los wrappers ZP evitan conflictos de stack entre     ║
- * ║    el monitor ($000E) y programas externos ($0026).     ║
- * ╚══════════════════════════════════════════════════════════╝
+ * 
+ *   CONVENCIN DE LLAMADA (CC65):                         
+ *   - Fastcall: parametros en A/X (funciona desde afuera) 
+ *   - Stack: parametros por stack software CC65           
+ *   - [ZP]: parametros en Zero Page fijo ($F0-$F7)        
+ *     Los wrappers ZP evitan conflictos de stack entre     
+ *     el monitor ($000E) y programas externos ($0026).     
+ * 
  * 
  * ===========================================================================
- * TABLA RÁPIDA
+ * TABLA RPIDA
  * ===========================================================================
  * 
- * Address   Función            Conv.    Parámetros ZP (si aplica)
+ * Address   Funcion            Conv.    Parametros ZP (si aplica)
  * -------   ------------------ -------- -------------------------------
  * $BF00     sd_init()          fastcall
  * $BF03     mfs_mount()        fastcall
@@ -65,7 +65,7 @@
  * $BF75     sd_write_sector    [ZP]      $F0=sector(32b), $F4=buf
  * $BF78     sd_is_ready()      fastcall
  * $BF7B     sd_get_type()      fastcall
- * $BF84     Magic "ROMAPI"     -         Identificador + versión
+ * $BF84     Magic "ROMAPI"     -         Identificador + version
  * 
  * NOTA: i2c_write ($BF6C) e i2c_read ($BF6F) usan stack CC65.
  *       No tienen wrapper ZP. Desde programas externos, usar
@@ -192,7 +192,7 @@
 #define rom_spi_receive()       (((uint8_t (*)(void))ROMAPI_SPI_RECEIVE)())
 #define rom_spi_busy()          (((uint8_t (*)(void))ROMAPI_SPI_BUSY)())
 
-/* --- I2C (fastcall - funciones básicas) --- */
+/* --- I2C (fastcall - funciones basicas) --- */
 #define rom_i2c_init()          (((void (*)(void))ROMAPI_I2C_INIT)())
 #define rom_i2c_start(dev,rw)   (((uint8_t (*)(uint8_t, uint8_t))ROMAPI_I2C_START)(dev, rw))
 #define rom_i2c_stop()          (((void (*)(void))ROMAPI_I2C_STOP)())
@@ -204,23 +204,23 @@
  * 3. ZP WRAPPERS - Para funciones que usan stack de CC65
  * ===========================================================================
  * 
- * ╔════════════════════════════════════════════════════════════════╗
- * ║  ¿POR QUÉ EXISTEN ESTOS WRAPPERS?                            ║
- * ║  El monitor guarda su stack pointer de CC65 en ZP $000E.     ║
- * ║  Los programas externos tienen el suyo en otra dirección     ║
- * ║  (ej: $0026). Si un programa externo llama a una función     ║
- * ║  que lee parámetros del stack, lee de $000E en vez de su     ║
- * ║  propio stack, obteniendo basura.                            ║
- * ║                                                              ║
- * ║  Los wrappers ZP resuelven esto: el programa externo         ║
- * ║  escribe los parámetros en direcciones fijas de Zero Page,   ║
- * ║  y el wrapper en la ROM los pasa al stack correcto.          ║
- * ║                                                              ║
- * ║  ZP usado: $F0-$F7 (8 bytes, libres para el usuario)        ║
- * ╚════════════════════════════════════════════════════════════════╝
  * 
- * Las macros _via_zp escriben los parámetros en ZP y llaman a la
- * función. No necesitas tocar ZP manualmente.
+ *   ?POR QU EXISTEN ESTOS WRAPPERS?                            
+ *   El monitor guarda su stack pointer de CC65 en ZP $000E.     
+ *   Los programas externos tienen el suyo en otra direccion     
+ *   (ej: $0026). Si un programa externo llama a una funcion     
+ *   que lee parametros del stack, lee de $000E en vez de su     
+ *   propio stack, obteniendo basura.                            
+ *                                                               
+ *   Los wrappers ZP resuelven esto: el programa externo         
+ *   escribe los parametros en direcciones fijas de Zero Page,   
+ *   y el wrapper en la ROM los pasa al stack correcto.          
+ *                                                               
+ *   ZP usado: $F0-$F7 (8 bytes, libres para el usuario)        
+ * 
+ * 
+ * Las macros _via_zp escriben los parametros en ZP y llaman a la
+ * funcion. No necesitas tocar ZP manualmente.
  * =========================================================================== */
 
 /* mfs_read:   $F0-$F1 = buf ptr,  $F2-$F3 = len */
@@ -229,7 +229,7 @@
      *(volatile uint16_t*)0xF2 = (len), \
      ((uint16_t (*)(void))ROMAPI_MFS_READ)())
 
-/* mfs_read_ext:  $F0-$F1 = buf ptr,  $F2-$F3 = len (versión original) */
+/* mfs_read_ext:  $F0-$F1 = buf ptr,  $F2-$F3 = len (version original) */
 #define rom_mfs_read_ext() \
     ((uint16_t (*)(void))ROMAPI_MFS_READ_EXT)()
 
@@ -283,7 +283,7 @@ typedef struct {
 
 
 /* ===========================================================================
- * 5. CÓDIGOS DE ERROR
+ * 5. CDIGOS DE ERROR
  * =========================================================================== */
 
 /* SD Card */
@@ -313,18 +313,18 @@ typedef struct {
  * 6. EJEMPLOS DE USO
  * ===========================================================================
  * 
- * ── Escritura de archivo (via ZP wrapper) ──
+ *  Escritura de archivo (via ZP wrapper) 
  *   rom_mfs_create_via_zp("TEST.TXT", 100);
  *   rom_mfs_write_via_zp(buffer, 100);
  *   rom_mfs_close();
  * 
- * ── Lectura de archivo (via ZP wrapper) ──
+ *  Lectura de archivo (via ZP wrapper) 
  *   rom_mfs_open("TEST.TXT");
  *   uint16_t size = rom_mfs_get_size();
  *   rom_mfs_read_via_zp(buffer, size);
  *   rom_mfs_close();
  * 
- * ── Listar archivos (via ZP wrapper) ──
+ *  Listar archivos (via ZP wrapper) 
  *   rom_mfs_fileinfo_t info;
  *   for (uint8_t i = 0; i < 16; i++) {
  *       if (rom_mfs_list_via_zp(i, &info) == MFS_OK) {
@@ -332,20 +332,20 @@ typedef struct {
  *       }
  *   }
  * 
- * ── Sector raw (via ZP wrapper) ──
+ *  Sector raw (via ZP wrapper) 
  *   rom_sd_read_sector_via_zp(0, buffer);  // leer sector 0
  * 
- * ── UART (fastcall, directo) ──
+ *  UART (fastcall, directo) 
  *   rom_uart_puts("Hola!\r\n");
  *   char c = rom_uart_getc();
  * 
- * ── SPI (fastcall, directo) ──
+ *  SPI (fastcall, directo) 
  *   rom_spi_init();
  *   rom_spi_select(0x01);        // CS=bit0
  *   uint8_t r = rom_spi_transfer(0xFF);
  *   rom_spi_deselect();
  * 
- * ── I2C (fastcall, directo) ──
+ *  I2C (fastcall, directo) 
  *   rom_i2c_init();
  *   if (rom_i2c_start(0x50, 0)) {  // WRITE
  *       rom_i2c_write_byte(0x00);  // addr
@@ -353,15 +353,15 @@ typedef struct {
  *   }
  *   uint8_t d = rom_i2c_read_byte(0);  // NACK = last byte
  * 
- * ── Timer (fastcall, directo) ──
+ *  Timer (fastcall, directo) 
  *   rom_delay_ms(500);
  *   uint32_t t = rom_get_micros();
  * 
- * ── XMODEM (fastcall, directo) ──
+ *  XMODEM (fastcall, directo) 
  *   int n = rom_xmodem_receive(0x1000);
  *   if (n > 0) { /* OK, n bytes */ }
  * 
- * ── Detección de ROM API ──
+ *  Deteccion de ROM API 
  *   if (*(uint16_t*)ROMAPI_MAGIC_ADDR == *(uint16_t*)"RO") {
  *       // ROM API presente
  *   }
