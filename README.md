@@ -510,31 +510,89 @@ Para información detallada sobre el funcionamiento de las funciones, consulta l
 - **UART**: [uart-6502-cc65](https://github.com/nelsama/uart-6502-cc65) - Comunicación serial, configuración baudrate
 - **MicroFS**: [microfs-6502-cc65](https://github.com/nelsama/microfs-6502-cc65) - Sistema de archivos, operaciones con SD
 - **Timer**: [timer-6502-cc65](https://github.com/nelsama/timer-6502-cc65) - Delays precisos, medición de tiempo
+- **SPI**: [spi-6502-cc65](https://github.com/nelsama/spi-6502-cc65) - Bus SPI
+- **I2C**: [i2c-6502-cc65](https://github.com/nelsama/i2c-6502-cc65) - Bus I2C
 
 ### Direcciones
+
+**SD Card**
 
 | Dirección | Función | Descripción |
 |-----------|---------|-------------|
 | `$BF00` | `sd_init()` | Inicializar SD Card |
+
+**MicroFS (Sistema de archivos)**
+
+| Dirección | Función | Descripción |
+|-----------|---------|-------------|
 | `$BF03` | `mfs_mount()` | Montar filesystem |
 | `$BF06` | `mfs_open(name)` | Abrir archivo |
 | `$BF09` | `mfs_read(buf,len)` | Leer datos |
 | `$BF0C` | `mfs_close()` | Cerrar archivo |
 | `$BF0F` | `mfs_get_size()` | Obtener tamaño |
 | `$BF12` | `mfs_list(idx,info)` | Listar archivos |
+| `$BF27` | `mfs_read_ext()` | Lectura con ZP fijo ($F0-$F3) |
+| `$BF3C` | `mfs_create(name,size)` | Crear archivo |
+| `$BF3F` | `mfs_write(buf,len)` | Escribir datos |
+| `$BF42` | `mfs_delete(name)` | Eliminar archivo |
+| `$BF45` | `mfs_format()` | Formatear SD |
+
+**UART**
+
+| Dirección | Función | Descripción |
+|-----------|---------|-------------|
 | `$BF15` | `uart_init()` | Inicializar UART |
 | `$BF18` | `uart_putc(c)` | Enviar carácter |
 | `$BF1B` | `uart_getc()` | Recibir carácter |
 | `$BF1E` | `uart_puts(str)` | Enviar string |
 | `$BF21` | `uart_rx_ready()` | Verificar RX |
 | `$BF24` | `uart_tx_ready()` | Verificar TX |
-| `$BF27` | `mfs_read_ext()` | Lectura MicroFS (ZP) |
-| `$BF2A` | `xmodem_receive(addr)` | Recibir XMODEM |
-| **`$BF2D`** | **`get_micros()`** | **Leer microsegundos** |
-| **`$BF30`** | **`delay_us(us)`** | **Delay microsegundos** |
-| **`$BF33`** | **`delay_ms(ms)`** | **Delay milisegundos** |
 | `$BF36` | `uart_clear_errors()` | Limpiar flags error UART |
 | `$BF39` | `uart_set_baudrate(div)` | Configurar baudrate |
+
+**XMODEM**
+
+| Dirección | Función | Descripción |
+|-----------|---------|-------------|
+| `$BF2A` | `xmodem_receive(addr)` | Recibir archivo desde PC |
+
+**Timer**
+
+| Dirección | Función | Descripción |
+|-----------|---------|-------------|
+| `$BF2D` | `get_micros()` | Leer microsegundos desde reset |
+| `$BF30` | `delay_us(us)` | Delay en microsegundos |
+| `$BF33` | `delay_ms(ms)` | Delay en milisegundos |
+
+**SPI**
+
+| Dirección | Función | Descripción |
+|-----------|---------|-------------|
+| `$BF48` | `spi_init()` | Inicializar SPI |
+| `$BF4B` | `spi_select(cs)` | Seleccionar chip SPI |
+| `$BF4E` | `spi_deselect()` | Deseleccionar chip |
+| `$BF51` | `spi_transfer(data)` | Transferir byte (envía y recibe) |
+| `$BF54` | `spi_send(data)` | Enviar byte (ignora respuesta) |
+| `$BF57` | `spi_receive()` | Recibir byte (envía $FF) |
+| `$BF5A` | `spi_busy()` | Verificar si SPI ocupado |
+
+**I2C**
+
+| Dirección | Función | Descripción |
+|-----------|---------|-------------|
+| `$BF5D` | `i2c_init()` | Inicializar bus I2C |
+| `$BF60` | `i2c_start(dev,rw)` | Iniciar comunicación (START) |
+| `$BF63` | `i2c_stop()` | Detener comunicación (STOP) |
+| `$BF66` | `i2c_write_byte(data)` | Escribir byte (retorna ACK) |
+| `$BF69` | `i2c_read_byte(ack)` | Leer byte (ACK/NACK) |
+| `$BF6C` | `i2c_write(dev,mem,ab,buf,cnt)` | Escribir bloque completo |
+| `$BF6F` | `i2c_read(dev,mem,ab,buf,cnt)` | Leer bloque completo |
+
+**Identificador**
+
+| Dirección | Contenido |
+|-----------|-----------|
+| `$BF78` | Magic "ROMAPI" + versión (major $02, minor $04) |
 
 ### Uso desde C
 
