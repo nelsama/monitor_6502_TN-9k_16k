@@ -1,7 +1,7 @@
 -- ======================================================
 -- ROM generada automáticamente con Python
--- Fecha: 2026-05-18 16:44:10
--- Versión del Monitor: v2.5.4
+-- Fecha: 2026-05-18 18:05:31
+-- Versión del Monitor: v2.5.5
 -- Tamaño: 16384 bytes
 -- Ancho de datos: 8 bits
 -- Ancho de dirección: 14 bits
@@ -13873,7 +13873,7 @@ BEGIN
         when x"360E" => data_out<= x"2E";
         when x"360F" => data_out<= x"35";
         when x"3610" => data_out<= x"2E";
-        when x"3611" => data_out<= x"34";
+        when x"3611" => data_out<= x"35";
         when x"3612" => data_out<= x"20";
         when x"3613" => data_out<= x"3D";
         when x"3614" => data_out<= x"3D";
@@ -15775,7 +15775,7 @@ BEGIN
         when x"3D7C" => data_out<= x"2E";
         when x"3D7D" => data_out<= x"35";
         when x"3D7E" => data_out<= x"2E";
-        when x"3D7F" => data_out<= x"34";
+        when x"3D7F" => data_out<= x"35";
         when x"3D80" => data_out<= x"00";
         when x"3D81" => data_out<= x"20";
         when x"3D82" => data_out<= x"5B";
@@ -16385,22 +16385,22 @@ BEGIN
         when x"3FDE" => data_out<= x"A4";
         when x"3FDF" => data_out<= x"A1";
         when x"3FE0" => data_out<= x"A5";
-        when x"3FE1" => data_out<= x"F6";
+        when x"3FE1" => data_out<= x"F4";
         when x"3FE2" => data_out<= x"A6";
-        when x"3FE3" => data_out<= x"F7";
+        when x"3FE3" => data_out<= x"F5";
         when x"3FE4" => data_out<= x"20";
         when x"3FE5" => data_out<= x"6B";
         when x"3FE6" => data_out<= x"B2";
         when x"3FE7" => data_out<= x"A5";
-        when x"3FE8" => data_out<= x"F4";
+        when x"3FE8" => data_out<= x"F6";
         when x"3FE9" => data_out<= x"A6";
-        when x"3FEA" => data_out<= x"F5";
-        when x"3FEB" => data_out<= x"20";
-        when x"3FEC" => data_out<= x"6B";
-        when x"3FED" => data_out<= x"B2";
-        when x"3FEE" => data_out<= x"4C";
-        when x"3FEF" => data_out<= x"AB";
-        when x"3FF0" => data_out<= x"A4";
+        when x"3FEA" => data_out<= x"F7";
+        when x"3FEB" => data_out<= x"4C";
+        when x"3FEC" => data_out<= x"AB";
+        when x"3FED" => data_out<= x"A4";
+        when x"3FEE" => data_out<= x"EA";
+        when x"3FEF" => data_out<= x"EA";
+        when x"3FF0" => data_out<= x"EA";
         when x"3FF1" => data_out<= x"EA";
         when x"3FF2" => data_out<= x"EA";
         when x"3FF3" => data_out<= x"EA";
