@@ -26,7 +26,6 @@ Permite programar, depurar y ejecutar código en tiempo real a través de una in
 - ✅ **Plantillas de programa** incluidas:
   - [examples/leds/](examples/leds) - Ensamblador (Knight Rider)
   - [examples/leds_c/](examples/leds_c) - C con ROM API (3 efectos)
-  - [examples/sidplayer/](examples/sidplayer) - Reproductor SID en C
 
 ---
 
@@ -286,8 +285,6 @@ rom_mfs_close();
 │   │   ├── makefile        # Compilación
 │   │   └── README.md       # Documentación
 │   ├── leds_c/             # Plantilla: efectos LEDs (C + ROM API)
-│   └── sidplayer/          # Reproductor SID (C + ROM API)
-│       └── README.md       # Documentación
 ├── config/
 │   └── fpga.cfg            # Configuración del linker cc65
 ├── scripts/
@@ -318,7 +315,7 @@ rom_mfs_close();
 - **Version**: Bump a v2.5.0
 
 ### v2.4.2 (2026-05-11)
-- **Feature**: Implementada `mfs_read_ext` en MicroFS para ROM API ($BF27), usada por SID Player y BASIC
+- **Feature:** Implementada `mfs_read_ext` en MicroFS para ROM API ($BF27)
 
 ### v2.4.1 (2026-05-02)
 - ✅ **ROM API completa**: Agregadas funciones de escritura para MicroFS (`mfs_create`, `mfs_write`, `mfs_delete`, `mfs_format`)
@@ -408,11 +405,7 @@ Características:
 
 Ver [examples/leds_c/README.md](examples/leds_c/README.md)
 
-#### SID Player (`examples/sidplayer/`)
-Ejemplo avanzado: reproductor de archivos .sid
-
-Ver [examples/sidplayer/README.md](examples/sidplayer/README.md)
-
+### Requisitos
 **Para crear tu propio programa:**
 1. Copia la carpeta `examples/leds/` con otro nombre
 2. Edita `src/main.s` con tu código
@@ -566,7 +559,6 @@ JSR $BF06       ; mfs_open(filename)
 ### v2.2.0 (2026-01-08)
 - **Feature:** ROM API - Jump Table en $BF00 para programas standalone
 - **Feature:** mfs_read_ext ($BF27) con parámetros en ZP fijo para programas externos
-- **Feature:** SID Player usando ROM API (~5KB vs ~7.5KB con librerías)
 - **Feature:** Header `include/romapi.h` para programas en C
 - **Docs:** Documentación ROM API actualizada
 
