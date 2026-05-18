@@ -1,7 +1,7 @@
 -- ======================================================
 -- ROM generada automáticamente con Python
--- Fecha: 2026-05-17 21:23:45
--- Versión del Monitor: v2.5.2
+-- Fecha: 2026-05-18 11:28:00
+-- Versión del Monitor: v2.5.3
 -- Tamaño: 16384 bytes
 -- Ancho de datos: 8 bits
 -- Ancho de dirección: 14 bits
@@ -13873,7 +13873,7 @@ BEGIN
         when x"360E" => data_out<= x"2E";
         when x"360F" => data_out<= x"35";
         when x"3610" => data_out<= x"2E";
-        when x"3611" => data_out<= x"32";
+        when x"3611" => data_out<= x"33";
         when x"3612" => data_out<= x"20";
         when x"3613" => data_out<= x"3D";
         when x"3614" => data_out<= x"3D";
@@ -15775,7 +15775,7 @@ BEGIN
         when x"3D7C" => data_out<= x"2E";
         when x"3D7D" => data_out<= x"35";
         when x"3D7E" => data_out<= x"2E";
-        when x"3D7F" => data_out<= x"32";
+        when x"3D7F" => data_out<= x"33";
         when x"3D80" => data_out<= x"00";
         when x"3D81" => data_out<= x"20";
         when x"3D82" => data_out<= x"5B";
@@ -16274,32 +16274,32 @@ BEGIN
         when x"3F6F" => data_out<= x"4C";
         when x"3F70" => data_out<= x"F6";
         when x"3F71" => data_out<= x"AE";
-        when x"3F72" => data_out<= x"EA";
-        when x"3F73" => data_out<= x"EA";
-        when x"3F74" => data_out<= x"EA";
-        when x"3F75" => data_out<= x"EA";
-        when x"3F76" => data_out<= x"EA";
-        when x"3F77" => data_out<= x"EA";
-        when x"3F78" => data_out<= x"52";
-        when x"3F79" => data_out<= x"4F";
-        when x"3F7A" => data_out<= x"4D";
-        when x"3F7B" => data_out<= x"41";
-        when x"3F7C" => data_out<= x"50";
-        when x"3F7D" => data_out<= x"49";
-        when x"3F7E" => data_out<= x"02";
-        when x"3F7F" => data_out<= x"04";
+        when x"3F72" => data_out<= x"4C";
+        when x"3F73" => data_out<= x"FC";
+        when x"3F74" => data_out<= x"A0";
+        when x"3F75" => data_out<= x"4C";
+        when x"3F76" => data_out<= x"A4";
+        when x"3F77" => data_out<= x"A1";
+        when x"3F78" => data_out<= x"4C";
+        when x"3F79" => data_out<= x"5A";
+        when x"3F7A" => data_out<= x"A2";
+        when x"3F7B" => data_out<= x"4C";
+        when x"3F7C" => data_out<= x"60";
+        when x"3F7D" => data_out<= x"A2";
+        when x"3F7E" => data_out<= x"EA";
+        when x"3F7F" => data_out<= x"EA";
         when x"3F80" => data_out<= x"EA";
         when x"3F81" => data_out<= x"EA";
         when x"3F82" => data_out<= x"EA";
         when x"3F83" => data_out<= x"EA";
-        when x"3F84" => data_out<= x"EA";
-        when x"3F85" => data_out<= x"EA";
-        when x"3F86" => data_out<= x"EA";
-        when x"3F87" => data_out<= x"EA";
-        when x"3F88" => data_out<= x"EA";
-        when x"3F89" => data_out<= x"EA";
-        when x"3F8A" => data_out<= x"EA";
-        when x"3F8B" => data_out<= x"EA";
+        when x"3F84" => data_out<= x"52";
+        when x"3F85" => data_out<= x"4F";
+        when x"3F86" => data_out<= x"4D";
+        when x"3F87" => data_out<= x"41";
+        when x"3F88" => data_out<= x"50";
+        when x"3F89" => data_out<= x"49";
+        when x"3F8A" => data_out<= x"02";
+        when x"3F8B" => data_out<= x"04";
         when x"3F8C" => data_out<= x"EA";
         when x"3F8D" => data_out<= x"EA";
         when x"3F8E" => data_out<= x"EA";

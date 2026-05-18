@@ -1,5 +1,5 @@
 
-# Monitor 6502 v2.5.2 + SD Card + XMODEM + SPI + I2C - Tang Nano 9K
+# Monitor 6502 v2.5.3 + SD Card + XMODEM + SPI + I2C - Tang Nano 9K
 
 🚀 **Monitor/Debugger interactivo** para CPU 6502 sobre FPGA Tang Nano 9K via UART con soporte de **SD Card**, **XMODEM**, **SPI** e **I2C**.
 
@@ -344,7 +344,8 @@ rom_mfs_close();
 
 ## Historial de Versiones
 
-### v2.5.2 (2026-05-15)
+### v2.5.3 (2026-05-17)
+- **Feature**: SD sector functions en ROM API: `sd_read_sector`, `sd_write_sector`, `sd_is_ready`, `sd_get_type`
 - **Fix**: `Q` ahora hace reset real via `JMP ($FFFC)` (reinicia CPU y monitor)
 
 ### v2.5.1 (2026-05-15)
