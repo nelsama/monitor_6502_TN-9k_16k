@@ -72,7 +72,7 @@
 ; Importar runtime de CC65 para manipular stack
 .import pushax
 .import pusha
-.importzp ptr1, ptr2
+.importzp ptr1, ptr2, tmp1
 
 ; ===========================================================================
 ; SEGMENTO ROMAPI - Posición fija en $BF00
@@ -298,8 +298,7 @@ sd_get_type_entry:
 ; $BF84 - Magic number y versión
 romapi_magic:
     .byte "ROMAPI"      ; Magic: "ROMAPI"
-    .byte $02           ; VersiÃ³n major
-    .byte $04           ; VersiÃ³n minor
+        .byte $24           ; VersiÃ³n (major<<4 | minor)
 
 ; ---------------------------------------------------------------------------
 ; WRAPPERS CON ZP FIJO - Para programas externos
@@ -317,10 +316,9 @@ mfs_read_wrap:
     ldx     $F3
     jmp     _mfs_read   ; len (2do param) en AX
 
-; mfs_list_wrap version alternativa: llama a _mfs_list con buffer
-; interno para evitar que lea basura del stack externo.
-; El codigo esta en CODE para no ocupar espacio en ROMAPI.
+; mfs_list_wrap: llama a _mfs_list con buffer interno.
 .segment "CODE"
+.import _mfs_list
 mfs_list_wrap:
     lda     $F4
     jsr     pusha
@@ -336,12 +334,17 @@ mfs_list_wrap:
     sta     ptr1
     lda     #>(_mfs_list_tmp)
     sta     ptr1+1
-    ldy     #15
+    ldy     #14
 :   lda     (ptr1),y
+
     sta     (ptr2),y
+
     dey
+
     bpl     :-
+
     pla
+
     rts
 
 .segment "ROMAPI"
@@ -388,8 +391,7 @@ mfs_create_wrap:
     ldx     $F7
     jmp     _mfs_create ; size (2do param) en AX
 
-; Buffer temporal para mfs_list_wrap (en BSS para no ocupar ROM)
-.segment "BSS"
+; .segment "BSS"
 _mfs_list_tmp:
     .res    16
 
