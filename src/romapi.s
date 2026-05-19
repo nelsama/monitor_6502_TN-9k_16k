@@ -71,6 +71,7 @@
 
 ; Importar runtime de CC65 para manipular stack
 .import pushax
+.import pusha
 
 ; ===========================================================================
 ; SEGMENTO ROMAPI - Posición fija en $BF00
@@ -315,11 +316,10 @@ mfs_read_wrap:
     ldx     $F3
     jmp     _mfs_read   ; len (2do param) en AX
 
-; mfs_list_wrap: index en $F4 (stack), info ptr en $F5-$F6 (AX)
+; mfs_list_wrap: index en $F4 (stack, 1 byte), info ptr en $F5-$F6 (AX)
 mfs_list_wrap:
     lda     $F4
-    ldx     #0
-    jsr     pushax      ; push index (1er param) al stack
+    jsr     pusha       ; push index como uint8_t (1 byte, igual que C)
     lda     $F5
     ldx     $F6
     jmp     _mfs_list   ; info ptr (2do param) en AX
