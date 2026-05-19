@@ -348,9 +348,9 @@ rom_mfs_close();
 ## Historial de Versiones
 
 ### v2.5.7 (2026-05-17)
-- **Fix**: `mfs_list_wrap` ahora usa buffer temporal en BSS para evitar que `_mfs_list`
-  lea basura del stack del programa externo. Corrige nombres truncados y caracteres
-  basura al listar archivos desde programas externos.
+- **Fix**: `mfs_list_wrap` usa buffer temporal en BSS para que `_mfs_list` escriba
+  con el stack limpio de la ROM, luego copia al struct del programa externo.
+  Corrige definitivamente los nombres truncados al listar archivos.
 
 ### v2.5.6 (2026-05-17)
 - **Fix**: `mfs_list_wrap` usa `pusha` en vez de `pushax` para `uint8_t`
