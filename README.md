@@ -348,8 +348,9 @@ rom_mfs_close();
 ## Historial de Versiones
 
 ### v2.5.6 (2026-05-17)
-- **Fix**: `mfs_list_wrap` usa `pusha` (1 byte como C compiler) en vez de `pushax` (2 bytes)
-  para el parámetro `uint8_t index`, corrigiendo nombres truncados en programas externos
+- **Fix**: `mfs_list_wrap` ahora usa buffer temporal en BSS para evitar que `_mfs_list`
+  lea basura del stack del programa externo al acceder a offsets fijos del stack.
+  Corrige nombres truncados y caracteres basura al listar archivos desde programas externos.
 
 ### v2.5.5 (2026-05-17)
 - **Fix**: Wrappers ZP corregidos: ahora siguen la convención CC65 (1er parámetro en stack, 2do en AX)
