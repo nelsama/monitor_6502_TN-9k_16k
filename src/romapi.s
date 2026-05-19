@@ -74,6 +74,12 @@
 .import pusha
 .importzp ptr1, ptr2, tmp1
 
+; Buffer temporal para mfs_list_wrap
+.segment "BSS"
+.export _mfs_list_tmp
+_mfs_list_tmp:
+    .res    16
+
 ; ===========================================================================
 ; SEGMENTO ROMAPI - Posición fija en $BF00
 ; ===========================================================================
@@ -316,7 +322,7 @@ mfs_read_wrap:
     ldx     $F3
     jmp     _mfs_read   ; len (2do param) en AX
 
-; mfs_list_wrap: llama a _mfs_list con buffer interno.
+; mfs_list_wrap: llama a _mfs_list con buffer en BSS.
 .segment "CODE"
 .import _mfs_list
 mfs_list_wrap:
@@ -336,17 +342,11 @@ mfs_list_wrap:
     sta     ptr1+1
     ldy     #14
 :   lda     (ptr1),y
-
     sta     (ptr2),y
-
     dey
-
     bpl     :-
-
     pla
-
     rts
-
 .segment "ROMAPI"
 
 ; mfs_write_wrap: buf en $F4-$F5 (stack), len en $F6-$F7 (AX)
@@ -391,11 +391,6 @@ mfs_create_wrap:
     ldx     $F7
     jmp     _mfs_create ; size (2do param) en AX
 
-; .segment "BSS"
-_mfs_list_tmp:
-    .res    16
-
 .segment "ROMAPI"
 
 ; ===========================================================================
-; FIN ROMAPI
