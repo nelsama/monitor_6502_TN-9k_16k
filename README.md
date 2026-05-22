@@ -1,5 +1,5 @@
 
-# Monitor 6502 v2.5.8 + SD Card + XMODEM + SPI + I2C - Tang Nano 9K
+# Monitor 6502 v2.5.9 + SD Card + XMODEM + SPI + I2C - Tang Nano 9K
 
 🚀 **Monitor/Debugger interactivo** para CPU 6502 sobre FPGA Tang Nano 9K via UART con soporte de **SD Card**, **XMODEM**, **SPI** e **I2C**.
 
@@ -347,9 +347,13 @@ rom_mfs_close();
 
 ## Historial de Versiones
 
+### v2.5.9 (2026-05-17)
+- **Fix**: `mfs_open` ($BF06) y `mfs_delete` ($BF42) ahora usan wrappers ZP
+  ($F4-$F5) para evitar que `callax` pise el parámetro al llamar por puntero.
+- **Fix**: `R` sin argumento vuelve a ejecutar desde `$0800` (default histórico).
+
 ### v2.5.8 (2026-05-17)
-- **Fix**: `R` sin argumento vuelve a ejecutar desde `$0800` (default histórico)
-  en vez de usar `last_addr`, evitando resets involuntarios del monitor.
+- **Fix**: `R` sin argumento vuelve a ejecutar desde `$0800`
 
 ### v2.5.7 (2026-05-17)
 - **Fix**: `mfs_list_wrap` usa buffer temporal en BSS. Corrige nombres truncados.
