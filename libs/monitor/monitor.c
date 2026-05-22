@@ -876,8 +876,8 @@ static void mon_help(void) {
     uart_puts("RD addr Leer\r\n");
     uart_puts("W addr val Escribir\r\n");
     uart_puts("D addr len Dump hex\r\n");
-    uart_puts("L addr     Cargar hex(.=fin)\r\n");
-    uart_puts("R [addr]   Run (def $0800)\r\n");
+    uart_puts("L addr Cargar hex\r\n");
+    uart_puts("R [addr] Run\r\n");
     uart_puts("F addr l v Fill\r\n");
     uart_puts("M addr [n] Desensamblar\r\n");
     uart_puts("XRECV XMODEM\r\n");

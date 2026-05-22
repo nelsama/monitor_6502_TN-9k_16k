@@ -159,10 +159,14 @@
 
 /* --- MicroFS (fastcall) --- */
 #define rom_mfs_mount()         (((uint8_t (*)(void))ROMAPI_MFS_MOUNT)())
-#define rom_mfs_open(name)      (((uint8_t (*)(const char*))ROMAPI_MFS_OPEN)(name))
+#define rom_mfs_open(name)      \
+    (*(volatile uint16_t*)0xF4 = (uint16_t)(name), \
+     ((uint8_t (*)(void))ROMAPI_MFS_OPEN)())
 #define rom_mfs_close()         (((void (*)(void))ROMAPI_MFS_CLOSE)())
 #define rom_mfs_get_size()      (((uint16_t (*)(void))ROMAPI_MFS_GET_SIZE)())
-#define rom_mfs_delete(name)    (((uint8_t (*)(const char*))ROMAPI_MFS_DELETE)(name))
+#define rom_mfs_delete(name)    \
+    (*(volatile uint16_t*)0xF4 = (uint16_t)(name), \
+     ((uint8_t (*)(void))ROMAPI_MFS_DELETE)())
 #define rom_mfs_format()        (((uint8_t (*)(void))ROMAPI_MFS_FORMAT)())
 
 /* --- UART --- */

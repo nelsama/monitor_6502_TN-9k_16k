@@ -75,7 +75,6 @@
 .importzp ptr1, ptr2, tmp1
 
 ; Buffer temporal para mfs_list_wrap
-.segment "BSS"
 .export _mfs_list_tmp
 _mfs_list_tmp:
     .res    16
@@ -102,8 +101,9 @@ mfs_mount_entry:
     JMP _mfs_mount
 
 ; $BF06 - mfs_open (param: puntero a nombre en AX)
+; Wrapper: name en $F4-$F5 (ZP)
 mfs_open_entry:
-    JMP _mfs_open
+    JMP mfs_open_wrap
 
 ; $BF09 - mfs_read (params: buffer en AX, len en stack)
 ; Wrapper: buf en $F0-$F1, len en $F2-$F3
@@ -208,8 +208,9 @@ mfs_write_entry:
     JMP mfs_write_wrap
 
 ; $BF42 - mfs_delete (param: name ptr in AX)
+; Wrapper: name en $F4-$F5 (ZP)
 mfs_delete_entry:
-    JMP _mfs_delete
+    JMP mfs_delete_wrap
 
 ; $BF45 - mfs_format
 mfs_format_entry:
@@ -382,6 +383,18 @@ _sd_write_sector_wrap:
     ldx     $F5
     jmp     _sd_write_sector
 
+; mfs_open_wrap: name ptr en $F4-$F5
+mfs_open_wrap:
+    lda     $F4
+    ldx     $F5
+    jmp     _mfs_open
+
+; mfs_delete_wrap: name ptr en $F4-$F5
+mfs_delete_wrap:
+    lda     $F4
+    ldx     $F5
+    jmp     _mfs_delete
+
 ; mfs_create_wrap: name ptr en $F4-$F5 (stack), size en $F6-$F7 (AX)
 mfs_create_wrap:
     lda     $F4
@@ -391,6 +404,5 @@ mfs_create_wrap:
     ldx     $F7
     jmp     _mfs_create ; size (2do param) en AX
 
-.segment "ROMAPI"
 
 ; ===========================================================================
