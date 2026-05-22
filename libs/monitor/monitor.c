@@ -1156,11 +1156,11 @@ uint8_t monitor_process_cmd(char *cmd) {
     
     switch (command) {
         case 'R': /* Read byte - ahora es RD */
-            /* R sin addr = Run last_addr */
+            /* R sin addr = Run $0800 */
             if (*ptr == ' ' || *ptr == '\0') {
                 /* Solo R = ejecutar */
                 parse_hex_token(ptr, &addr);
-                if (addr == 0) addr = last_addr;
+                if (addr == 0) addr = 0x0800;
                 mon_execute(addr);
             } else if ((*ptr == 'D' || *ptr == 'd') && (*(ptr+1) == ' ' || *(ptr+1) == '\0')) {
                 /* RD = read byte */
@@ -1178,7 +1178,7 @@ uint8_t monitor_process_cmd(char *cmd) {
             } else {
                 /* R addr = ejecutar en addr */
                 ptr = parse_hex_token(ptr, &addr);
-                if (addr == 0) addr = last_addr;
+                if (addr == 0) addr = 0x0800;
                 mon_execute(addr);
             }
             break;
