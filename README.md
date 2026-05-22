@@ -348,9 +348,10 @@ rom_mfs_close();
 ## Historial de Versiones
 
 ### v2.5.7 (2026-05-17)
+- **Fix**: `R` sin argumento vuelve a ejecutar desde `$0800` (default histórico)
+  en vez de usar `last_addr`, evitando resets involuntarios del monitor.
 - **Fix**: `mfs_list_wrap` usa buffer temporal en BSS para que `_mfs_list` escriba
-  con el stack limpio de la ROM, luego copia al struct del programa externo.
-  Corrige definitivamente los nombres truncados al listar archivos.
+  con el stack limpio de la ROM. Corrige nombres truncados al listar archivos.
 
 ### v2.5.6 (2026-05-17)
 - **Fix**: `mfs_list_wrap` usa `pusha` en vez de `pushax` para `uint8_t`
