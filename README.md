@@ -215,7 +215,7 @@ La ROM incluye una **API completa** para que programas externos puedan acceder a
 | Dirección | Función | Conv. | Descripción |
 |-----------|---------|:-----:|-------------|
 | `$BF03` | `mfs_mount()` | — | Montar sistema de archivos |
-| `$BF06` | `mfs_open(name)` | — | Abrir archivo (nombre en AX) |
+| `$BF06` | `mfs_open` | [ZP] | Abrir archivo: name ptr en $F4-$F5 |
 | `$BF09` | `mfs_read` | [ZP] | Leer datos: buf en $F0-$F1, len en $F2-$F3 |
 | `$BF0C` | `mfs_close()` | — | Cerrar archivo |
 | `$BF0F` | `mfs_get_size()` | — | Obtener tamaño |
@@ -223,7 +223,7 @@ La ROM incluye una **API completa** para que programas externos puedan acceder a
 | `$BF27` | `mfs_read_ext()` | [ZP] | Leer con params en ZP ($F0-$F3) |
 | `$BF3C` | `mfs_create(name, size)` | — | Crear archivo |
 | `$BF3F` | `mfs_write` | [ZP] | Escribir datos: buf en $F4-$F5, len en $F6-$F7 |
-| `$BF42` | `mfs_delete(name)` | — | Eliminar archivo (nombre en AX) |
+| `$BF42` | `mfs_delete` | [ZP] | Eliminar archivo: name ptr en $F4-$F5 |
 | `$BF45` | `mfs_format()` | — | Formatear SD |
 
 **UART**
