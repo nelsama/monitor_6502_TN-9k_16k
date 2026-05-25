@@ -973,7 +973,7 @@ static void mon_help_sd(const char *cmd) {
         uart_puts("Ej: CAT PROG.BIN\r\n");
     }
     else if (cmd_match(cmd, "SDFORMAT")) {
-        uart_puts("SDFORMAT - Formatear SD\r\n");
+        uart_puts("SDFMT - Formatear SD\r\n");
         uart_puts("BORRA todos los archivos!\r\n");
     }
     else if (cmd_match(cmd, "XRECV")) {
@@ -982,7 +982,7 @@ static void mon_help_sd(const char *cmd) {
         uart_puts("Ej: XRECV, XRECV 1000\r\n");
     }
     else {
-        uart_puts("Cmds SD: SD,LS,SAVE,LOAD,DEL,CAT,SDFORMAT\r\n");
+        uart_puts("Cmds SD: SD,LS,SAVE,LOAD,DEL,CAT,SDFMT\r\n");
     }
 }
 
@@ -1093,7 +1093,7 @@ uint8_t monitor_process_cmd(char *cmd) {
         return MON_OK;
     }
     
-    if (cmd_match(cmd, "SDFORMAT")) {
+    if (cmd_match(cmd, "SDFMT") || cmd_match(cmd, "SDFORMAT")) {
         uint8_t r;
         uart_puts("Formateando SD...");
         mon_newline();
