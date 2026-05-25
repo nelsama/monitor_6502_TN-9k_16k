@@ -972,7 +972,7 @@ static void mon_help_sd(const char *cmd) {
         uart_puts("CAT file - Ver contenido hex\r\n");
         uart_puts("Ej: CAT PROG.BIN\r\n");
     }
-    else if (cmd_match(cmd, "SDFORMAT")) {
+    else if (cmd_match(cmd, "SDFMT")) {
         uart_puts("SDFMT - Formatear SD\r\n");
         uart_puts("BORRA todos los archivos!\r\n");
     }
@@ -1093,7 +1093,7 @@ uint8_t monitor_process_cmd(char *cmd) {
         return MON_OK;
     }
     
-    if (cmd_match(cmd, "SDFMT") || cmd_match(cmd, "SDFORMAT")) {
+    if (cmd_match(cmd, "SDFMT")) {
         uint8_t r;
         uart_puts("Formateando SD...");
         mon_newline();
