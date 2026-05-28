@@ -317,12 +317,13 @@ typedef struct {
  * 6. EJEMPLOS DE USO
  * ===========================================================================
  * 
- *  Escritura de archivo (via ZP wrapper) 
- *   rom_mfs_create_via_zp("TEST.TXT", 100);
- *   rom_mfs_write_via_zp(buffer, 100);
- *   rom_mfs_close();
- * 
- *  Lectura de archivo (via ZP wrapper) 
+ *  Guardar archivo en SD (via ZP wrapper)
+ *   rom_mfs_delete("TEST.TXT");           // eliminar si existe
+ *   rom_mfs_create_via_zp("TEST.TXT", len); // crear (abre internamente)
+ *   rom_mfs_write_via_zp(buffer, len);     // escribir datos
+ *   rom_mfs_close();                       // cerrar
+ *
+ *  Leer archivo de SD (via ZP wrapper)
  *   rom_mfs_open("TEST.TXT");
  *   uint16_t size = rom_mfs_get_size();
  *   rom_mfs_read_via_zp(buffer, size);
