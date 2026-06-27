@@ -1155,12 +1155,12 @@ uint8_t monitor_process_cmd(char *cmd) {
     ptr = cmd + 1;
     
     switch (command) {
-        case 'R': /* Read byte - ahora es RD */
-            /* R sin addr = Run $0800 */
+        case 'R': /* Run */
+            /* R sin addr = Run en última dirección usada */
             if (*ptr == ' ' || *ptr == '\0') {
-                /* Solo R = ejecutar */
+                /* Solo R = ejecutar en last_addr */
                 parse_hex_token(ptr, &addr);
-                if (addr == 0) addr = 0x0800;
+                if (addr == 0) addr = last_addr;
                 mon_execute(addr);
             } else if ((*ptr == 'D' || *ptr == 'd') && (*(ptr+1) == ' ' || *(ptr+1) == '\0')) {
                 /* RD = read byte */
@@ -1178,7 +1178,7 @@ uint8_t monitor_process_cmd(char *cmd) {
             } else {
                 /* R addr = ejecutar en addr */
                 ptr = parse_hex_token(ptr, &addr);
-                if (addr == 0) addr = 0x0800;
+                if (addr == 0) addr = last_addr;
                 mon_execute(addr);
             }
             break;
@@ -1348,6 +1348,11 @@ void monitor_run(void) {
     uart_puts(" ---");
     mon_newline();
     uart_puts("H=ayuda, SD=SD Card, Q=reset");
+    
+    /* Montar SD automáticamente */
+    mon_newline();
+    mon_sd_init();
+    mon_newline();
     
     while (1) {
         mon_prompt();

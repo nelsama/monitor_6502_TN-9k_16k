@@ -347,6 +347,10 @@ rom_mfs_close();
 
 ## Historial de Versiones
 
+### v2.5.11 (2026-06-27)
+- **Feature**: SD montada automáticamente al iniciar el monitor (ya no requiere escribir `SD`)
+- **Fix**: `R` sin argumentos ahora usa `last_addr` (última dirección usada por `LOAD`) en vez de `$0800` fijo
+
 ### v2.5.10 (2026-05-17)
 - **Change**: `SDFMT` como único comando de formateo (reemplaza `SDFORMAT`).
 
