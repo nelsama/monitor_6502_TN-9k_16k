@@ -347,9 +347,13 @@ rom_mfs_close();
 
 ## Historial de Versiones
 
-### v2.5.11 (2026-06-27)
+### v2.6.0 (2026-06-27)
 - **Feature**: SD montada automáticamente al iniciar el monitor (ya no requiere escribir `SD`)
+- **Feature**: Auto-boot desde SD: si existe `BOOT.INI` (case-insensitive), lee su contenido
+  (nombre de otro archivo, ej: `BASIC.BIN`), lo carga en `$0800` y lo ejecuta automáticamente.
+  Solo ocurre UNA VEZ. Al salir del programa booteado, vuelve al monitor sin rebootear.
 - **Fix**: `R` sin argumentos ahora usa `last_addr` (última dirección usada por `LOAD`) en vez de `$0800` fijo
+- **Optimization**: Textos de ayuda acortados para que todo quepa en 16KB ROM
 
 ### v2.5.10 (2026-05-17)
 - **Change**: `SDFMT` como único comando de formateo (reemplaza `SDFORMAT`).

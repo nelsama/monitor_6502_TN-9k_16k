@@ -469,39 +469,22 @@ static void mon_print_dec(uint16_t val) {
  */
 static void mon_info(void) {
     mon_newline();
-    uart_puts("=== MAPA DE MEMORIA ===");
+    uart_puts("=== MAPA MEMORIA ===");
     mon_newline();
     mon_newline();
     
-    uart_puts("Zero Page:  $0002-$00FF (");
-    mon_print_dec(ZP_END - ZP_START + 1);
-    uart_puts(" bytes)");
+    uart_puts("ZP:  $0002-$00FF");
     mon_newline();
-    
-    uart_puts("RAM:        $0100-$3DFF (");
-    mon_print_dec(RAM_END - RAM_START + 1);
-    uart_puts(" bytes)");
+    uart_puts("RAM: $0100-$3DFF");
     mon_newline();
-    
-    uart_puts("Stack:      $3E00-$3FFF (");
-    mon_print_dec(STACK_END - STACK_START + 1);
-    uart_puts(" bytes)");
+    uart_puts("Stk: $3E00-$3FFF");
     mon_newline();
-    
-    uart_puts("ROM:        $8000-$BFFF (16 KB)");
+    uart_puts("ROM: $8000-$BFFF");
     mon_newline();
-    
-    uart_puts("I/O:        $C000-$C0FF");
+    uart_puts("I/O: $C000-$C0FF");
     mon_newline();
     mon_newline();
-    
-    uart_puts("Monitor BSS: $0200-$07FF");
-    mon_newline();
-    uart_puts("RAM para programas:");
-    mon_newline();
-    uart_puts("  $0800-$3DFF (");
-    mon_print_dec(0x3DFF - 0x0800 + 1);
-    uart_puts(" bytes)");
+    uart_puts("Progs: $0800-$3DFF");
     mon_newline();
 }
 
@@ -871,72 +854,58 @@ static uint8_t cmd_match(const char *cmd, const char *pattern);
 
 static void mon_help(void) {
     mon_newline();
-    uart_puts("=== MONITOR 6502 " VERSION " ===\r\n");
-    uart_puts("H cmd=ayuda detallada\r\n");
-    uart_puts("RD addr Leer\r\n");
+    uart_puts("=== 6502 MONITOR " VERSION " ===\r\n");
+    uart_puts("H cmd=ayuda\r\n");
+    uart_puts("RD Leer\r\n");
     uart_puts("W addr val Escribir\r\n");
-    uart_puts("D addr len Dump hex\r\n");
-    uart_puts("L addr Cargar hex\r\n");
+    uart_puts("D d len Dump hex\r\n");
+    uart_puts("L addr Carga hex\r\n");
     uart_puts("R [addr] Run\r\n");
-    uart_puts("F addr l v Fill\r\n");
-    uart_puts("M addr [n] Desensamblar\r\n");
-    uart_puts("XRECV XMODEM\r\n");
+    uart_puts("F d l v Fill\r\n");
+    uart_puts("M [n] Desensamblar\r\n");
+    uart_puts("XRECV [dir] XMODEM\r\n");
     uart_puts("I Info mem\r\n");
-    uart_puts("SD:\r\n");
-    uart_puts("LS SAVE LOAD DEL CAT SDFMT\r\n");
-    uart_puts("H=ayuda Q=reset\r\n");
-    uart_puts("RAM: $0800-$3DFF\r\n");
+    uart_puts("SD: LS SAVE LOAD DEL CAT SDFMT\r\n");
+    uart_puts("Q Reset\r\n");
 }
 
 /* Ayuda detallada por comando (compacta para ahorrar ROM) */
 static void mon_help_cmd(char cmd) {
-    /* Convertir a mayúscula */
     if (cmd >= 'a' && cmd <= 'z') cmd -= 32;
-    
     mon_newline();
-    
     switch (cmd) {
         case 'R':
-            uart_puts("R [addr] - Run/ejecutar codigo\r\n");
-            uart_puts("addr default=$0800\r\n");
-            uart_puts("Debe terminar con RTS ($60)\r\n");
-            uart_puts("Ej: R, R 0800, R 1000\r\n");
-            uart_puts("RD addr - Leer byte\r\n");
-            uart_puts("Ej: RD 0200, RD C000\r\n");
+            uart_puts("R [dir] Run\r\n");
+            uart_puts("Dir default=$0800\r\n");
+            uart_puts("Terminar con RTS\r\n");
+            uart_puts("RD dir Leer byte\r\n");
             break;
         case 'W':
-            uart_puts("W addr val - Escribir byte\r\n");
-            uart_puts("Ej: W 0200 FF, W C001 3F\r\n");
+            uart_puts("W dir val Escribir\r\n");
             break;
         case 'D':
-            uart_puts("D addr [len] - Dump hex+ASCII\r\n");
-            uart_puts("len default=64. Ej: D 0200 100\r\n");
+            uart_puts("D dir [n] Dump hex\r\n");
+            uart_puts("n default=64\r\n");
             break;
         case 'L':
-            uart_puts("L addr - Cargar hex interactivo\r\n");
-            uart_puts("Escribe bytes, '.' termina\r\n");
-            uart_puts("Ej: L 0200 -> A9 01 8D 01 C0 60 .\r\n");
+            uart_puts("L dir Carga hex int\r\n");
+            uart_puts("Escribe bytes, '.' fin\r\n");
             break;
         case 'F':
-            uart_puts("F addr len val - Fill memoria\r\n");
-            uart_puts("Ej: F 0200 100 00, F 0200 10 EA\r\n");
+            uart_puts("F dir n val Fill\r\n");
             break;
         case 'M':
-            uart_puts("M addr [n] - Desensamblar\r\n");
+            uart_puts("M dir [n] Desensamblar\r\n");
             uart_puts("n=instrucciones (def 16)\r\n");
-            uart_puts("Ej: M 0200, M 8000 20\r\n");
             break;
         case 'I':
             uart_puts("I - Info mapa memoria\r\n");
-            uart_puts("Muestra rangos: ZP,Stack,RAM,I/O,ROM\r\n");
             break;
         case 'Q':
             uart_puts("Q - Salir del monitor\r\n");
             break;
         default:
-            uart_puts("Cmd '");
-            uart_putc(cmd);
-            uart_puts("' no existe. Usa H\r\n");
+            uart_puts("Cmd desconocido\r\n");
             break;
     }
 }
@@ -945,45 +914,24 @@ static void mon_help_cmd(char cmd) {
 static void mon_help_sd(const char *cmd) {
     mon_newline();
     
-    if (cmd_match(cmd, "SD")) {
-        uart_puts("SD - Inicializar SD Card\r\n");
-        uart_puts("Ejecutar antes de otros cmd SD\r\n");
-    }
-    else if (cmd_match(cmd, "LS")) {
-        uart_puts("LS - Listar archivos SD\r\n");
-        uart_puts("Muestra nombre y tamano\r\n");
-    }
-    else if (cmd_match(cmd, "SAVE")) {
-        uart_puts("SAVE file addr len\r\n");
-        uart_puts("Guarda memoria a SD\r\n");
-        uart_puts("Ej: SAVE PROG.BIN 0200 100\r\n");
-    }
-    else if (cmd_match(cmd, "LOAD")) {
-        uart_puts("LOAD file [addr]\r\n");
-        uart_puts("Carga archivo a memoria\r\n");
-        uart_puts("addr default=$0800\r\n");
-        uart_puts("Ej: LOAD PROG.BIN, LOAD P.BIN 1000\r\n");
-    }
-    else if (cmd_match(cmd, "DEL")) {
-        uart_puts("DEL file - Eliminar archivo\r\n");
-        uart_puts("Ej: DEL VIEJO.BIN\r\n");
-    }
-    else if (cmd_match(cmd, "CAT")) {
-        uart_puts("CAT file - Ver contenido hex\r\n");
-        uart_puts("Ej: CAT PROG.BIN\r\n");
-    }
-    else if (cmd_match(cmd, "SDFMT")) {
-        uart_puts("SDFMT - Formatear SD\r\n");
-        uart_puts("BORRA todos los archivos!\r\n");
-    }
-    else if (cmd_match(cmd, "XRECV")) {
-        uart_puts("XRECV [addr] - Recibir XMODEM\r\n");
-        uart_puts("addr default=$0800\r\n");
-        uart_puts("Ej: XRECV, XRECV 1000\r\n");
-    }
-    else {
-        uart_puts("Cmds SD: SD,LS,SAVE,LOAD,DEL,CAT,SDFMT\r\n");
-    }
+    if (cmd_match(cmd, "SD"))
+        uart_puts("SD - Inicializar SD\r\n");
+    else if (cmd_match(cmd, "LS"))
+        uart_puts("LS - Listar archivos\r\n");
+    else if (cmd_match(cmd, "SAVE"))
+        uart_puts("SAVE file dir n Guardar\r\n");
+    else if (cmd_match(cmd, "LOAD"))
+        uart_puts("LOAD file [dir] Cargar\r\n");
+    else if (cmd_match(cmd, "DEL"))
+        uart_puts("DEL file Eliminar\r\n");
+    else if (cmd_match(cmd, "CAT"))
+        uart_puts("CAT file Ver hex\r\n");
+    else if (cmd_match(cmd, "SDFMT"))
+        uart_puts("SDFMT Formatear SD\r\n");
+    else if (cmd_match(cmd, "XRECV"))
+        uart_puts("XRECV [dir] XMODEM\r\n");
+    else
+        uart_puts("SD: LS SAVE LOAD DEL CAT SDFMT\r\n");
 }
 
 /* ============================================
@@ -1328,6 +1276,59 @@ static void mon_read_line(void) {
 }
 
 /* ============================================
+ * AUTO-BOOT desde SD (solo una vez, archivo BOOT.INI)
+ * ============================================ */
+/* Flag de 2 bytes al tope de RAM ($3FFE-$3FFF)
+ * - Stack CC65 crece hacia ABAJO desde $3DFF, nunca toca $3E00+
+ * - BASIC se carga en $0800, max $3DFF
+ * - Ãšnico lugar que ningÃºn programa de usuario toca */
+#define AUTOBOOT_MAGIC  0xA5
+#define AUTOBOOT_FLAG_LO ((volatile uint8_t*)0x3FFE)
+#define AUTOBOOT_FLAG_HI ((volatile uint8_t*)0x3FFF)
+
+static void mon_try_autoboot(void) {
+    uint8_t i;
+    char bootname[13];
+    uint16_t n;
+    uint8_t lo, hi;
+    
+    /* Leer flag */
+    lo = *AUTOBOOT_FLAG_LO;
+    hi = *AUTOBOOT_FLAG_HI;
+    if (lo == AUTOBOOT_MAGIC && hi == AUTOBOOT_MAGIC)
+        return;
+    
+    *AUTOBOOT_FLAG_LO = AUTOBOOT_MAGIC;
+    *AUTOBOOT_FLAG_HI = AUTOBOOT_MAGIC;
+    
+    /* Buscar BOOT.INI (probar mayÃºsculas y minÃºsculas) */
+    bootname[0]='B'; bootname[1]='O'; bootname[2]='O'; bootname[3]='T';
+    bootname[4]='.'; bootname[5]='I'; bootname[6]='N'; bootname[7]='I';
+    bootname[8]='\0';
+    if (mfs_open(bootname) != MFS_OK) {
+        bootname[0]='b'; bootname[1]='o'; bootname[2]='o'; bootname[3]='t';
+        bootname[4]='.'; bootname[5]='i'; bootname[6]='n'; bootname[7]='i';
+        if (mfs_open(bootname) != MFS_OK) return;
+    }
+    
+    /* Leer nombre del archivo a bootear */
+    n = mfs_read(bootname, 12);
+    mfs_close();
+    
+    /* Limpiar y mayusculas */
+    bootname[n] = '\0';
+    while (n && bootname[n-1] <= ' ') bootname[--n] = '\0';
+    if (n == 0) return;
+    for (i = 0; i < n; i++)
+        if (bootname[i] >= 'a' && bootname[i] <= 'z') bootname[i] -= 32;
+    
+    /* Cargar en $0800 */
+    mon_sd_load(bootname, 0x0800);
+    if (last_addr == 0x0800)
+        mon_execute(0x0800);
+}
+
+/* ============================================
  * FUNCIONES PRINCIPALES
  * ============================================ */
 
@@ -1352,7 +1353,12 @@ void monitor_run(void) {
     /* Montar SD automáticamente */
     mon_newline();
     mon_sd_init();
-    mon_newline();
+    
+    /* Pequeña pausa para que SD se estabilice */
+    { volatile uint16_t d; for(d=0; d<30000; d++); }
+    
+    /* Intentar auto-boot si hay BOOT.INI */
+    mon_try_autoboot();
     
     while (1) {
         mon_prompt();
