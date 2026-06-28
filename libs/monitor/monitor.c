@@ -682,7 +682,7 @@ static void mon_sd_save(const char *name, uint16_t addr, uint16_t len) {
  * Cargar archivo SD a memoria
  * LOAD nombre addr
  */
-static void mon_sd_load(const char *name, uint16_t addr) {
+void mon_sd_load(const char *name, uint16_t addr) {
     uint8_t r;
     uint16_t loaded = 0;
     uint16_t chunk;

@@ -144,6 +144,10 @@
 #define ROMAPI_MAGIC_ADDR       0xBF84
 #define ROMAPI_MAGIC            "ROMAPI"
 
+/* --- Carga y ejecución desde SD --- */
+#define ROMAPI_MFS_LOAD_FILE    0xBF7E
+#define ROMAPI_MFS_LOAD_RUN     0xBF81
+
 
 /* ===========================================================================
  * 2. MACROS DE LLAMADA (fastcall - funcionan desde programas externos)
@@ -272,6 +276,20 @@ typedef struct {
     (*(volatile uint32_t*)0xF0 = (sector), \
      *(volatile uint16_t*)0xF4 = (uint16_t)(buf), \
      ((uint8_t (*)(void))ROMAPI_SD_WRITE_SECTOR)())
+
+/* mfs_load_file: Carga archivo SD a memoria */
+/*   $F4-$F5 = nombre archivo, $F6-$F7 = direccion destino */
+#define rom_mfs_load_file(name, addr) \
+    (*(volatile uint16_t*)0xF4 = (uint16_t)(name), \
+     *(volatile uint16_t*)0xF6 = (addr), \
+     ((void (*)(void))ROMAPI_MFS_LOAD_FILE)())
+
+/* mfs_load_run: Carga archivo SD y lo ejecuta */
+/*   $F4-$F5 = nombre archivo, $F6-$F7 = direccion destino */
+#define rom_mfs_load_run(name, addr) \
+    (*(volatile uint16_t*)0xF4 = (uint16_t)(name), \
+     *(volatile uint16_t*)0xF6 = (addr), \
+     ((void (*)(void))ROMAPI_MFS_LOAD_RUN)())
 
 
 /* ===========================================================================

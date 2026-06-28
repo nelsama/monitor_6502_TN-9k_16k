@@ -1,5 +1,8 @@
 # Librerías externas (repos separados)
-libs/
+libs/*
+
+# El monitor es parte del proyecto, no es externo
+!libs/monitor/
 
 # Archivos compilados intermedios
 build/*.o

@@ -115,4 +115,11 @@ void mon_newline(void);
  */
 void mon_execute(uint16_t addr);
 
+/**
+ * Cargar archivo SD a memoria
+ * @param name Nombre del archivo
+ * @param addr Dirección de carga
+ */
+void mon_sd_load(const char *name, uint16_t addr);
+
 #endif /* MONITOR_H */

@@ -69,6 +69,10 @@
 .import _sd_is_ready
 .import _sd_get_type
 
+; Importar funciones de carga/ejecución del monitor
+.import _mon_sd_load
+.import _mon_execute
+
 ; Importar runtime de CC65 para manipular stack
 .import pushax
 .import pusha
@@ -299,8 +303,23 @@ sd_is_ready_entry:
 sd_get_type_entry:
     JMP _sd_get_type
 
-; Padding hasta $BF84 para futuras expansiones
-.res $84 - (* - _romapi_start), $EA   ; Relleno con NOP
+; ---------------------------------------------------------------------------
+; FUNCIONES DE CARGA Y EJECUCIÓN (Base: $BF7E)
+; ---------------------------------------------------------------------------
+; $BF7E - mfs_load_file: Carga archivo SD a memoria
+;         Input: $F4-$F5 = nombre archivo, $F6-$F7 = dirección destino
+;         Requiere: SD montada
+mfs_load_file_entry:
+    JMP mfs_load_file_wrap
+
+; $BF81 - mfs_load_run: Carga archivo SD y lo ejecuta
+;         Input: $F4-$F5 = nombre archivo, $F6-$F7 = dirección destino
+;         Requiere: SD montada
+mfs_load_run_entry:
+    JMP mfs_load_run_wrap
+
+; Padding hasta $BF84 para alineación
+.res $84 - (* - _romapi_start), $EA
 
 ; $BF84 - Magic number y versión
 romapi_magic:
@@ -404,5 +423,40 @@ mfs_create_wrap:
     ldx     $F7
     jmp     _mfs_create ; size (2do param) en AX
 
+; ===========================================================================
+; WRAPPERS DE CARGA Y EJECUCIÓN
+; ===========================================================================
+.segment "CODE"
 
+; mfs_load_file_wrap: Carga archivo SD a memoria
+; name en $F4-$F5, addr en $F6-$F7
+; Llamada: mon_sd_load(name, addr) -> name en stack, addr en AX
+mfs_load_file_wrap:
+    ; Push name ptr (1er param) al stack
+    lda     $F4
+    ldx     $F5
+    jsr     pushax
+    ; addr (2do param) en AX
+    lda     $F6
+    ldx     $F7
+    jmp     _mon_sd_load
+
+; mfs_load_run_wrap: Carga y ejecuta archivo SD
+; name en $F4-$F5, addr en $F6-$F7
+mfs_load_run_wrap:
+    ; Push name ptr (1er param) al stack
+    lda     $F4
+    ldx     $F5
+    jsr     pushax
+    ; addr (2do param) en AX
+    lda     $F6
+    ldx     $F7
+    jsr     _mon_sd_load
+
+    ; Ejecutar en la dirección cargada
+    lda     $F6
+    ldx     $F7
+    jmp     _mon_execute
+
+.segment "ROMAPI"
 ; ===========================================================================

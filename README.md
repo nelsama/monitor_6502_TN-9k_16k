@@ -1,5 +1,5 @@
 
-# Monitor 6502 v2.5.10 + SD Card + XMODEM + SPI + I2C - Tang Nano 9K
+# Monitor 6502 v2.6.2 + SD Card + XMODEM + SPI + I2C - Tang Nano 9K
 
 🚀 **Monitor/Debugger interactivo** para CPU 6502 sobre FPGA Tang Nano 9K via UART con soporte de **SD Card**, **XMODEM**, **SPI** e **I2C**.
 
@@ -225,6 +225,8 @@ La ROM incluye una **API completa** para que programas externos puedan acceder a
 | `$BF3F` | `mfs_write` | [ZP] | Escribir datos: buf en $F4-$F5, len en $F6-$F7 |
 | `$BF42` | `mfs_delete` | [ZP] | Eliminar archivo: name ptr en $F4-$F5 |
 | `$BF45` | `mfs_format()` | — | Formatear SD |
+| `$BF7E` | `mfs_load_file` | [ZP] | Cargar archivo SD a memoria: name en $F4-$F5, addr en $F6-$F7 |
+| `$BF81` | `mfs_load_run` | [ZP] | Cargar y ejecutar archivo SD: name en $F4-$F5, addr en $F6-$F7 |
 
 **UART**
 
@@ -346,6 +348,18 @@ rom_mfs_close();
 ---
 
 ## Historial de Versiones
+
+### v2.6.2 (2026-06-27)
+- **Fix**: `SAVE` fallaba con error 03 al crear archivos con nombres de 12 caracteres (ej: `launcher.bin`)
+  - `mfs_create()` truncaba el nombre a 11 chars y luego fallaba al reabrir el archivo
+  - Ahora inicializa el estado del archivo directamente sin comparación de strings
+
+### v2.6.1 (2026-06-27)
+- **Feature**: Nuevas funciones en ROM API para programas externos:
+  - `mfs_load_file` ($BF7E): carga un archivo de SD a memoria
+  - `mfs_load_run` ($BF81): carga y ejecuta un archivo de SD
+  - Parámetros vía ZP fijo: `$F4-$F5` = nombre archivo, `$F6-$F7` = dirección
+  - Ideal para reproductores, loaders y programas que necesitan cargar otros archivos
 
 ### v2.6.0 (2026-06-27)
 - **Feature**: SD montada automáticamente al iniciar el monitor (ya no requiere escribir `SD`)
