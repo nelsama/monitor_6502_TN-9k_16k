@@ -169,11 +169,11 @@ Si existe un archivo `BOOT.INI` (mayúsculas o minúsculas) en la SD, el monitor
 
 **¿Cómo usarlo?**
 
-1. Creá un archivo `BOOT.INI` en la SD con el nombre del programa a ejecutar, por ejemplo:
+1. Crea un archivo `BOOT.INI` en la SD con el nombre del programa a ejecutar, por ejemplo:
    ```
    BASIC.BIN
    ```
-2. Copiá el programa (`BASIC.BIN`) también en la SD
+2. Copia el programa (`BASIC.BIN`) también en la SD
 3. Al encender la FPGA, el monitor hará todo automáticamente:
    ```
    --- Monitor 6502 v2.6.0 ---
@@ -183,14 +183,13 @@ Si existe un archivo `BOOT.INI` (mayúsculas o minúsculas) en la SD, el monitor
    Montando MicroFS...
      FS montado OK
    Cargando BASIC.BIN...
-   256 bytes cargados
    Ejecutando en $0800...
    ```
 
 **Comportamiento:**
 - El auto-boot solo ocurre **UNA VEZ** al encender la FPGA
 - Si el programa termina (RTS), vuelve al monitor normalmente
-- Si hacés `Q` (reset), el monitor reinicia **sin** volver a bootear
+- Si usas `Q` (reset), el monitor reinicia **sin** volver a bootear
 - Solo apagando y encendiendo la FPGA se vuelve a ejecutar el auto-boot
 - Si `BOOT.INI` no existe, está vacío, o el archivo mencionado no se encuentra, el monitor arranca normalmente
 
