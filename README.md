@@ -127,13 +127,23 @@ Retorno de $0800
 
 
 ### Usar SD Card
+
+La SD se monta **automáticamente** al iniciar el monitor, ya no es necesario escribir el comando `SD`.
+
 ```
->SD
+--- Monitor 6502 v2.6.0 ---
+H=ayuda, SD=SD Card, Q=reset
+
 Inicializando SD Card...
   SD OK, tipo: SD
 Montando MicroFS...
   FS montado OK
 
+>
+```
+
+Listar, guardar y cargar archivos:
+```
 >LS
 PROG.BIN      256
 TEST.DAT     1024
@@ -148,7 +158,41 @@ Cargando MIPROG.BIN en $0800...
 256 bytes cargados
 
 >R
+Ejecutando en $0800...
 ```
+
+> **Nota**: `R` sin argumentos ejecuta en la Ãºltima direcciÃ³n usada (por `LOAD`), no en `$0800` fijo.
+
+### Auto-boot desde BOOT.INI
+
+Si existe un archivo `BOOT.INI` (mayÃºsculas o minÃºsculas) en la SD, el monitor lee su contenido, que debe ser el nombre de otro archivo binario, lo carga en `$0800` y lo ejecuta automÃ¡ticamente al encender.
+
+**Â¿CÃ³mo usarlo?**
+
+1. CreÃ¡ un archivo `BOOT.INI` en la SD con el nombre del programa a ejecutar, por ejemplo:
+   ```
+   BASIC.BIN
+   ```
+2. CopiÃ¡ el programa (`BASIC.BIN`) tambiÃ©n en la SD
+3. Al encender la FPGA, el monitor harÃ¡ todo automÃ¡ticamente:
+   ```
+   --- Monitor 6502 v2.6.0 ---
+   H=ayuda, SD=SD Card, Q=reset
+   Inicializando SD Card...
+     SD OK, tipo: SD
+   Montando MicroFS...
+     FS montado OK
+   Cargando BASIC.BIN...
+   256 bytes cargados
+   Ejecutando en $0800...
+   ```
+
+**Comportamiento:**
+- El auto-boot solo ocurre **UNA VEZ** al encender la FPGA
+- Si el programa termina (RTS), vuelve al monitor normalmente
+- Si hacÃ©s `Q` (reset), el monitor reinicia **sin** volver a bootear
+- Solo apagando y encendiendo la FPGA se vuelve a ejecutar el auto-boot
+- Si `BOOT.INI` no existe, estÃ¡ vacÃ­o, o el archivo mencionado no se encuentra, el monitor arranca normalmente
 
 ---
 
