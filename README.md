@@ -161,20 +161,20 @@ Cargando MIPROG.BIN en $0800...
 Ejecutando en $0800...
 ```
 
-> **Nota**: `R` sin argumentos ejecuta en la Ãºltima direcciÃ³n usada (por `LOAD`), no en `$0800` fijo.
+> **Nota**: `R` sin argumentos ejecuta en la última dirección usada (por `LOAD`), no en `$0800` fijo.
 
 ### Auto-boot desde BOOT.INI
 
-Si existe un archivo `BOOT.INI` (mayÃºsculas o minÃºsculas) en la SD, el monitor lee su contenido, que debe ser el nombre de otro archivo binario, lo carga en `$0800` y lo ejecuta automÃ¡ticamente al encender.
+Si existe un archivo `BOOT.INI` (mayúsculas o minúsculas) en la SD, el monitor lee su contenido, que debe ser el nombre de otro archivo binario, lo carga en `$0800` y lo ejecuta automáticamente al encender.
 
-**Â¿CÃ³mo usarlo?**
+**¿Cómo usarlo?**
 
-1. CreÃ¡ un archivo `BOOT.INI` en la SD con el nombre del programa a ejecutar, por ejemplo:
+1. Creá un archivo `BOOT.INI` en la SD con el nombre del programa a ejecutar, por ejemplo:
    ```
    BASIC.BIN
    ```
-2. CopiÃ¡ el programa (`BASIC.BIN`) tambiÃ©n en la SD
-3. Al encender la FPGA, el monitor harÃ¡ todo automÃ¡ticamente:
+2. Copiá el programa (`BASIC.BIN`) también en la SD
+3. Al encender la FPGA, el monitor hará todo automáticamente:
    ```
    --- Monitor 6502 v2.6.0 ---
    H=ayuda, SD=SD Card, Q=reset
@@ -190,9 +190,9 @@ Si existe un archivo `BOOT.INI` (mayÃºsculas o minÃºsculas) en la SD, el mon
 **Comportamiento:**
 - El auto-boot solo ocurre **UNA VEZ** al encender la FPGA
 - Si el programa termina (RTS), vuelve al monitor normalmente
-- Si hacÃ©s `Q` (reset), el monitor reinicia **sin** volver a bootear
+- Si hacés `Q` (reset), el monitor reinicia **sin** volver a bootear
 - Solo apagando y encendiendo la FPGA se vuelve a ejecutar el auto-boot
-- Si `BOOT.INI` no existe, estÃ¡ vacÃ­o, o el archivo mencionado no se encuentra, el monitor arranca normalmente
+- Si `BOOT.INI` no existe, está vacío, o el archivo mencionado no se encuentra, el monitor arranca normalmente
 
 ---
 
