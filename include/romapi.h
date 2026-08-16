@@ -65,7 +65,10 @@
  * $BF75     sd_write_sector    [ZP]      $F0=sector(32b), $F4=buf
  * $BF78     sd_is_ready()      fastcall
  * $BF7B     sd_get_type()      fastcall
- * $BF84     Magic "ROMAPI"     -         Identificador + version
+ * $BF7E     mfs_load_file      [ZP]      $F4=name, $F6=addr
+ * $BF81     mfs_load_run       [ZP]      $F4=name, $F6=addr
+ * $BF84     mfs_seek(offset)   fastcall  offset en AX
+ * $BF87     Magic "ROMAPI"     -         Identificador + version
  * 
  * NOTA: i2c_write ($BF6C) e i2c_read ($BF6F) usan stack CC65.
  *       No tienen wrapper ZP. Desde programas externos, usar
@@ -103,6 +106,7 @@
 #define ROMAPI_MFS_WRITE        0xBF3F    /* [ZP] usa $F4-$F7 */
 #define ROMAPI_MFS_DELETE       0xBF42
 #define ROMAPI_MFS_FORMAT       0xBF45
+#define ROMAPI_MFS_SEEK         0xBF84
 
 /* --- UART --- */
 #define ROMAPI_UART_INIT        0xBF15
@@ -141,7 +145,7 @@
 #define ROMAPI_I2C_READ         0xBF6F    /* usa stack - no wrapper */
 
 /* --- Identificador ROM API --- */
-#define ROMAPI_MAGIC_ADDR       0xBF84
+#define ROMAPI_MAGIC_ADDR       0xBF87
 #define ROMAPI_MAGIC            "ROMAPI"
 
 /* --- Carga y ejecución desde SD --- */
@@ -163,6 +167,7 @@
 
 /* --- MicroFS (fastcall) --- */
 #define rom_mfs_mount()         (((uint8_t (*)(void))ROMAPI_MFS_MOUNT)())
+#define rom_mfs_seek(offset)    (((uint8_t (*)(uint16_t))ROMAPI_MFS_SEEK)(offset))
 #define rom_mfs_open(name)      \
     (*(volatile uint16_t*)0xF4 = (uint16_t)(name), \
      ((uint8_t (*)(void))ROMAPI_MFS_OPEN)())

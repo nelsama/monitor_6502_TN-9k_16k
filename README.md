@@ -270,6 +270,7 @@ La ROM incluye una **API completa** para que programas externos puedan acceder a
 | `$BF45` | `mfs_format()` | — | Formatear SD |
 | `$BF7E` | `mfs_load_file` | [ZP] | Cargar archivo SD a memoria: name en $F4-$F5, addr en $F6-$F7 |
 | `$BF81` | `mfs_load_run` | [ZP] | Cargar y ejecutar archivo SD: name en $F4-$F5, addr en $F6-$F7 |
+| `$BF84` | `mfs_seek(offset)` | — | Posicionar puntero de lectura: offset en A/X |
 
 **UART**
 
@@ -391,6 +392,12 @@ rom_mfs_close();
 ---
 
 ## Historial de Versiones
+
+### v2.6.3 (2026-06-29)
+- **Feature**: Nueva funciÃ³n `mfs_seek(offset)` en ROM API ($BF84): posiciona el puntero
+  de lectura del archivo abierto. ParÃ¡metro offset en A/X (fastcall).
+- **Update**: LibrerÃ­a MicroFS actualizada desde el repo (agrega `mfs_seek`)
+- **Change**: Magic ROM API movido de $BF84 a $BF87
 
 ### v2.6.2 (2026-06-27)
 - **Fix**: `SAVE` fallaba con error 03 al crear archivos con nombres de 12 caracteres (ej: `launcher.bin`)

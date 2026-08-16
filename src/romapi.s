@@ -30,6 +30,7 @@
 .import _mfs_list
 .import _mfs_create
 .import _mfs_write
+.import _mfs_seek
 .import _mfs_delete
 .import _mfs_format
 .import _uart_init
@@ -318,13 +319,16 @@ mfs_load_file_entry:
 mfs_load_run_entry:
     JMP mfs_load_run_wrap
 
-; Padding hasta $BF84 para alineación
-.res $84 - (* - _romapi_start), $EA
+; $BF84 - mfs_seek: Posiciona el puntero de lectura del archivo abierto
+;         Input: offset en A/X (uint16_t)
+;         Output: A = MFS_OK o error
+mfs_seek_entry:
+    JMP _mfs_seek
 
-; $BF84 - Magic number y versión
+; $BF87 - Magic number y versión
 romapi_magic:
     .byte "ROMAPI"      ; Magic: "ROMAPI"
-        .byte $24           ; VersiÃ³n (major<<4 | minor)
+        .byte $26           ; VersiÃ³n v2.6 (major<<4 | minor)
 
 ; ---------------------------------------------------------------------------
 ; WRAPPERS CON ZP FIJO - Para programas externos
