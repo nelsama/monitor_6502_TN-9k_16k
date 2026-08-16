@@ -327,7 +327,7 @@ La ROM incluye una **API completa** para que programas externos puedan acceder a
 
 | Dirección | Contenido |
 |-----------|-----------|
-| `$BF84` | Magic "ROMAPI" + versión (major $02, minor $04) |
+| `$BF87` | Magic "ROMAPI" + versión (v2.6) |
 
 ### Uso desde C
 
