@@ -1,5 +1,5 @@
 
-# Monitor 6502 v2.6.2 + SD Card + XMODEM + SPI + I2C - Tang Nano 9K
+# Monitor 6502 v2.6.3 + SD Card + XMODEM + SPI + I2C - Tang Nano 9K
 
 🚀 **Monitor/Debugger interactivo** para CPU 6502 sobre FPGA Tang Nano 9K via UART con soporte de **SD Card**, **XMODEM**, **SPI** e **I2C**.
 
@@ -131,7 +131,7 @@ Retorno de $0800
 La SD se monta **automáticamente** al iniciar el monitor, ya no es necesario escribir el comando `SD`.
 
 ```
---- Monitor 6502 v2.6.0 ---
+--- Monitor 6502 v2.6.3 ---
 H=ayuda, SD=SD Card, Q=reset
 
 Inicializando SD Card...
@@ -176,7 +176,7 @@ Si existe un archivo `BOOT.INI` (mayúsculas o minúsculas) en la SD, el monitor
 2. Copia el programa (`BASIC.BIN`) también en la SD
 3. Al encender la FPGA, el monitor hará todo automáticamente:
    ```
-   --- Monitor 6502 v2.6.0 ---
+   --- Monitor 6502 v2.6.3 ---
    H=ayuda, SD=SD Card, Q=reset
    Inicializando SD Card...
      SD OK, tipo: SD
@@ -394,9 +394,9 @@ rom_mfs_close();
 ## Historial de Versiones
 
 ### v2.6.3 (2026-06-29)
-- **Feature**: Nueva funciÃ³n `mfs_seek(offset)` en ROM API ($BF84): posiciona el puntero
-  de lectura del archivo abierto. ParÃ¡metro offset en A/X (fastcall).
-- **Update**: LibrerÃ­a MicroFS actualizada desde el repo (agrega `mfs_seek`)
+- **Feature**: Nueva función `mfs_seek(offset)` en ROM API ($BF84): posiciona el puntero
+  de lectura del archivo abierto. Parámetro offset en A/X (fastcall).
+- **Update**: Librería MicroFS actualizada desde el repo (agrega `mfs_seek`)
 - **Change**: Magic ROM API movido de $BF84 a $BF87
 
 ### v2.6.2 (2026-06-27)

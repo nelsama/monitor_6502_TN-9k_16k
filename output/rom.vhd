@@ -1,6 +1,6 @@
 -- ======================================================
 -- ROM generada automáticamente con Python
--- Fecha: 2026-08-15 22:55:34
+-- Fecha: 2026-08-15 23:00:30
 -- Versión del Monitor: v2.6.3
 -- Tamaño: 16384 bytes
 -- Ancho de datos: 8 bits

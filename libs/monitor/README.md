@@ -1,4 +1,4 @@
-# Monitor 6502 v2.6.2
+# Monitor 6502 v2.6.3
 
 Monitor/debugger interactivo para el procesador 6502 a través de UART para Tang Nano 9K con soporte de SD Card.
 
