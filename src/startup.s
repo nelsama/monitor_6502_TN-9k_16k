@@ -19,6 +19,10 @@
 .import __BSS_RUN__, __BSS_SIZE__
 .importzp sp
 
+; Variables en zero page: declararlas con .exportzp/.importzp permite que
+; ca65 use direccionamiento de pagina cero (2 bytes) en lugar de absoluto
+; (3 bytes). Se exportan aqui y se re-importan mas abajo.
+
 .segment "STARTUP"
 
 _init:
@@ -46,6 +50,23 @@ _init:
     jmp @halt
 
 ; ============================================
+; Variables temporales en ZP
+; ============================================
+; Nombres propios (sptr1/sptr2/scount) para no chocar con ptr1/ptr2 que
+; cc65 ya define en la zero page y que romapi.s importa.
+;
+; Se declaran AQUI, antes del segmento CODE, para que ca65 conozca su
+; naturaleza de pagina cero al ensamblar las instrucciones que las usan:
+; emite $85 xx (2 bytes) en vez de $8D xx xx (3 bytes). Misma direccion y
+; mismo efecto en runtime.
+.segment "ZEROPAGE"
+sptr1:   .res 2
+sptr2:   .res 2
+scount:  .res 2
+
+.exportzp sptr1, sptr2, scount
+
+; ============================================
 ; copydata - Copia DATA de ROM a RAM
 ; ============================================
 .segment "CODE"
@@ -58,45 +79,45 @@ copydata:
     
     ; Inicializar punteros
     lda #<__DATA_LOAD__
-    sta ptr1
+    sta sptr1
     lda #>__DATA_LOAD__
-    sta ptr1+1
+    sta sptr1+1
     
     lda #<__DATA_RUN__
-    sta ptr2
+    sta sptr2
     lda #>__DATA_RUN__
-    sta ptr2+1
+    sta sptr2+1
     
     ; Contador de bytes
     lda #<__DATA_SIZE__
-    sta count
+    sta scount
     lda #>__DATA_SIZE__
-    sta count+1
+    sta scount+1
     
     ldy #0
 @loop:
-    lda (ptr1),y
-    sta (ptr2),y
+    lda (sptr1),y
+    sta (sptr2),y
     
     ; Incrementar punteros
     iny
     bne @check
-    inc ptr1+1
-    inc ptr2+1
+    inc sptr1+1
+    inc sptr2+1
     
 @check:
     ; Decrementar contador
-    lda count
+    lda scount
     bne @dec_lo
-    lda count+1
+    lda scount+1
     beq @done
-    dec count+1
+    dec scount+1
 @dec_lo:
-    dec count
+    dec scount
     
     ; Verificar si terminamos
-    lda count
-    ora count+1
+    lda scount
+    ora scount+1
     bne @loop
     
 @done:
@@ -112,46 +133,38 @@ zerobss:
     beq @done
     
     lda #<__BSS_RUN__
-    sta ptr1
+    sta sptr1
     lda #>__BSS_RUN__
-    sta ptr1+1
+    sta sptr1+1
     
     lda #<__BSS_SIZE__
-    sta count
+    sta scount
     lda #>__BSS_SIZE__
-    sta count+1
+    sta scount+1
     
     ldy #0
     lda #0
 @loop:
-    sta (ptr1),y
+    sta (sptr1),y
     
     iny
     bne @check
-    inc ptr1+1
+    inc sptr1+1
     
 @check:
     ; Decrementar contador
-    ldx count
+    ldx scount
     bne @dec_lo
-    ldx count+1
+    ldx scount+1
     beq @done
-    dec count+1
+    dec scount+1
 @dec_lo:
-    dec count
+    dec scount
     
-    ldx count
+    ldx scount
     bne @loop
-    ldx count+1
+    ldx scount+1
     bne @loop
     
 @done:
     rts
-
-; ============================================
-; Variables temporales en ZP
-; ============================================
-.segment "ZEROPAGE"
-ptr1:   .res 2
-ptr2:   .res 2
-count:  .res 2
