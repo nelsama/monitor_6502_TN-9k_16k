@@ -22,7 +22,7 @@ int xmodem_receive(unsigned int dest_addr) {
         uart_putc(NAK);
         
         // Esperar respuesta con timeout
-        for (timeout = 0; timeout < 50000; timeout++) {
+        for (timeout = 0; timeout < (unsigned int)50000; timeout++) {
             if (uart_rx_ready()) {
                 header = uart_getc();
                 if (header == SOH) goto process_block;
@@ -58,7 +58,7 @@ process_block:
     }
     
     // Esperar siguiente con timeout
-    for (timeout = 0; timeout < 60000; timeout++) {
+    for (timeout = 0; timeout < (unsigned int)60000; timeout++) {
         if (uart_rx_ready()) {
             header = uart_getc();
             if (header == SOH) goto process_block;

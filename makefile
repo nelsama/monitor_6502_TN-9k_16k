@@ -139,7 +139,10 @@ ROMAPI_OBJ = $(BUILD_DIR)/romapi.o
 TIMER_OBJ = $(BUILD_DIR)/timer.o
 I2C_OBJ = $(BUILD_DIR)/i2c.o
 
-OBJS = $(STARTUP_OBJ) $(MAIN_OBJ) $(UART_OBJ) $(MONITOR_OBJ) $(SPI_OBJ) $(SDCARD_OBJ) $(SDCARD_ASM_OBJ) $(MICROFS_OBJ) $(MICROFS_ASM_OBJ) $(XMODEM_OBJ) $(ROMAPI_OBJ) $(TIMER_OBJ) $(I2C_OBJ) $(VECTORS_OBJ)
+# microfs_asm.o va AL FINAL a proposito: contiene mfs_streq, cuyo tamano
+# cambia con los parches. Si se enlazara antes, su crecimiento desplazaria
+# xmodem.o y alteraria el timing de la recepcion XMODEM.
+OBJS = $(STARTUP_OBJ) $(MAIN_OBJ) $(UART_OBJ) $(MONITOR_OBJ) $(SPI_OBJ) $(SDCARD_OBJ) $(SDCARD_ASM_OBJ) $(MICROFS_OBJ) $(XMODEM_OBJ) $(ROMAPI_OBJ) $(TIMER_OBJ) $(I2C_OBJ) $(VECTORS_OBJ) $(MICROFS_ASM_OBJ)
 
 # ============================================
 # TARGET PRINCIPAL
