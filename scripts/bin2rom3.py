@@ -6,7 +6,6 @@ Basado en bin2rom.py
 
 import argparse
 from pathlib import Path
-from datetime import datetime
 
 def format_vhdl_data(data, data_width, offset):
     """Formatea los datos para inicialización VHDL con un offset inicial"""
@@ -39,7 +38,6 @@ def generate_vhdl_rom(data, full_data_len,rom_name="rom", data_width=8, addr_wid
     str_complete = "0" * addr_dif;
     vhdl_template = f"""-- ======================================================
 -- ROM generada automáticamente con Python
--- Fecha: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 -- Versión del Monitor: {version}
 -- Tamaño: {full_data_len} bytes
 -- Ancho de datos: {data_width} bits
