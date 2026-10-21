@@ -23,7 +23,7 @@ SCRIPTS_DIR = scripts
 # ============================================
 # VERSIÓN
 # ============================================
-VERSION = v2.6.3
+VERSION = v2.6.4
 
 # ============================================
 # HERRAMIENTAS
@@ -53,6 +53,7 @@ ifeq ($(IS_WINDOWS_CMD),)
     OUTPUT_OK       := test -d $(OUTPUT_DIR) || mkdir -p $(OUTPUT_DIR)
     STAMP_OK        := if ! test -f build/.dirs; then
     STAMP_WRITE     := echo done > build/.dirs; fi
+    VERSION_STAMP_WRITE := echo $(VERSION) > build/.version-$(VERSION)
     CLEAN_BUILD     := rm -rf $(BUILD_DIR)
     CLEAN_OUTPUT    := rm -f $(OUTPUT_DIR)/*.vhd $(OUTPUT_DIR)/*.bin $(OUTPUT_DIR)/*.hex
     ECHO_LINE       := echo '========================================'
@@ -66,6 +67,7 @@ else
     OUTPUT_OK       := if not exist "$(OUTPUT_DIR)" mkdir "$(OUTPUT_DIR)"
     STAMP_OK        := if not exist build\.dirs
     STAMP_WRITE     := echo done > "$(DIRSTAMP)"
+    VERSION_STAMP_WRITE := echo $(VERSION) > "build\.version-$(VERSION)"
     CLEAN_BUILD     := if exist "$(BUILD_DIR)" rmdir /s /q "$(BUILD_DIR)"
     CLEAN_OUTPUT    := if exist "$(OUTPUT_DIR)\*.vhd" del /q "$(OUTPUT_DIR)\*.vhd" & \
                        if exist "$(OUTPUT_DIR)\*.bin" del /q "$(OUTPUT_DIR)\*.bin" & \
@@ -159,12 +161,19 @@ $(DIRSTAMP):
 
 dirs: $(DIRSTAMP)
 
+# Centinela de version: se reescribe solo cuando cambia VERSION (el nombre
+# del archivo incluye la version), lo que fuerza a recompilar main.c y
+# monitor.c, que la usan con -DVERSION.
+VERSION_STAMP = $(BUILD_DIR)/.version-$(VERSION)
+$(VERSION_STAMP): | $(DIRSTAMP)
+	@$(VERSION_STAMP_WRITE)
+
 # ============================================
 # COMPILACIÓN DE OBJETOS
 # ============================================
 
 # Main
-$(MAIN_OBJ): $(SRC_DIR)/main.c $(MONITOR_DIR)/monitor.h $(UART_DIR)/uart.h | $(DIRSTAMP)
+$(MAIN_OBJ): $(SRC_DIR)/main.c $(MONITOR_DIR)/monitor.h $(UART_DIR)/uart.h $(VERSION_STAMP) | $(DIRSTAMP)
 	$(CC65) $(CFLAGS) $(INCLUDES) -o $(BUILD_DIR)/main.s $<
 	$(CA65) -t none -o $@ $(BUILD_DIR)/main.s
 
@@ -174,7 +183,7 @@ $(UART_OBJ): $(UART_DIR)/uart.s | $(DIRSTAMP)
 
 # Monitor
 $(MONITOR_OBJ): $(MONITOR_DIR)/monitor.c $(MONITOR_DIR)/monitor.h $(SRC_DIR)/xmodem.h $(UART_DIR)/uart.h \
-                $(SDCARD_DIR)/sdcard.h $(MICROFS_DIR)/microfs.h | $(DIRSTAMP)
+                $(SDCARD_DIR)/sdcard.h $(MICROFS_DIR)/microfs.h $(VERSION_STAMP) | $(DIRSTAMP)
 	$(CC65) $(CFLAGS) $(INCLUDES) -o $(BUILD_DIR)/monitor.s $<
 	$(CA65) -t none -o $@ $(BUILD_DIR)/monitor.s
 

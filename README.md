@@ -1,5 +1,5 @@
 
-# Monitor 6502 v2.6.3 + SD Card + XMODEM + SPI + I2C - Tang Nano 9K
+# Monitor 6502 v2.6.4 + SD Card + XMODEM + SPI + I2C - Tang Nano 9K
 
 🚀 **Monitor/Debugger interactivo** para CPU 6502 sobre FPGA Tang Nano 9K via UART con soporte de **SD Card**, **XMODEM**, **SPI** e **I2C**.
 
@@ -132,7 +132,7 @@ Retorno de $0800
 La SD se monta **automáticamente** al iniciar el monitor, ya no es necesario escribir el comando `SD`.
 
 ```
---- Monitor 6502 v2.6.3 ---
+--- Monitor 6502 v2.6.4 ---
 H=ayuda, SD=SD Card, Q=reset
 
 Inicializando SD Card...
@@ -177,7 +177,7 @@ Si existe un archivo `BOOT.INI` (mayúsculas o minúsculas) en la SD, el monitor
 2. Copia el programa (`BASIC.BIN`) también en la SD
 3. Al encender la FPGA, el monitor hará todo automáticamente:
    ```
-   --- Monitor 6502 v2.6.3 ---
+   --- Monitor 6502 v2.6.4 ---
    H=ayuda, SD=SD Card, Q=reset
    Inicializando SD Card...
      SD OK, tipo: SD
@@ -488,6 +488,21 @@ rom_mfs_close();
 ---
 
 ## Historial de Versiones
+
+### v2.6.4 (2026-10-21)
+- **Feature**: Comando `QB` reinicia releyendo `BOOT.INI`. `Q` reinicia sin
+  autoboot. El estado vive en el registro de hardware `$C004` bit 0, que
+  sobrevive al reset de CPU (S1 y reset por software).
+- **Change**: El autoboot deja de usar la RAM en `$3FFE-$3FFF` (el stack de
+  CC65 la pisaba). **Requiere un bitstream con el flag `$C004`.**
+- **Fix**: `mfs_streq` de MicroFS ignora mayúsculas/minúsculas, así que
+  `DEL`/`LOAD`/`CAT` funcionan con archivos creados en minúsculas.
+- **Build**: El Makefile detecta `cmd.exe` o `sh`, crea `build/` antes de
+  compilar y sigue las dependencias de cabeceras.
+- **Build**: `bin2rom3.py` genera el VHDL con LF también en Windows y sin
+  marca de tiempo, así que el mismo código produce el mismo archivo.
+- **Optimization**: `startup.s` usa direccionamiento de página cero para
+  `ptr1`/`ptr2`/`count` (elimina 3 warnings, ~26 bytes menos de código).
 
 ### v2.6.3 (2026-06-29)
 - **Feature**: Nueva función `mfs_seek(offset)` en ROM API ($BF84): posiciona el puntero
