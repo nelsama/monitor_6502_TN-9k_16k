@@ -76,7 +76,8 @@ Monitor/debugger interactivo para el procesador 6502 a través de UART para Tang
 |---------|----------|-------------|
 | **H** | `H` | Ayuda general |
 | **H** | `H cmd` | Ayuda detallada del comando |
-| **Q** | `Q` | Salir del monitor (reset) |
+| **Q** | `Q` | Reiniciar monitor sin autoboot |
+| **QB** | `QB` | Reiniciar monitor releyendo `BOOT.INI` |
 
 ---
 

@@ -59,7 +59,9 @@ static void mon_prompt(void) {
 }
 
 static void mon_error(const char *msg) {
-    uart_puts("ERR: ");
+    uart_puts("ERR");
+    uart_putc(':');
+    uart_putc(' ');
     uart_puts(msg);
     mon_newline();
 }
@@ -151,7 +153,8 @@ void mon_dump(uint16_t addr, uint16_t len) {
         
         /* Imprimir dirección */
         mon_print_hex16(row_addr);
-        uart_puts(": ");
+        uart_putc(':');
+        mon_print_space();
         
         /* Leer y mostrar bytes hex */
         for (j = 0; j < 16 && (i + j) < len; j++) {
@@ -162,7 +165,9 @@ void mon_dump(uint16_t addr, uint16_t len) {
         
         /* Padding si línea incompleta */
         while (j < 16) {
-            uart_puts("   ");
+            mon_print_space();
+            mon_print_space();
+            mon_print_space();
             j++;
         }
         
@@ -198,7 +203,9 @@ void mon_execute(uint16_t addr) {
     
     uart_puts("Ejecutando en $");
     mon_print_hex16(addr);
-    uart_puts("...");
+    uart_putc('.');
+    uart_putc('.');
+    uart_putc('.');
     mon_newline();
     
     /* Saltar a la dirección */
@@ -227,7 +234,10 @@ static void mon_load_mode(uint16_t addr) {
     
     uart_puts("Modo carga en $");
     mon_print_hex16(addr);
-    uart_puts(" (terminar con '.')");
+    uart_putc(' ');
+    uart_putc('(');
+    uart_puts("terminar con '.'");
+    uart_putc(')');
     mon_newline();
     uart_putc(':');
     
@@ -286,6 +296,7 @@ static void mon_load_mode(uint16_t addr) {
 
 /* Tabla simplificada de mnemonics (solo instrucciones comunes) */
 static const char* get_mnemonic(uint8_t opcode) {
+    static const char unknown[] = {'?', '?', '?', 0};
     switch (opcode) {
         case 0x00: return "BRK";
         case 0x20: return "JSR";
@@ -339,7 +350,7 @@ static const char* get_mnemonic(uint8_t opcode) {
         case 0xB0: return "BCS";
         case 0x50: return "BVC";
         case 0x70: return "BVS";
-        default:   return "???";
+        default:   return unknown;
     }
 }
 
@@ -394,14 +405,16 @@ static void mon_disassemble(uint16_t addr, uint8_t lines) {
         
         /* Imprimir dirección */
         mon_print_hex16(addr);
-        uart_puts("  ");
+        mon_print_space();
+        mon_print_space();
         
         /* Imprimir bytes hex */
         for (j = 0; j < 3; j++) {
             if (j < len) {
                 mon_print_hex8(bytes[j]);
             } else {
-                uart_puts("  ");
+                mon_print_space();
+                mon_print_space();
             }
             mon_print_space();
         }
@@ -411,10 +424,12 @@ static void mon_disassemble(uint16_t addr, uint8_t lines) {
         
         /* Imprimir operando si hay */
         if (len == 2) {
-            uart_puts(" $");
+            mon_print_space();
+            uart_putc('$');
             mon_print_hex8(bytes[1]);
         } else if (len == 3) {
-            uart_puts(" $");
+            mon_print_space();
+            uart_putc('$');
             mon_print_hex8(bytes[2]);
             mon_print_hex8(bytes[1]);
         }
@@ -520,7 +535,9 @@ static void mon_sd_init(void) {
     
     r = sd_init();
     if (r != SD_OK) {
-        uart_puts("  Error SD: ");
+        mon_print_space();
+        mon_print_space();
+        uart_puts("Error SD: ");
         mon_print_hex8(r);
         mon_newline();
         sd_initialized = 0;
@@ -529,7 +546,9 @@ static void mon_sd_init(void) {
     }
     
     sd_initialized = 1;
-    uart_puts("  SD OK, tipo: ");
+    mon_print_space();
+    mon_print_space();
+    uart_puts("SD OK, tipo: ");
     uart_putc(sd_get_type() == 2 ? 'H' : 'S');
     uart_putc('D');
     mon_newline();
@@ -540,10 +559,14 @@ static void mon_sd_init(void) {
     
     r = mfs_mount();
     if (r == MFS_ERR_NOFS) {
-        uart_puts("  Sin FS. Formatear? (S/N): ");
+        mon_print_space();
+        mon_print_space();
+        uart_puts("Sin FS. Formatear? (S/N): ");
         if (uart_getc() == 'S' || uart_getc() == 's') {
             mon_newline();
-            uart_puts("  Formateando...");
+            mon_print_space();
+            mon_print_space();
+            uart_puts("Formateando...");
             r = mfs_format();
             if (r == MFS_OK) {
                 uart_puts("OK");
@@ -558,9 +581,13 @@ static void mon_sd_init(void) {
     
     if (r == MFS_OK) {
         fs_mounted = 1;
-        uart_puts("  FS montado OK");
+        mon_print_space();
+        mon_print_space();
+        uart_puts("FS montado OK");
     } else {
-        uart_puts("  Error FS: ");
+        mon_print_space();
+        mon_print_space();
+        uart_puts("Error FS: ");
         mon_print_hex8(r);
     }
     mon_newline();
@@ -585,9 +612,11 @@ static void mon_sd_list(void) {
     
     for (i = 0; i < MFS_MAX_FILES; i++) {
         if (mfs_list(i, &info) == MFS_OK) {
-            uart_puts("  ");
+            mon_print_space();
+            mon_print_space();
             uart_puts(info.name);
-            uart_puts("  ");
+            mon_print_space();
+            mon_print_space();
             mon_print_dec(info.size);
             uart_puts(" bytes");
             mon_newline();
@@ -596,7 +625,9 @@ static void mon_sd_list(void) {
     }
     
     if (count == 0) {
-        uart_puts("  (vacio)");
+        mon_print_space();
+        mon_print_space();
+        uart_puts("(vacio)");
         mon_newline();
     }
     
@@ -805,7 +836,8 @@ static void mon_sd_cat(const char *name) {
         
         /* Dirección */
         mon_print_hex16(total);
-        uart_puts(": ");
+        uart_putc(':');
+        mon_print_space();
         
         /* Hex */
         for (i = 0; i < n; i++) {
@@ -815,7 +847,9 @@ static void mon_sd_cat(const char *name) {
         
         /* Padding */
         for (; i < 16; i++) {
-            uart_puts("   ");
+            mon_print_space();
+            mon_print_space();
+            mon_print_space();
         }
         
         /* ASCII */
@@ -846,6 +880,23 @@ static void mon_sd_cat(const char *name) {
 }
 
 /* ============================================
+ * AUTO-BOOT desde SD (archivo BOOT.INI)
+ * ============================================ */
+/* Registro de flags del sistema ($C004, bit 0)
+ * - Es un FF en el FPGA que NO esta en el dominio de reset: sobrevive a
+ *   S1 y al reset por software; solo se pierde al recargar el bitstream.
+ * - Antes se usaba RAM en $3FFE-$3FFF, pero el software stack de CC65
+ *   arranca en $3FFF y pisaba el flag: el autoboot se repetia sin control.
+ * - 1 = saltar autoboot | 0 = permitir autoboot
+ *
+ * Un programa puede decidir que pasa al volver al monitor:
+ *   LDA #$01 / STA $C004 / JMP ($FFFC)  -> reset SIN autoboot
+ *   LDA #$00 / STA $C004 / JMP ($FFFC)  -> reset CON autoboot
+ */
+#define SYSFLAGS        (*(volatile uint8_t*)0xC004)
+#define SYSFLAG_NOBOOT  0x01
+
+/* ============================================
  * AYUDA
  * ============================================ */
 
@@ -854,19 +905,32 @@ static uint8_t cmd_match(const char *cmd, const char *pattern);
 
 static void mon_help(void) {
     mon_newline();
-    uart_puts("=== 6502 MONITOR " VERSION " ===\r\n");
-    uart_puts("H cmd=ayuda\r\n");
-    uart_puts("RD Leer\r\n");
-    uart_puts("W addr val Escribir\r\n");
-    uart_puts("D d len Dump hex\r\n");
-    uart_puts("L addr Carga hex\r\n");
-    uart_puts("R [addr] Run\r\n");
-    uart_puts("F d l v Fill\r\n");
-    uart_puts("M [n] Desensamblar\r\n");
-    uart_puts("XRECV [dir] XMODEM\r\n");
-    uart_puts("I Info mem\r\n");
-    uart_puts("SD: LS SAVE LOAD DEL CAT SDFMT\r\n");
-    uart_puts("Q Reset\r\n");
+    uart_puts("=== 6502 MONITOR " VERSION " ===");
+    mon_newline();
+    uart_puts("H cmd=ayuda");
+    mon_newline();
+    uart_puts("RD Leer");
+    mon_newline();
+    uart_puts("W addr val Escribir");
+    mon_newline();
+    uart_puts("D d len Dump hex");
+    mon_newline();
+    uart_puts("L addr Carga hex");
+    mon_newline();
+    uart_puts("R [addr] Run");
+    mon_newline();
+    uart_puts("F d l v Fill");
+    mon_newline();
+    uart_puts("M [n] Desensamblar");
+    mon_newline();
+    uart_puts("XRECV [dir] XMODEM");
+    mon_newline();
+    uart_puts("I Info mem");
+    mon_newline();
+    uart_puts("SD: LS SAVE LOAD DEL CAT SDFMT");
+    mon_newline();
+    uart_puts("Q Reset, QB Reset+boot");
+    mon_newline();
 }
 
 /* Ayuda detallada por comando (compacta para ahorrar ROM) */
@@ -875,37 +939,54 @@ static void mon_help_cmd(char cmd) {
     mon_newline();
     switch (cmd) {
         case 'R':
-            uart_puts("R [dir] Run\r\n");
-            uart_puts("Dir default=$0800\r\n");
-            uart_puts("Terminar con RTS\r\n");
-            uart_puts("RD dir Leer byte\r\n");
+            uart_puts("R [dir] Run");
+            mon_newline();
+            uart_puts("Dir default=$0800");
+            mon_newline();
+            uart_puts("Terminar con RTS");
+            mon_newline();
+            uart_puts("RD dir Leer byte");
+            mon_newline();
             break;
         case 'W':
-            uart_puts("W dir val Escribir\r\n");
+            uart_puts("W dir val Escribir");
+            mon_newline();
             break;
         case 'D':
-            uart_puts("D dir [n] Dump hex\r\n");
-            uart_puts("n default=64\r\n");
+            uart_puts("D dir [n] Dump hex");
+            mon_newline();
+            uart_puts("n default=64");
+            mon_newline();
             break;
         case 'L':
-            uart_puts("L dir Carga hex int\r\n");
-            uart_puts("Escribe bytes, '.' fin\r\n");
+            uart_puts("L dir Carga hex int");
+            mon_newline();
+            uart_puts("Escribe bytes, '.' fin");
+            mon_newline();
             break;
         case 'F':
-            uart_puts("F dir n val Fill\r\n");
+            uart_puts("F dir n val Fill");
+            mon_newline();
             break;
         case 'M':
-            uart_puts("M dir [n] Desensamblar\r\n");
-            uart_puts("n=instrucciones (def 16)\r\n");
+            uart_puts("M dir [n] Desensamblar");
+            mon_newline();
+            uart_puts("n=instrucciones (def 16)");
+            mon_newline();
             break;
         case 'I':
-            uart_puts("I - Info mapa memoria\r\n");
+            uart_puts("I - Info mapa memoria");
+            mon_newline();
             break;
         case 'Q':
-            uart_puts("Q - Salir del monitor\r\n");
+            uart_puts("Q Reset sin boot");
+            mon_newline();
+            uart_puts("QB Reset con boot (BOOT.INI)");
+            mon_newline();
             break;
         default:
-            uart_puts("Cmd desconocido\r\n");
+            uart_puts("Cmd desconocido");
+            mon_newline();
             break;
     }
 }
@@ -915,23 +996,24 @@ static void mon_help_sd(const char *cmd) {
     mon_newline();
     
     if (cmd_match(cmd, "SD"))
-        uart_puts("SD - Inicializar SD\r\n");
+        uart_puts("SD - Inicializar SD");
     else if (cmd_match(cmd, "LS"))
-        uart_puts("LS - Listar archivos\r\n");
+        uart_puts("LS - Listar archivos");
     else if (cmd_match(cmd, "SAVE"))
-        uart_puts("SAVE file dir n Guardar\r\n");
+        uart_puts("SAVE file dir n Guardar");
     else if (cmd_match(cmd, "LOAD"))
-        uart_puts("LOAD file [dir] Cargar\r\n");
+        uart_puts("LOAD file [dir] Cargar");
     else if (cmd_match(cmd, "DEL"))
-        uart_puts("DEL file Eliminar\r\n");
+        uart_puts("DEL file Eliminar");
     else if (cmd_match(cmd, "CAT"))
-        uart_puts("CAT file Ver hex\r\n");
+        uart_puts("CAT file Ver hex");
     else if (cmd_match(cmd, "SDFMT"))
-        uart_puts("SDFMT Formatear SD\r\n");
+        uart_puts("SDFMT Formatear SD");
     else if (cmd_match(cmd, "XRECV"))
-        uart_puts("XRECV [dir] XMODEM\r\n");
+        uart_puts("XRECV [dir] XMODEM");
     else
-        uart_puts("SD: LS SAVE LOAD DEL CAT SDFMT\r\n");
+        uart_puts("SD: LS SAVE LOAD DEL CAT SDFMT");
+    mon_newline();
 }
 
 /* ============================================
@@ -1094,6 +1176,14 @@ uint8_t monitor_process_cmd(char *cmd) {
         return MON_OK;
     }
     
+    /* QB: reset forzando la re-lectura de BOOT.INI */
+    if (cmd_match(cmd, "QB")) {
+        SYSFLAGS = 0;            /* permitir autoboot en el proximo reset */
+        uart_puts("Reset con boot...");
+        mon_newline();
+        soft_reset();
+    }
+    
     /* Obtener comando (primer carácter) */
     command = *cmd;
     if (command >= 'a' && command <= 'z') {
@@ -1190,10 +1280,12 @@ uint8_t monitor_process_cmd(char *cmd) {
         case 'S':
         case 'T':
         case 'V':
-            uart_puts("Cmd deshabilitado p/ XMODEM\r\n");
+            uart_puts("Cmd deshabilitado p/ XMODEM");
+            mon_newline();
             break;
             
-        case 'Q': /* Reset */
+        case 'Q': /* Reset sin autoboot */
+            SYSFLAGS = SYSFLAG_NOBOOT;   /* no ejecutar BOOT.INI */
             uart_puts("Reset...");
             mon_newline();
             soft_reset();
@@ -1276,30 +1368,21 @@ static void mon_read_line(void) {
 }
 
 /* ============================================
- * AUTO-BOOT desde SD (solo una vez, archivo BOOT.INI)
+ * AUTO-BOOT desde SD
  * ============================================ */
-/* Flag de 2 bytes al tope de RAM ($3FFE-$3FFF)
- * - Stack CC65 crece hacia ABAJO desde $3DFF, nunca toca $3E00+
- * - BASIC se carga en $0800, max $3DFF
- * - Ãšnico lugar que ningÃºn programa de usuario toca */
-#define AUTOBOOT_MAGIC  0xA5
-#define AUTOBOOT_FLAG_LO ((volatile uint8_t*)0x3FFE)
-#define AUTOBOOT_FLAG_HI ((volatile uint8_t*)0x3FFF)
 
 static void mon_try_autoboot(void) {
     uint8_t i;
     char bootname[13];
     uint16_t n;
-    uint8_t lo, hi;
     
-    /* Leer flag */
-    lo = *AUTOBOOT_FLAG_LO;
-    hi = *AUTOBOOT_FLAG_HI;
-    if (lo == AUTOBOOT_MAGIC && hi == AUTOBOOT_MAGIC)
+    /* Bit 0 = 1 -> el usuario pidio reiniciar sin autoboot (comando Q o
+     * un programa que escribio $01 en $C004 antes de reiniciar).
+     * El flag NO se limpia aqui: asi un Q mantiene el autoboot desactivado
+     * indefinidamente hasta que se use QB, un reset de bitstream o un
+     * programa que escriba 0. */
+    if (SYSFLAGS & SYSFLAG_NOBOOT)
         return;
-    
-    *AUTOBOOT_FLAG_LO = AUTOBOOT_MAGIC;
-    *AUTOBOOT_FLAG_HI = AUTOBOOT_MAGIC;
     
     /* Buscar BOOT.INI (probar mayÃºsculas y minÃºsculas) */
     bootname[0]='B'; bootname[1]='O'; bootname[2]='O'; bootname[3]='T';
@@ -1346,7 +1429,10 @@ void monitor_run(void) {
     mon_newline();
     uart_puts("--- Monitor 6502 ");
     uart_puts(VERSION);
-    uart_puts(" ---");
+    uart_putc(' ');
+    uart_putc('-');
+    uart_putc('-');
+    uart_putc('-');
     mon_newline();
     uart_puts("H=ayuda, SD=SD Card, Q=reset");
     

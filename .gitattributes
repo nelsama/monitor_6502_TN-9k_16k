@@ -1,0 +1,37 @@
+# Normalizacion de fin de linea
+#
+# El repositorio guarda siempre LF y en el disco se trabaja con CRLF
+# (Windows), asi Git no ve cambiado un archivo entero por el fin de linea.
+# Para fijar LF en el repo en lugar de CRLF, cambia las reglas de texto a
+# "eol=lf".
+
+* text=auto eol=crlf
+
+# Codigo fuente y documentacion
+*.c        text
+*.h        text
+*.s        text
+*.vhd      text
+*.py       text
+*.md       text
+*.cfg      text
+*.cst      text
+*.gprj     text
+*.bat      text
+makefile   text
+
+# Generado por scripts/bin2rom3.py: siempre LF (el script ya fuerza "\n")
+output/*.vhd text eol=lf
+output/*.hex text eol=lf
+
+# Tambien se versionan en el repo
+scripts/README.md  text
+libs/monitor/*     text
+
+# Binarios: Git no debe tocarlos
+*.bin  binary
+*.img  binary
+*.o    binary
+*.exe  binary
+*.dll  binary
+*.png  binary

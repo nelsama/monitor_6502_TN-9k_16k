@@ -1,17 +1,17 @@
 /**
  * main.c - Monitor/Debugger 6502 via UART
- * 
+ *
  * Hardware:
  *   - 6502 CPU @ 3.375 MHz en FPGA Tang Nano
  *   - 6 LEDs conectados a los bits 0-5 de PORT_SALIDA_LED ($C001)
  *   - UART para comunicación serial
- * 
+ *
  * Este programa inicia un monitor interactivo que permite:
  *   - Leer/escribir memoria
  *   - Cargar programas en hexadecimal
  *   - Ejecutar código desde cualquier dirección
  *   - Desensamblar código
- * 
+ *
  * Compilar: make
  */
 
@@ -30,26 +30,30 @@
  * ============================================================================ */
 
 int main(void) {
-    
+
     /* Configurar los 6 bits inferiores como salidas (0 = salida) */
     CONF_PORT_SALIDA_LED = 0xC0;  /* bits 7,6 = entrada, bits 5-0 = salida */
-    
+
     /* Apagar todos los LEDs inicialmente */
     PORT_SALIDA_LED = 0x00;
-    
+
     /* Inicializar UART */
     uart_init();
-    
+
     /* Mensaje de bienvenida */
-    uart_puts("\r\nTang Nano 9K - 6502 @ 3.375 MHz\r\n");
-    
+    uart_puts("Tang Nano 9K - 6502 @ 3.375 MHz");
+    uart_putc('\r');
+    uart_putc('\n');
+
     /* Iniciar y ejecutar el monitor en bucle */
     monitor_init();
-    
+
     while (1) {
         monitor_run();
-        uart_puts("Reiniciando monitor...\r\n");
+        uart_puts("Reiniciando monitor...");
+        uart_putc('\r');
+        uart_putc('\n');
     }
-    
+
     return 0;
 }

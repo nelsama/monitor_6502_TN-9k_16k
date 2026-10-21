@@ -134,7 +134,9 @@ def bin_to_rom(input_file, output_dir, rom_size, rom_name="rom", data_width=8, a
     # Generar archivo VHDL
     vhdl_path = output_dir / f"{rom_name}.vhd"
     vhdl_content = generate_vhdl_rom(padded_data, len(padded_data),rom_name=rom_name, data_width=data_width, addr_width=addr_width, offset=0, version=version)
-    vhdl_path.write_text(vhdl_content)
+    # newline="\n": el fin de linea no depende del SO. Sin esto, Windows escribe
+    # CRLF y Linux LF, y Git ve cambiado el archivo entero en cada build.
+    vhdl_path.write_text(vhdl_content, newline="\n")
     print(f"Generado: {vhdl_path}")
 
     # Generar archivo binario
@@ -145,7 +147,7 @@ def bin_to_rom(input_file, output_dir, rom_size, rom_name="rom", data_width=8, a
     # Generar archivo Intel HEX
     hex_path = output_dir / f"{rom_name}.hex"
     hex_content = generate_intel_hex(padded_data, offset)
-    hex_path.write_text(hex_content)
+    hex_path.write_text(hex_content, newline="\n")
     print(f"Generado: {hex_path}")
 
 def parse_int(value):

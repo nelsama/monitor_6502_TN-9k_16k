@@ -85,7 +85,8 @@ Todo en **HEXADECIMAL** (sin prefijo `$` ni `0x`)
 | **H** | `H` | Ayuda general (lista de comandos) |
 | **H** | `H cmd` | Ayuda detallada del comando específico |
 | **?** | `?` | Igual que H |
-| **Q** | `Q` | Salir/reiniciar monitor |
+| **Q** | `Q` | Reiniciar monitor **sin** autoboot |
+| **QB** | `QB` | Reiniciar monitor **con** autoboot (re-lee `BOOT.INI`) |
 
 **Ejemplos de ayuda:**
 - `H L` → Ayuda del comando Load
@@ -187,11 +188,63 @@ Si existe un archivo `BOOT.INI` (mayúsculas o minúsculas) en la SD, el monitor
    ```
 
 **Comportamiento:**
-- El auto-boot solo ocurre **UNA VEZ** al encender la FPGA
+- Al encender la FPGA, si `BOOT.INI` existe se ejecuta automáticamente
 - Si el programa termina (RTS), vuelve al monitor normalmente
-- Si usas `Q` (reset), el monitor reinicia **sin** volver a bootear
-- Solo apagando y encendiendo la FPGA se vuelve a ejecutar el auto-boot
+- `Q` reinicia el monitor **desactivando** el autoboot
+- `QB` reinicia el monitor **releyendo** `BOOT.INI`
+- El estado se guarda en el registro de hardware `$C004` bit 0, que **sobrevive** al reset de CPU (botón S1 y reset por software)
+- Solo se pierde al **recargar el bitstream**; tras eso el autoboot vuelve a estar activo
 - Si `BOOT.INI` no existe, está vacío, o el archivo mencionado no se encuentra, el monitor arranca normalmente
+
+> **Importante:** `Q` deja el autoboot desactivado **hasta que uses `QB`** (o recargues el bitstream). No se reactiva solo.
+
+### Control del autoboot desde un programa (`$C004` bit 0)
+
+El monitor usa el **flag de usuario del FPGA** (`$C004`, bit 0) para decidir si
+ejecuta `BOOT.INI`. Es un registro de hardware fuera del dominio de reset, así
+que sobrevive a cualquier reinicio de la CPU (el problema de usar RAM es que el
+stack de CC65 la pisa).
+
+| Valor de `$C004` bit 0 | Al reiniciar |
+|---|---|
+| `1` | **Sin** autoboot → aparece el prompt del monitor |
+| `0` | **Con** autoboot → lee `BOOT.INI` y ejecuta el programa |
+
+**Para volver al monitor sin autoboot** (p. ej. al terminar tu programa):
+
+```asm
+; 6502 asm
+    lda #$01
+    sta $C004       ; desactivar autoboot
+    jmp ($FFFC)     ; reset -> prompt del monitor
+```
+
+**Para volver ejecutando el autoboot:**
+
+```asm
+    lda #$00
+    sta $C004       ; permitir autoboot
+    jmp ($FFFC)     ; reset -> monitor + BOOT.INI
+```
+
+**Desde C (cc65):**
+
+```c
+#include <stdint.h>
+
+#define SYSFLAGS (*((volatile uint8_t*)0xC004))
+
+#define reset_no_boot()  do { SYSFLAGS = 0x01; __asm__("jmp ($FFFC)"); } while (0)
+#define reset_with_boot() do { SYSFLAGS = 0x00; __asm__("jmp ($FFFC)"); } while (0)
+```
+
+> **Antes de resetear**, si el programa usa interrupciones o el SID, conviene
+> deshabilitarlas (`sei`) para no dejar el hardware a medias durante el reinicio.
+>
+> **Nota sobre el hardware:** los bits 7-1 de `$C004` siempre leen 0. Ver
+> `docs/03-FORMATOS-Y-MEMORIA.md` del proyecto `fpga-6502-16k`.
+
+---
 
 ---
 
@@ -219,6 +272,7 @@ Si existe un archivo `BOOT.INI` (mayúsculas o minúsculas) en la SD, el monitor
 |--------|-----------|-------------|
 | LEDs | `$C001` | 6 LEDs (bits 0-5) |
 | LED Config | `$C003` | Configuración E/S (0=salida) |
+| **Flag de usuario** | `$C004` | **bit 0 R/W, persiste al reset** (usado por `Q`/`QB` para el autoboot) |
 | I2C | `$C010-$C014` | Bus I2C (prescaler, control, datos, cmd/status) |
 | UART Data | `$C020` | Datos TX/RX |
 | UART Status/Control | `$C021` | Estado UART (lectura) / Control (escritura) |
