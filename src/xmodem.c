@@ -8,6 +8,13 @@
 #define NAK  0x15
 #define CAN  0x18
 
+/* Limites de espera. Se declaran como variables unsigned int para que cc65
+ * no promocione la comparacion a long de 32 bits: 50000/60000 no caben en
+ * un int de 16 bits y el bucle acabaria usando axulong, pusheax y toslteax,
+ * que son mas lentos y pisan sreg/ptr1/ptr2 (recursos del UART). */
+static const unsigned int TIMEOUT_SOH   = 0xC350;  /* 50000 */
+static const unsigned int TIMEOUT_BLOCK = 0xEA60;  /* 60000 */
+
 int xmodem_receive(unsigned int dest_addr) {
     unsigned char *dest = (unsigned char *)dest_addr;
     unsigned char blk_expected = 1;
@@ -22,7 +29,7 @@ int xmodem_receive(unsigned int dest_addr) {
         uart_putc(NAK);
         
         // Esperar respuesta con timeout
-        for (timeout = 0; timeout < (unsigned int)50000; timeout++) {
+        for (timeout = 0; timeout < TIMEOUT_SOH; timeout++) {
             if (uart_rx_ready()) {
                 header = uart_getc();
                 if (header == SOH) goto process_block;
@@ -58,7 +65,7 @@ process_block:
     }
     
     // Esperar siguiente con timeout
-    for (timeout = 0; timeout < (unsigned int)60000; timeout++) {
+    for (timeout = 0; timeout < TIMEOUT_BLOCK; timeout++) {
         if (uart_rx_ready()) {
             header = uart_getc();
             if (header == SOH) goto process_block;

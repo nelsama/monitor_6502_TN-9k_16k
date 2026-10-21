@@ -98,7 +98,10 @@ TARGET = $(BUILD_DIR)/main.bin
 # ============================================
 CONFIG = $(CONFIG_DIR)/fpga.cfg
 PLATAFORMA = $(CC65_HOME)\lib\none.lib
-CFLAGS = -t none -O --cpu 6502 -DVERSION=\"$(VERSION)\"
+# -W const-overflow: avisa cuando una constante no cabe en el tipo destino
+# y se promociona (p. ej. 50000 -> long de 32 bits). Fue la causa del fallo
+# de XMODEM: el bucle de espera paso a usar axulong y piso sreg/ptr1/ptr2.
+CFLAGS = -t none -O --cpu 6502 -W const-overflow -DVERSION=\"$(VERSION)\"
 
 # Python: python3 si existe (sh), si no py (lanzador de Windows)
 ifeq ($(strip $(PYTHON_POSIX)),)
