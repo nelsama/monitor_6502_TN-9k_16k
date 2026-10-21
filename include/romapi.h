@@ -154,6 +154,30 @@
 
 
 /* ===========================================================================
+ * 1b. REGISTROS DE HARDWARE (no forman parte de la ROM API)
+ * ===========================================================================
+ * Son flip-flops del FPGA, no código del monitor. Se declaran aquí porque
+ * un programa que use la ROM API los necesita igualmente.
+ * Documentación completa: fpga-6502-16k, docs/03-FORMATOS-Y-MEMORIA.md.
+ */
+
+/* $C004, bit 0: flag de usuario persistente.
+ *
+ *   bit 0 = 1 -> al reiniciar, el monitor NO ejecuta BOOT.INI (va al prompt)
+ *   bit 0 = 0 -> al reiniciar, el monitor SI ejecuta BOOT.INI
+ *
+ * Sobrevive al reset de CPU (botón S1 y reset por software); solo se pierde
+ * al recargar el bitstream. Los bits 7-1 siempre leen 0.
+ *
+ * Uso típico al terminar un programa:
+ *     SYSFLAGS = SYSFLAG_NOBOOT;   // volver al prompt
+ *     __asm__("jmp ($FFFC)");
+ */
+#define SYSFLAGS                (*(volatile unsigned char *)0xC004)
+#define SYSFLAG_NOBOOT          0x01
+
+
+/* ===========================================================================
  * 2. MACROS DE LLAMADA (fastcall - funcionan desde programas externos)
  * ===========================================================================
  * Estas funciones usan solo registros A/X, sin stack de CC65.
