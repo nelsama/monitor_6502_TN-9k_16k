@@ -234,8 +234,52 @@ stack de CC65 la pisa).
 
 #define SYSFLAGS (*((volatile uint8_t*)0xC004))
 
-#define reset_no_boot()  do { SYSFLAGS = 0x01; __asm__("jmp ($FFFC)"); } while (0)
+/* Reset real por el vector: vuelve a _init -> main -> monitor_run.
+ * Es lo que hay que usar desde una aplicacion. */
+#define reset_no_boot()   do { SYSFLAGS = 0x01; __asm__("jmp ($FFFC)"); } while (0)
 #define reset_with_boot() do { SYSFLAGS = 0x00; __asm__("jmp ($FFFC)"); } while (0)
+```
+
+> **`jmp ($FFFC)` vs `jmp $8000`:** los dos reentran al monitor, pero solo el
+> primero pasa por el vector RESET. Para volver al prompt con el flag recien
+> escrito, usar `jmp ($FFFC)`; es lo que hace el launcher al salir con `Q`.
+
+#### Lanzar el autoboot desde una aplicacion ya cargada
+
+Una aplicacion puede pedir que, al volver, se cargue y ejecute `BOOT.INI`:
+
+```c
+/* volver al launcher (o a lo que diga BOOT.INI) */
+reset_with_boot();
+```
+
+O en ensamblador:
+
+```asm
+    lda #$00
+    sta $C004       ; permitir autoboot
+    jmp ($FFFC)     ; reset -> monitor -> BOOT.INI
+```
+
+**Ejemplo practico:** un juego que quiere volver al menu al terminar
+(`BOOT.INI` suele apuntar al launcher):
+
+```c
+void volver_al_menu(void) {
+    sei();                        /* PARAR IRQ antes de reiniciar */
+    SYSFLAGS = 0x00;              /* el monitor ejecutara BOOT.INI */
+    __asm__("jmp ($FFFC)");
+}
+```
+
+Y si quiere volver a un prompt limpio en vez de al menu:
+
+```c
+void volver_al_prompt(void) {
+    sei();
+    SYSFLAGS = 0x01;              /* el monitor NO ejecutara BOOT.INI */
+    __asm__("jmp ($FFFC)");
+}
 ```
 
 > **Antes de resetear**, si el programa usa interrupciones o el SID, conviene
@@ -243,8 +287,6 @@ stack de CC65 la pisa).
 >
 > **Nota sobre el hardware:** los bits 7-1 de `$C004` siempre leen 0. Ver
 > `docs/03-FORMATOS-Y-MEMORIA.md` del proyecto `fpga-6502-16k`.
-
----
 
 ---
 
