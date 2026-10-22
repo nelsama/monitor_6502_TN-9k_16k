@@ -236,7 +236,7 @@ confundan con `` '`' `` (0x60).
 | `del SIDPLAY.BIN` (mayúsculas) | ✅ | ✅ sin regresión |
 | `del NOEXISTE.BIN` | `Error: 03` | ✅ `Error: 03` |
 
-Verificación adicional en la ROM compilada (`_mfs_streq` en `$AC9A`):
+Verificación adicional en la ROM compilada:
 
 ```
 09 20  c9 61  90 17  c9 7b  b0 13  85 1e  b1 18  09 20  c5 1e
@@ -244,6 +244,15 @@ ora #$20  cmp #$61  bcc  cmp #$7B  bcs  sta tmp1 ...
 ```
 
 El código parcheado está efectivamente enlazado.
+
+> **Nota sobre la dirección:** al principio de la depuración este bloque estaba
+> en `$AC9A`. El commit `36af6b1` movió `microfs_asm.o` al final del enlace para
+> que el tamaño de `mfs_streq` no desplazara `xmodem.o`, así que ahora vive en
+> **`$B13F`**. Para comprobarlo, buscar el **patrón** (`09 20 c9 61`) y no una
+> dirección fija: entre builds el código se mueve.
+>
+> Verificación con la ROM actual (md5 `69f0c2dafddb`): patrón encontrado en
+> `$B13F`. ✅
 
 ---
 

@@ -259,3 +259,79 @@ ROM API es válida**. Recomendamos:
 
 **Acción pedida al agente del ajedrez**: repetir la prueba con el cursor sobre
 `e2` (peón blanco) antes de dar por cierta cualquier conclusión sobre la ROM.
+
+---
+
+## 10. Anexo: aclaración sobre la dirección del parche `mfs_streq`
+
+Segunda ronda de revisión. El agente comparó el bytecode del parche entre
+ROMs y concluyó:
+
+> "El parche está solo en el binario del emulador, no en el fuente del monitor
+> ni en la ROM del proyecto."
+
+**Esa conclusión es incorrecta**, aunque la observación de partida (las ROMs
+no coincidían) **sí era válida** y destapó un problema real.
+
+### 10.1 Lo que era cierto: el emulador tenía una ROM vieja
+
+| Archivo | md5 (antes) | Commit equivalente |
+|---|---|---|
+| `fpga-6502-16k/src/rom.vhd` | `69f0c2da` | actual |
+| `monitor/output/rom.{bin,vhd}` | `69f0c2da` | actual |
+| `EmuladorFpga6502/rom/monitor.bin` | **`f3a34540`** | `a347f23` (previo a los fixes) |
+
+El binario del emulador estaba desfasado: le faltaban el fix de XMODEM
+(`36af6b1`) y el reordenamiento del enlace. **Ya está sincronizado.**
+
+### 10.2 Lo que era incorrecto: el parche SÍ está en la ROM del FPGA
+
+El agente buscó `09 20 c9 61` en la **dirección `$AC9A`** de ambas ROMs y no
+lo encontró en la del FPGA. Pero esa dirección ya no es la correcta:
+
+```
+FPGA  ($AC9A): c9 3c b0 57 a9 15 ...   <- otro codigo
+EMU   ($AC9A): c9 7b b0 13 85 1e ...   <- parche
+```
+
+El commit `36af6b1` movió `microfs_asm.o` **al final del enlace** para que el
+tamaño de `mfs_streq` no desplazara `xmodem.o` (era justo la causa de la
+lentitud de XMODEM). Eso reubicó la función:
+
+| ROM | `mfs_streq` en |
+|---|---|
+| Emulador (enlace antiguo) | `$AC94` |
+| FPGA (enlace nuevo) | **`$B13F`** |
+
+Buscando el **patrón** en lugar de una dirección fija:
+
+```python
+parche = bytes([0x09, 0x20, 0xC9, 0x61])   # ora #$20 / cmp #$61
+
+FPGA  rom.vhd          -> encontrado en $B13F  OK
+Emulador monitor.bin   -> encontrado en $AC94  OK
+```
+
+**Ambas ROMs tienen el parche.** El fuente `libs/microfs-6502-cc65/microfs_asm.s`
+lo contiene, y el repo de la librería lo tiene commiteado (`3ee0c4c`).
+
+### 10.3 Nota metodológica para futuras comprobaciones
+
+Comparar ROMs **por dirección absoluta** no es fiable entre builds: cualquier
+cambio de tamaño o de orden de enlace desplaza el código, y eso es
+precisamente lo que se hizo a propósito.
+
+Lo correcto es:
+
+```python
+img.find(bytes([0x09, 0x20, 0xC9, 0x61]))   # buscar el patron
+```
+
+Y para verificar que una ROM es la esperada, comparar el **md5 completo**:
+
+```
+69f0c2dafddb  <- v2.6.4 con XMODEM corregido y parche mfs_streq
+```
+
+Cualquier ROM con otro md5 es otra build y no debe usarse para concluir nada
+sobre el firmware actual.
