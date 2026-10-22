@@ -5,8 +5,8 @@
  * Los programas standalone pueden llamar estas funciones sin incluir
  * las librerias, ahorrando espacio en RAM.
  * 
- * JUMP TABLE: $BF00 - $BFED (38 funciones)
- * MAGIC:      $BF84 - "ROMAPI" v2.4
+ * JUMP TABLE: $BF00 - $BFED (44 funciones)
+ * MAGIC:      $BF87 - "ROMAPI" (7 bytes, verificado en v2.6.4)
  * 
  * 
  *   CONVENCIN DE LLAMADA (CC65):                         
@@ -33,7 +33,7 @@
  * $BF15     uart_init()        fastcall
  * $BF18     uart_putc(c)       fastcall  c en A
  * $BF1B     uart_getc()        fastcall  retorna en A
- * $BF1E     uart_puts(str)     fastcall  str en AX
+ * $BF1E     uart_puts(str)     fastcall  str en AX  [ZP] ptr1, destruye Y
  * $BF21     uart_rx_ready()    fastcall  retorna status en A
  * $BF24     uart_tx_ready()    fastcall  retorna status en A
  * $BF27     mfs_read_ext       [ZP]      $F0=buf, $F2=len
@@ -73,6 +73,47 @@
  * NOTA: i2c_write ($BF6C) e i2c_read ($BF6F) usan stack CC65.
  *       No tienen wrapper ZP. Desde programas externos, usar
  *       las funciones byte-level: start/stop/write_byte/read_byte.
+ *
+ * ===========================================================================
+ * PRESERVACION DE REGISTROS
+ * ===========================================================================
+ *
+ * Ninguna entrada de la jump table guarda y restaura los registros del
+ * llamante. Se comportan como funciones CC65 normales ("fastcall"):
+ *
+ *   A, X  -> SON DE RETORNO. Se destruyen siempre. Nunca asumir que
+ *            conservan su valor tras la llamada.
+ *   Y     -> NO esta garantizado. uart_puts lo usa como indice y termina
+ *            con Y = longitud de la cadena. Guardar antes si se necesita.
+ *   P     -> puede cambiar (las rutinas lo consultan con AND/BEQ).
+ *
+ * ZERO PAGE: las rutinas del monitor usan la zero page del runtime CC65
+ * (ptr1 = $16, ptr2 = $18, tmp1 = $1E, sreg = $10...). En concreto:
+ *
+ *   uart_puts ($BF1E) escribe ptr1 y ptr1+1.  <- CUIDADO
+ *   mfs_read ($BF09), mfs_read_ext ($BF27) usan $F0-$F3.
+ *   mfs_list ($BF12), mfs_create ($BF3C), mfs_write ($BF3F),
+ *   mfs_load_file ($BF7E), mfs_load_run ($BF81),
+ *   sd_read_sector ($BF72), sd_write_sector ($BF75)
+ *   usan $F4-$F7.
+ *
+ * CONSECUENCIA PRACTICA: no interrumpir una expresion C que este usando
+ * un puntero y llamar a la ROM API en medio. Con CC65 lo normal es seguro
+ * porque cada funcion se evalua por separado:
+ *
+ *     rom_uart_puts("hola");   // ok: nada pendiente en ptr1
+ *     x = *p;                  // p se carga en A/X justo antes de usarse
+ *
+ * Lo que NO hay que hacer es llamar a una funcion de la ROM dentro de una
+ * expresion que mantenga un puntero vivo en ptr1, ni confiar en Y despues
+ * de uart_puts.
+ *
+ * Las funciones que solo leen hardware y devuelven un byte
+ * (uart_rx_ready, uart_tx_ready, spi_receive, sd_is_ready...)
+ * no tocan zero page: solo destruyen A y X.
+ *
+ * RECOMENDACION: si un programa necesitaba Y o el puntero despues de
+ * llamar a uart_puts, guardarlos o usar una copia propia.
  */
 
 #ifndef ROMAPI_H
